@@ -880,23 +880,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               <div class="form-grid">
                 <div class="form-group">
                   <label>🏢 Organisation</label>
-                  <input type="text" id="badge-org" placeholder="Nom de l'organisation" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-org" placeholder="Nom de l'organisation" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>👤 Nom & Prénom</label>
-                  <input type="text" id="badge-name" placeholder="Prénom NOM" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-name" placeholder="Prénom NOM" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>💼 Fonction</label>
-                  <input type="text" id="badge-role" placeholder="Poste / Rôle" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-role" placeholder="Poste / Rôle" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>🔖 ID / Matricule</label>
-                  <input type="text" id="badge-id" placeholder="ID-001" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-id" placeholder="ID-001" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>📅 Expiration</label>
-                  <input type="date" id="badge-date" oninput="updateBadgePreview()">
+                  <input type="date" id="badge-date" oninput="debouncedUpdateBadgePreview()">
                 </div>
               </div>
               <div class="form-group" id="photo-input-group">
@@ -1024,7 +1024,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="loadAllBadges()">
+              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="debouncedLoadAllBadges()">
               <select id="filter-event" onchange="loadAllBadges()" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;font-family:var(--font);font-size:0.85rem;outline:none;"></select>
             </div>
           </div>
@@ -1073,7 +1073,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="loadAllVisitors()">
+              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="debouncedLoadAllVisitors()">
               <button class="btn btn-ghost btn-sm" onclick="selectAllVisitors()">☑ Tout</button>
               <button class="btn btn-info btn-sm" onclick="printSelectedVisitors()">🖨️ Imprimer</button>
               <button class="btn btn-danger btn-sm" onclick="deleteSelectedVisitors()">🗑️</button>
@@ -1139,7 +1139,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <input type="date" id="journal-date-to" class="journal-date-input" onchange="loadJournal()">
               </div>
             </div>
-            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="loadJournal()" style="width:100%;">
+            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="debouncedLoadJournal()" style="width:100%;">
           </div>
         </div>
 
@@ -1319,7 +1319,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="form-grid">
         <div class="form-group">
           <label>🏢 Organisation hôte</label>
-          <input type="text" id="visitor-host-org" placeholder="Votre société" oninput="updateVisitorPreview()">
+          <input type="text" id="visitor-host-org" placeholder="Votre société" oninput="debouncedUpdateVisitorPreview()">
         </div>
         <div class="form-group">
           <label>🏢 Logo hôte</label>
@@ -1337,27 +1337,27 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="form-grid">
           <div class="form-group" style="margin-bottom:10px;">
             <label>Nom *</label>
-            <input type="text" id="visitor-lastname" placeholder="NOM" oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-lastname" placeholder="NOM" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:10px;">
             <label>Prénom *</label>
-            <input type="text" id="visitor-firstname" placeholder="Prénom" oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-firstname" placeholder="Prénom" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:10px;">
             <label>🏭 Société visiteur</label>
-            <input type="text" id="visitor-company" placeholder="Société d'origine" oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-company" placeholder="Société d'origine" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:10px;">
             <label>🏛️ Département visité</label>
-            <input type="text" id="visitor-dept" placeholder="Ex: RH, IT, Direction..." oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-dept" placeholder="Ex: RH, IT, Direction..." oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>🟢 Heure d'entrée</label>
-            <input type="time" id="visitor-entry" oninput="updateVisitorPreview()">
+            <input type="time" id="visitor-entry" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>🔴 Heure de sortie</label>
-            <input type="time" id="visitor-exit" oninput="updateVisitorPreview()">
+            <input type="time" id="visitor-exit" oninput="debouncedUpdateVisitorPreview()">
           </div>
         </div>
       </div>
@@ -1487,6 +1487,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  /**
+   * ⚡ Bolt: Optimization - Debounce function to limit execution frequency of expensive operations
+   * Redouit la charge CPU et les accès DB lors de la saisie rapide (recherche, prévisualisation).
+   * Impact attendu : réduction des appels IndexedDB et régénérations de QR codes de ~70-80% lors de la frappe.
+   */
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
 
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
@@ -1747,6 +1763,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20);
   }
   window.updateBadgePreview=updateBadgePreview;
+  window.debouncedUpdateBadgePreview = debounce(updateBadgePreview, 250);
 
   window.selectModel=function(model, btn){
     currentModel=model;
@@ -2192,6 +2209,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.openEventModal=openEventModal;
   window.saveEvent=saveEvent;
   window.loadAllBadges=loadAllBadges;
+  window.debouncedLoadAllBadges = debounce(loadAllBadges, 250);
   window.loadImportsHistory=loadImportsHistory;
 
   // ====================================================================
@@ -2277,6 +2295,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     renderVBBody();
     updateVisitorQR();
   };
+  window.debouncedUpdateVisitorPreview = debounce(window.updateVisitorPreview, 250);
 
   function updateVisitorQR(){
     var last   = document.getElementById('visitor-lastname').value  || '';
@@ -2494,6 +2513,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     tx.onerror = function(e){ console.warn('loadAllVisitors error:',e.target.error); };
   }
   window.loadAllVisitors = loadAllVisitors;
+  window.debouncedLoadAllVisitors = debounce(loadAllVisitors, 250);
 
   function renderVisitors(visitors){
     var cont = document.getElementById('visitors-list');
@@ -2859,6 +2879,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   }
   window.loadJournal = loadJournal;
+  window.debouncedLoadJournal = debounce(loadJournal, 250);
 
   function renderJournal(visitors){
     var tbody = document.getElementById('journal-body');
