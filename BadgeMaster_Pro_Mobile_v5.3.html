@@ -1,0 +1,2980 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a237e">
+<title>BadgeMaster Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============================================================
+   DESIGN SYSTEM
+   ============================================================ */
+:root {
+  --c-bg: #0f1117;
+  --c-surface: #1a1d27;
+  --c-surface2: #21253a;
+  --c-border: rgba(255,255,255,0.07);
+  --c-border2: rgba(255,255,255,0.12);
+  --c-primary: #4f74ff;
+  --c-primary-dim: rgba(79,116,255,0.15);
+  --c-primary-glow: rgba(79,116,255,0.4);
+  --c-accent: #00d4aa;
+  --c-accent-dim: rgba(0,212,170,0.12);
+  --c-danger: #ff4d6a;
+  --c-warning: #ffb347;
+  --c-success: #00c87c;
+  --c-text: #e8ecf4;
+  --c-text-muted: rgba(232,236,244,0.45);
+  --c-text-sub: rgba(232,236,244,0.65);
+  --nav-h: 64px;
+  --bottom-nav-h: 70px;
+  --sidebar-w: 260px;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.6);
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); min-height: 100vh; min-height: 100dvh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app-shell { display: flex; min-height: 100vh; min-height: 100dvh; }
+
+/* ---- SIDEBAR (desktop) ---- */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--c-surface);
+  border-right: 1px solid var(--c-border);
+  position: fixed; top: 0; left: 0; height: 100%; z-index: 200;
+  display: flex; flex-direction: column;
+  transition: transform var(--transition);
+  overflow-y: auto; overflow-x: hidden;
+}
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+}
+.sidebar-logo {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--c-primary), #7b5ea7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+  box-shadow: 0 0 16px var(--c-primary-glow);
+}
+.sidebar-title { font-weight: 800; font-size: 1rem; letter-spacing: -0.02em; }
+.sidebar-version { font-size: 0.7rem; color: var(--c-text-muted); font-family: var(--font-mono); }
+
+.nav-group { padding: 10px 0; }
+.nav-group-label {
+  padding: 6px 20px; font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--c-text-muted);
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px; cursor: pointer; border-radius: 0;
+  color: var(--c-text-sub); font-size: 0.875rem; font-weight: 500;
+  transition: all var(--transition); position: relative;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--c-text); }
+.nav-item.active {
+  background: var(--c-primary-dim); color: var(--c-primary);
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: ''; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%); width: 3px; height: 60%;
+  background: var(--c-primary); border-radius: 0 4px 4px 0;
+}
+.nav-icon { font-size: 1.05rem; width: 22px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; background: var(--c-primary); color: white;
+  font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+  border-radius: 20px; font-family: var(--font-mono);
+}
+.sidebar-footer {
+  margin-top: auto; padding: 16px 20px;
+  border-top: 1px solid var(--c-border);
+  font-size: 0.75rem; color: var(--c-text-muted); text-align: center;
+}
+
+/* ---- MAIN ---- */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ---- TOP BAR (mobile) ---- */
+.topbar {
+  display: none; position: sticky; top: 0; z-index: 150;
+  background: var(--c-surface); border-bottom: 1px solid var(--c-border);
+  height: var(--nav-h); padding: 0 16px;
+  align-items: center; gap: 12px;
+  backdrop-filter: blur(20px);
+}
+.topbar-logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; }
+.topbar-logo span { color: var(--c-primary); }
+.topbar-date { font-size: 0.72rem; color: var(--c-text-muted); margin-left: auto; font-family: var(--font-mono); }
+.menu-btn {
+  background: none; border: none; color: var(--c-text); cursor: pointer;
+  font-size: 1.3rem; width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition);
+}
+.menu-btn:hover { background: rgba(255,255,255,0.07); }
+
+/* ---- PAGE CONTENT ---- */
+.pages { flex: 1; padding: 28px 28px 28px; overflow-y: auto; }
+.page { display: none; animation: fadeIn 0.2s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- PAGE HEADER ---- */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; gap: 12px; flex-wrap: wrap;
+}
+.page-header-left { display: flex; flex-direction: column; gap: 2px; }
+.page-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; }
+.page-subtitle { font-size: 0.8rem; color: var(--c-text-muted); }
+
+/* ---- OVERLAY ---- */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65); z-index: 190; backdrop-filter: blur(4px);
+}
+.overlay.show { display: block; }
+
+/* ---- BOTTOM NAV (mobile) ---- */
+.bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+  background: var(--c-surface); border-top: 1px solid var(--c-border);
+  height: var(--bottom-nav-h); padding: 0 8px;
+  align-items: center; justify-content: space-around;
+  backdrop-filter: blur(20px);
+}
+.bottom-nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1; cursor: pointer; padding: 8px 4px;
+  color: var(--c-text-muted); font-size: 0.65rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  transition: color var(--transition); position: relative;
+  user-select: none; border-radius: 12px;
+}
+.bottom-nav-item .bn-icon { font-size: 1.25rem; transition: transform var(--transition); }
+.bottom-nav-item.active { color: var(--c-primary); }
+.bottom-nav-item.active .bn-icon { transform: scale(1.15); }
+.bottom-nav-item.active::before {
+  content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--c-primary); border-radius: 0 0 4px 4px;
+}
+.bn-badge {
+  position: absolute; top: 4px; right: calc(50% - 20px);
+  background: var(--c-danger); color: white; font-size: 0.55rem;
+  font-weight: 700; padding: 1px 5px; border-radius: 10px;
+  font-family: var(--font-mono); min-width: 16px; text-align: center;
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--radius); padding: 20px 16px; text-align: center;
+  transition: transform var(--transition), border-color var(--transition);
+  cursor: default;
+}
+.stat-card:hover { transform: translateY(-3px); border-color: var(--c-border2); }
+.stat-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.stat-number { font-size: 1.7rem; font-weight: 800; color: var(--c-primary); letter-spacing: -0.04em; font-family: var(--font-mono); }
+.stat-label { font-size: 0.72rem; color: var(--c-text-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--radius); margin-bottom: 20px; overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.card-header h3 { font-size: 0.95rem; font-weight: 700; }
+.card-body { padding: 20px; }
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; margin-bottom: 6px; font-size: 0.8rem;
+  font-weight: 600; color: var(--c-text-sub); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 11px 14px; background: var(--c-surface2);
+  border: 1.5px solid var(--c-border); border-radius: var(--radius-sm);
+  color: var(--c-text); font-family: var(--font); font-size: 0.9rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none; appearance: none;
+}
+.form-group input::placeholder, .form-group textarea::placeholder { color: var(--c-text-muted); }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--c-primary); box-shadow: 0 0 0 3px var(--c-primary-dim);
+}
+.form-group select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(232,236,244,0.4)' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border: none; border-radius: var(--radius-sm);
+  font-family: var(--font); font-weight: 600; font-size: 0.875rem;
+  cursor: pointer; transition: all var(--transition); white-space: nowrap;
+  user-select: none;
+}
+.btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.btn:active { transform: translateY(0); filter: brightness(0.95); }
+.btn-primary { background: var(--c-primary); color: white; }
+.btn-accent { background: var(--c-accent); color: #0d1f1a; }
+.btn-success { background: var(--c-success); color: white; }
+.btn-danger { background: var(--c-danger); color: white; }
+.btn-warning { background: var(--c-warning); color: #1a0e00; }
+.btn-info { background: #3a9bd5; color: white; }
+.btn-ghost { background: rgba(255,255,255,0.06); color: var(--c-text); border: 1px solid var(--c-border); }
+.btn-ghost:hover { background: rgba(255,255,255,0.1); }
+.btn-pdf { background: linear-gradient(135deg,#b91c1c,#e53935); color: white; }
+.btn-sm { padding: 7px 14px; font-size: 0.8rem; border-radius: 7px; }
+.btn-lg { padding: 14px 28px; font-size: 1rem; border-radius: 10px; }
+.btn-full { width: 100%; justify-content: center; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-icon { padding: 9px 11px; border-radius: 8px; }
+
+/* ============================================================
+   OPTION BUTTONS
+   ============================================================ */
+.option-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.option-btn {
+  flex: 1; min-width: 0; padding: 10px 8px;
+  background: var(--c-surface2); border: 1.5px solid var(--c-border);
+  border-radius: 8px; cursor: pointer; text-align: center;
+  font-family: var(--font); font-size: 0.8rem; color: var(--c-text-sub);
+  transition: all var(--transition); font-weight: 600; user-select: none;
+}
+.option-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+.option-btn.active { background: var(--c-primary-dim); border-color: var(--c-primary); color: var(--c-primary); }
+.option-btn .icon { font-size: 1.1rem; display: block; margin-bottom: 3px; }
+
+/* ============================================================
+   BADGE TEMPLATES
+   ============================================================ */
+.badge-cr80 { width: 342px !important; height: 216px !important; }
+.badge-cr79 { width: 394px !important; height: 269px !important; }
+.badge-cr100 { width: 392px !important; height: 592px !important; }
+.badge-custom85x90 { width: 321px !important; height: 340px !important; }
+.badge-custom { width: var(--custom-badge-w, 342px) !important; height: var(--custom-badge-h, 216px) !important; }
+.badge-template {
+  background: white; border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35); position: relative;
+  overflow: hidden; border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0;
+}
+.badge-top-banner {
+  background: linear-gradient(90deg,#ffd600 0%,#ffee58 40%,#ffd600 100%) !important;
+  color: #1a237e; text-align: center; padding: 4px 10px; font-size: 0.6rem;
+  font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+  position: relative; overflow: hidden; border-bottom: 1px solid rgba(13,71,161,0.15);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.badge-top-banner::before { content: '★'; margin-right: 6px; font-size: 0.55rem; opacity: 0.7; }
+.badge-top-banner::after { content: '★'; margin-left: 6px; font-size: 0.55rem; opacity: 0.7; }
+.badge-ribbon {
+  background: linear-gradient(135deg,#0d47a1 0%,#42a5f5 100%) !important;
+  color: white; position: relative; overflow: hidden;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.badge-ribbon::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg,rgba(255,255,255,0.04) 0px,rgba(255,255,255,0.04) 2px,transparent 2px,transparent 10px); pointer-events: none; }
+.badge-ribbon-content { display: flex; align-items: center; gap: 12px; padding: 10px 20px; position: relative; z-index: 1; }
+.badge-logo { width: 45px; height: 45px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.5); }
+.badge-logo img { width: 100%; height: 100%; object-fit: cover; }
+.badge-logo-placeholder { font-size: 1.2rem; color: #0d47a1; font-weight: bold; }
+.badge-org-name { font-size: 1.1rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); line-height: 1.2; }
+.badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
+.badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
+.photo-area { width: 100px; height: 130px; background: linear-gradient(135deg,#e3f2fd,#bbdefb); border: 3px solid #0d47a1; border-radius: 8px; overflow: hidden; flex-shrink: 0; box-shadow: 0 3px 10px rgba(13,71,161,0.2); }
+.preview-img { width: 100%; height: 100%; object-fit: cover; }
+.info-name { font-size: 1.4rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; margin-bottom: 5px; line-height: 1.2; }
+.info-sub { font-size: 1rem; color: #555; margin-bottom: 12px; font-weight: 500; padding-left: 10px; border-left: 3px solid #42a5f5; }
+.info-detail { font-size: 0.85rem; color: #777; line-height: 1.6; background: #f5f5f5; padding: 8px 12px; border-radius: 6px; }
+.qr-area { position: absolute; bottom: 12px; right: 12px; width: 65px; height: 65px; background: white; padding: 4px; border: 2px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* ============================================================
+   BADGE PREVIEW PANEL
+   ============================================================ */
+.preview-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.preview-wrapper {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 20px; background: repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%, transparent 0% 50%) 0 0 / 24px 24px;
+  border-radius: var(--radius); border: 1px dashed var(--c-border);
+}
+.format-display { font-family: var(--font-mono); font-size: 0.75rem; color: var(--c-text-muted); }
+
+/* ============================================================
+   PHOTO & LOGO
+   ============================================================ */
+.photo-capture-zone {
+  background: var(--c-surface2); border: 2px dashed var(--c-border);
+  border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.photo-preview-thumb { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid var(--c-primary); display: none; }
+.photo-preview-thumb.visible { display: block; }
+.photo-status { font-size: 0.8rem; color: var(--c-text-muted); }
+.logo-upload-zone {
+  background: var(--c-surface2); border: 2px dashed var(--c-border);
+  border-radius: 10px; padding: 14px; cursor: pointer; text-align: center;
+  transition: border-color var(--transition);
+}
+.logo-upload-zone:hover { border-color: var(--c-primary); }
+.logo-preview {
+  width: 60px; height: 60px; border-radius: 50%; background: var(--c-border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto; overflow: hidden; font-size: 0.75rem; color: var(--c-text-muted);
+}
+.logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.memory-alert { background: rgba(255,179,71,0.1); border: 1px solid rgba(255,179,71,0.3); border-radius: 8px; padding: 9px 13px; font-size: 0.82rem; color: var(--c-warning); display: none; }
+.memory-alert.show { display: block; }
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+.event-card {
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 12px;
+  display: flex; gap: 14px; align-items: flex-start;
+  border-left: 3px solid var(--c-accent); transition: border-color var(--transition);
+}
+.event-card:hover { border-color: var(--c-primary); }
+.event-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+.event-info { flex: 1; min-width: 0; }
+.event-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+.event-meta { font-size: 0.78rem; color: var(--c-text-muted); }
+.event-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+
+/* ============================================================
+   BADGE LIST
+   ============================================================ */
+.badge-list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border: 1px solid var(--c-border);
+  border-radius: 10px; margin-bottom: 8px; background: var(--c-surface2);
+  transition: border-color var(--transition);
+}
+.badge-list-item:hover { border-color: var(--c-border2); }
+.badge-list-item.selected { background: var(--c-primary-dim); border-color: var(--c-primary); }
+.badge-list-item input[type=checkbox] { accent-color: var(--c-primary); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+.badge-list-item img { width: 40px; height: 52px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.badge-list-item .info { flex: 1; min-width: 0; }
+.badge-list-item .name { font-size: 0.9rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-list-item .meta { font-size: 0.75rem; color: var(--c-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-list-item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ============================================================
+   IMPORT / TOOLBAR
+   ============================================================ */
+.import-zone {
+  background: var(--c-surface2); border: 2px dashed var(--c-border2);
+  border-radius: var(--radius); padding: 32px 20px; text-align: center;
+  cursor: pointer; transition: all var(--transition);
+}
+.import-zone:hover, .import-zone.drag-over { border-color: var(--c-primary); background: var(--c-primary-dim); }
+.import-zone .zone-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.import-zone h3 { font-size: 0.95rem; color: var(--c-text-sub); font-weight: 600; }
+.excel-format-info { background: var(--c-accent-dim); border: 1px solid rgba(0,212,170,0.2); border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+.excel-format-info h4 { font-size: 0.85rem; color: var(--c-accent); margin-bottom: 8px; }
+.excel-format-info table { width: 100%; font-size: 0.75rem; border-collapse: collapse; color: var(--c-text-sub); }
+.excel-format-info th, .excel-format-info td { padding: 5px 8px; text-align: left; border: 1px solid rgba(0,212,170,0.15); }
+.excel-format-info th { color: var(--c-accent); font-weight: 600; }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.search-box {
+  background: var(--c-surface2); border: 1.5px solid var(--c-border); border-radius: 8px;
+  color: var(--c-text); font-family: var(--font); font-size: 0.85rem;
+  padding: 8px 12px; outline: none; min-width: 180px; flex: 1;
+}
+.search-box:focus { border-color: var(--c-primary); }
+.progress-bar { background: var(--c-border); border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 8px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--c-primary), var(--c-accent)); border-radius: 20px; transition: width 0.3s; }
+.progress-text { font-size: 0.8rem; color: var(--c-text-muted); font-family: var(--font-mono); }
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  justify-content: center; align-items: flex-end;
+  padding: 0;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--c-surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  width: 100%; max-width: 600px; max-height: 92vh;
+  overflow-y: auto; box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 40px; height: 4px; background: var(--c-border2);
+  border-radius: 2px; margin: 12px auto 0; flex-shrink: 0;
+}
+.modal-header {
+  padding: 16px 20px 14px; border-bottom: 1px solid var(--c-border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--c-surface); z-index: 1;
+}
+.modal-header h3 { font-size: 1rem; font-weight: 700; }
+.modal-close {
+  font-size: 1.4rem; cursor: pointer; color: var(--c-text-muted); line-height: 1;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; transition: background var(--transition);
+}
+.modal-close:hover { background: rgba(255,255,255,0.07); }
+.modal-body { padding: 20px; }
+.modal-footer { padding: 16px 20px; border-top: 1px solid var(--c-border); display: flex; gap: 10px; justify-content: flex-end; }
+/* Desktop modal override */
+@media (min-width: 768px) {
+  .modal-overlay { align-items: center; padding: 20px; }
+  .modal-box { border-radius: var(--radius-lg); max-width: 540px; width: 100%; animation: zoomIn 0.2s ease; }
+  @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .modal-handle { display: none; }
+}
+
+/* ============================================================
+   PRINT MODAL SPECIAL
+   ============================================================ */
+.print-modal-box {
+  max-width: min(95vw, 980px) !important;
+  border-radius: var(--radius-lg) !important;
+}
+.a4-page { width: 210mm; min-height: 297mm; padding: 10mm; margin: 20px auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.3); }
+.badges-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10mm; row-gap: 15mm; }
+.size-panel {
+  background: var(--c-surface2); border: 1px solid var(--c-border);
+  border-radius: 10px; padding: 16px; margin-bottom: 16px;
+}
+.size-panel h4 { font-size: 0.85rem; color: var(--c-accent); margin-bottom: 12px; font-weight: 700; }
+.size-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.size-slider-row label { font-size: 0.75rem; color: var(--c-text-muted); display: flex; justify-content: space-between; margin-bottom: 4px; }
+input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer; }
+.qr-message { font-size: 0.55rem; color: #999; text-align: center; padding: 4px; }
+
+/* ============================================================
+   CAMERA MODAL
+   ============================================================ */
+.camera-modal {
+  display: none; position: fixed; z-index: 3000; inset: 0;
+  background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center;
+}
+.camera-modal.show { display: flex; }
+.camera-modal video { width: min(90vw, 480px); border-radius: 14px; border: 2px solid rgba(255,255,255,0.15); }
+.camera-controls { display: flex; gap: 12px; margin-top: 20px; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast-container { position: fixed; bottom: calc(var(--bottom-nav-h) + 12px); right: 16px; z-index: 5000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast {
+  padding: 12px 18px; border-radius: 10px; color: white; font-weight: 600;
+  font-size: 0.875rem; box-shadow: var(--shadow); animation: toastIn 0.3s ease;
+  max-width: 300px; pointer-events: auto;
+}
+.toast-success { background: var(--c-success); }
+.toast-error { background: var(--c-danger); }
+.toast-info { background: var(--c-primary); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+  text-align: center; padding: 48px 20px; color: var(--c-text-muted);
+  font-size: 0.9rem;
+}
+.empty-state .empty-icon { font-size: 2.8rem; margin-bottom: 12px; opacity: 0.5; }
+
+/* ============================================================
+   CHIPS / TAGS
+   ============================================================ */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--c-primary-dim); color: var(--c-primary);
+  border: 1px solid var(--c-primary); border-radius: 20px;
+  padding: 3px 10px; font-size: 0.7rem; font-weight: 700;
+  font-family: var(--font-mono);
+}
+.chip-green { background: rgba(0,200,124,0.1); color: var(--c-success); border-color: var(--c-success); }
+
+/* ============================================================
+   DASHBOARD SECTIONS
+   ============================================================ */
+.quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.quick-action-btn {
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--radius); padding: 18px 12px; text-align: center;
+  cursor: pointer; transition: all var(--transition); text-decoration: none; color: var(--c-text);
+  display: flex; flex-direction: column; align-items: center; gap: 8px; user-select: none;
+}
+.quick-action-btn:hover { border-color: var(--c-primary); transform: translateY(-2px); background: var(--c-primary-dim); }
+.qa-icon { font-size: 1.6rem; }
+.qa-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--c-text-sub); }
+
+/* ============================================================
+   RESPONSIVE — TABLET
+   ============================================================ */
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .preview-panel { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .topbar { display: flex; }
+  .bottom-nav { display: flex; }
+  .pages { padding: 16px 16px calc(var(--bottom-nav-h) + 16px); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px 12px; }
+  .stat-icon { font-size: 1.4rem; }
+  .stat-number { font-size: 1.3rem; }
+  .form-grid { grid-template-columns: 1fr; }
+  .preview-panel { grid-template-columns: 1fr; }
+  .quick-actions { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .quick-action-btn { padding: 14px 8px; }
+  .qa-icon { font-size: 1.3rem; }
+  .page-title { font-size: 1.2rem; }
+  .event-card { flex-wrap: wrap; }
+  .event-actions { width: 100%; justify-content: flex-end; }
+  .badge-list-item .meta { display: none; }
+  .toast-container { bottom: calc(var(--bottom-nav-h) + 8px); right: 12px; }
+  .size-sliders { grid-template-columns: 1fr; }
+  .print-ctrl { flex-direction: column; gap: 10px; }
+}
+
+/* ============================================================
+   BADGE VISITEUR
+   ============================================================ */
+.visitor-badge {
+  width: 342px; height: 216px;
+  background: white; border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.vb-top-stripe {
+  background: linear-gradient(90deg,#ff6b00 0%,#ff9a3c 50%,#ff6b00 100%) !important;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  height: 8px; width: 100%;
+}
+.vb-header {
+  background: linear-gradient(135deg,#e65100 0%,#ff8f00 100%) !important;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; position: relative; overflow: hidden;
+}
+.vb-header::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(255,255,255,0.04) 0px,rgba(255,255,255,0.04) 2px,transparent 2px,transparent 8px); }
+.vb-header-logo { width:36px; height:36px; border-radius:50%; background:white; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; z-index:1; box-shadow:0 2px 6px rgba(0,0,0,0.2); overflow:hidden; }
+.vb-header-logo img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.vb-header-title { z-index:1; }
+.vb-label-visiteur { font-size:0.6rem; font-weight:900; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.85); }
+.vb-org-name { font-size:0.85rem; font-weight:800; color:white; text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 3px rgba(0,0,0,0.3); line-height:1.1; }
+.vb-body { display:flex; padding:10px 12px; gap:10px; height:calc(100% - 60px); }
+.vb-photo { width:76px; height:96px; flex-shrink:0; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border:2px solid #e65100; border-radius:6px; overflow:hidden; box-shadow:0 2px 8px rgba(230,81,0,0.2); }
+.vb-photo img { width:100%; height:100%; object-fit:cover; }
+.vb-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.vb-name { font-size:1rem; font-weight:800; color:#bf360c; text-transform:uppercase; line-height:1.1; margin-bottom:2px; }
+.vb-company { font-size:0.72rem; font-weight:600; color:#555; border-left:3px solid #ff8f00; padding-left:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.vb-dept { font-size:0.68rem; color:#777; background:#fff3e0; padding:2px 7px; border-radius:10px; display:inline-block; border:1px solid #ffcc80; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+.vb-times { display:flex; gap:4px; margin-top:2px; }
+.vb-time-badge { flex:1; background:#f5f5f5; border-radius:5px; padding:3px 5px; text-align:center; border:1px solid #e0e0e0; }
+.vb-time-badge .t-label { font-size:0.52rem; color:#999; text-transform:uppercase; font-weight:700; letter-spacing:0.5px; }
+.vb-time-badge .t-value { font-size:0.7rem; font-weight:800; color:#333; font-family:monospace; }
+.vb-time-badge.entry { border-color:#a5d6a7; background:#f1f8e9; }
+.vb-time-badge.entry .t-value { color:#2e7d32; }
+.vb-time-badge.exit { border-color:#ef9a9a; background:#fce4ec; }
+.vb-time-badge.exit .t-value { color:#c62828; }
+.vb-qr { position:absolute; bottom:8px; right:8px; width:52px; height:52px; background:white; padding:3px; border:1.5px solid #e0e0e0; border-radius:6px; }
+.vb-bottom-bar { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(90deg,#e65100,#ff8f00) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; height:5px; }
+.visitor-list-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border:1px solid var(--c-border); border-radius:10px; margin-bottom:8px; background:var(--c-surface2); transition:border-color var(--transition); border-left:3px solid #ff8f00; }
+.visitor-list-item:hover { border-color:#ff8f00; }
+.v-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#ff6b00,#ff9a3c); display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:800; color:white; flex-shrink:0; overflow:hidden; }
+.v-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.v-info { flex:1; min-width:0; }
+.v-name { font-size:0.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.v-meta { font-size:0.75rem; color:var(--c-text-muted); }
+.v-actions { display:flex; gap:6px; flex-shrink:0; }
+.vb-no-photo { display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#e65100; opacity:0.4; }
+
+/* ============================================================
+   JOURNAL DES VISITES
+   ============================================================ */
+.journal-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.journal-table th { background:rgba(255,143,0,0.12); color:#ff8f00; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.07em; padding:10px 12px; text-align:left; border-bottom:2px solid rgba(255,143,0,0.3); white-space:nowrap; }
+.journal-table td { padding:9px 12px; border-bottom:1px solid var(--c-border); vertical-align:middle; }
+.journal-table tr:hover td { background:rgba(255,143,0,0.04); }
+.journal-table tr:last-child td { border-bottom:none; }
+.duration-badge { background:rgba(79,116,255,0.12); color:var(--c-primary); border:1px solid rgba(79,116,255,0.3); border-radius:12px; padding:2px 8px; font-size:0.68rem; font-weight:700; font-family:var(--font-mono); white-space:nowrap; }
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.filter-btn { padding:6px 14px; background:var(--c-surface2); border:1.5px solid var(--c-border); border-radius:20px; font-size:0.78rem; font-weight:600; cursor:pointer; color:var(--c-text-sub); transition:all var(--transition); font-family:var(--font); }
+.filter-btn:hover { border-color:#ff8f00; color:#ff8f00; }
+.filter-btn.active { background:rgba(255,143,0,0.15); border-color:#ff8f00; color:#ff8f00; }
+.journal-date-input { background:var(--c-surface2); border:1.5px solid var(--c-border); border-radius:8px; color:var(--c-text); padding:6px 10px; font-size:0.82rem; outline:none; font-family:var(--font); }
+.journal-date-input:focus { border-color:#ff8f00; }
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  body * { visibility: hidden; }
+  .modal-box *, .a4-page, .a4-page * { visibility: visible; }
+  .a4-page { position: absolute; left: 0; top: 0; width: 210mm; margin: 0; box-shadow: none; }
+  .no-print { display: none !important; }
+  .badge-ribbon, .badge-top-banner, .badge-template, .photo-area {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Camera Modal -->
+<div class="camera-modal" id="camera-modal">
+  <video id="camera-video" autoplay playsinline></video>
+  <canvas id="camera-canvas" style="display:none;"></canvas>
+  <div class="camera-controls">
+    <button class="btn btn-ghost" onclick="closeCamera()">✕ Fermer</button>
+    <button class="btn btn-accent btn-lg" onclick="takeSnapshot()">📸 Prendre</button>
+    <button class="btn btn-info" onclick="switchCamera()">🔄</button>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- APP SHELL -->
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">🏷</div>
+      <div>
+        <div class="sidebar-title">BadgeMaster</div>
+        <div class="sidebar-version">Pro Edition v5</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Navigation</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">🏠</span> Tableau de bord</div>
+      <div class="nav-item" onclick="showPage('events',this)"><span class="nav-icon">🎪</span> Événements <span class="nav-badge" id="events-count">0</span></div>
+      <div class="nav-item" onclick="showPage('create-badge',this)"><span class="nav-icon">✏️</span> Créer un badge</div>
+      <div class="nav-item" onclick="showPage('import-excel',this)"><span class="nav-icon">📊</span> Import Excel</div>
+      <div class="nav-item" onclick="showPage('all-badges',this)"><span class="nav-icon">📋</span> Tous les badges <span class="nav-badge" id="badges-count">0</span></div>
+      <div class="nav-item" onclick="showPage('visitors',this)"><span class="nav-icon">🪪</span> Badges Visiteurs <span class="nav-badge" id="visitors-count" style="background:#ff8f00;">0</span></div>
+      <div class="nav-item" onclick="showPage('journal',this)"><span class="nav-icon">📋</span> Journal des visites</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-label">Outils</div>
+      <div class="nav-item" onclick="openPrintModal()"><span class="nav-icon">🖨️</span> Impression A4</div>
+      <div class="nav-item" onclick="exportAllData()"><span class="nav-icon">💾</span> Exporter données</div>
+      <div class="nav-item" onclick="document.getElementById('data-import-input').click()"><span class="nav-icon">📥</span> Importer données</div>
+      <div class="nav-item" onclick="clearAllData()"><span class="nav-icon">🗑️</span> Tout effacer</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div id="sidebar-date"></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+
+    <!-- TOP BAR (mobile only) -->
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-logo">Badge<span>Master</span></div>
+      <div class="topbar-date" id="topbar-date"></div>
+    </header>
+
+    <!-- PAGES -->
+    <div class="pages">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Tableau de bord</div>
+            <div class="page-subtitle" id="current-date"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-card">
+            <div class="stat-icon">🎪</div>
+            <div class="stat-number" id="stat-events">0</div>
+            <div class="stat-label">Événements</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏷</div>
+            <div class="stat-number" id="stat-badges">0</div>
+            <div class="stat-label">Badges</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #ff8f00;">
+            <div class="stat-icon">🪪</div>
+            <div class="stat-number" id="stat-visitors" style="color:#ff8f00;">0</div>
+            <div class="stat-label">Visiteurs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📷</div>
+            <div class="stat-number" id="stat-photos">0</div>
+            <div class="stat-label">Avec photo</div>
+          </div>
+        </div>
+
+        <div class="quick-actions" style="grid-template-columns: repeat(4,1fr);">
+          <div class="quick-action-btn" onclick="openEventModal()">
+            <div class="qa-icon">🎪</div>
+            <div class="qa-label">Événement</div>
+          </div>
+          <div class="quick-action-btn" onclick="showPage('create-badge')">
+            <div class="qa-icon">✏️</div>
+            <div class="qa-label">Badge</div>
+          </div>
+          <div class="quick-action-btn" onclick="showPage('visitors')">
+            <div class="qa-icon">🪪</div>
+            <div class="qa-label">Visiteur</div>
+          </div>
+          <div class="quick-action-btn" onclick="showPage('import-excel')">
+            <div class="qa-icon">📊</div>
+            <div class="qa-label">Importer</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>🎪 Derniers événements</h3>
+            <button class="btn btn-sm btn-accent" onclick="openEventModal()">+ Nouveau</button>
+          </div>
+          <div class="card-body" id="dashboard-events"></div>
+        </div>
+      </div>
+
+      <!-- ÉVÉNEMENTS -->
+      <div class="page" id="page-events">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Événements</div>
+            <div class="page-subtitle" id="total-events">0 événement(s)</div>
+          </div>
+          <button class="btn btn-accent" onclick="openEventModal()">+ Nouveau</button>
+        </div>
+        <div class="card">
+          <div class="card-body" id="events-list"></div>
+        </div>
+      </div>
+
+      <!-- CRÉER UN BADGE -->
+      <div class="page" id="page-create-badge">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Créer un badge</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="resetBadgeForm()">🔄 Réinitialiser</button>
+        </div>
+        <div class="preview-panel">
+          <div class="card">
+            <div class="card-header"><h3>📝 Informations</h3></div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>🎪 Événement</label>
+                <select id="badge-event"><option value="">-- Sélectionner --</option></select>
+              </div>
+              <div class="form-group">
+                <label>🎨 Type de badge</label>
+                <div class="option-group" id="model-group">
+                  <div class="option-btn active" onclick="selectModel('with-photo',this)"><span class="icon">📷</span>Avec Photo</div>
+                  <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>📐 Format</label>
+                <div class="option-group" id="format-group">
+                  <div class="option-btn active" onclick="selectFormat('cr80',this)">💳 CR80</div>
+                  <div class="option-btn" onclick="selectFormat('cr79',this)">🪪 CR79</div>
+                  <div class="option-btn" onclick="selectFormat('cr100',this)">📄 CR100</div>
+                  <div class="option-btn" onclick="selectFormat('custom85x90',this)">🪪 8.5×9</div>
+                  <div class="option-btn" onclick="selectFormat('custom',this)">✏️ Perso.</div>
+                </div>
+                <!-- Dimensions personnalisées -->
+                <div id="custom-size-inputs" style="display:none;margin-top:10px;background:var(--c-surface2);border:1.5px solid var(--c-primary);border-radius:var(--radius-sm);padding:12px 14px;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--c-primary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">📐 Dimensions personnalisées</div>
+                  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:80px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Largeur (mm)</label>
+                      <input type="number" id="custom-width-mm" min="20" max="300" value="85" placeholder="85"
+                        style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:8px 10px;font-family:var(--font);font-size:0.9rem;outline:none;width:100%;"
+                        oninput="applyCustomSize()">
+                    </div>
+                    <div style="font-size:1.2rem;color:var(--c-text-muted);padding-top:18px;">×</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:80px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Hauteur (mm)</label>
+                      <input type="number" id="custom-height-mm" min="20" max="300" value="54" placeholder="54"
+                        style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:8px 10px;font-family:var(--font);font-size:0.9rem;outline:none;width:100%;"
+                        oninput="applyCustomSize()">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:4px;align-items:center;padding-top:18px;">
+                      <span id="custom-size-display" style="font-size:0.78rem;color:var(--c-accent);font-family:var(--font-mono);font-weight:700;white-space:nowrap;">85 × 54 mm</span>
+                    </div>
+                  </div>
+                  <div style="margin-top:8px;font-size:0.7rem;color:var(--c-text-muted);">Exemples : CR80 = 85.6×54 mm · CR79 = 104×69 mm · A6 = 148×105 mm</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>🏢 Logo</label>
+                <div class="logo-upload-zone" onclick="document.getElementById('logo-input').click()">
+                  <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
+                  <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>🏢 Organisation</label>
+                  <input type="text" id="badge-org" placeholder="Nom de l'organisation" oninput="updateBadgePreview()">
+                </div>
+                <div class="form-group">
+                  <label>👤 Nom & Prénom</label>
+                  <input type="text" id="badge-name" placeholder="Prénom NOM" oninput="updateBadgePreview()">
+                </div>
+                <div class="form-group">
+                  <label>💼 Fonction</label>
+                  <input type="text" id="badge-role" placeholder="Poste / Rôle" oninput="updateBadgePreview()">
+                </div>
+                <div class="form-group">
+                  <label>🔖 ID / Matricule</label>
+                  <input type="text" id="badge-id" placeholder="ID-001" oninput="updateBadgePreview()">
+                </div>
+                <div class="form-group">
+                  <label>📅 Expiration</label>
+                  <input type="date" id="badge-date" oninput="updateBadgePreview()">
+                </div>
+              </div>
+              <div class="form-group" id="photo-input-group">
+                <label>📷 Photo</label>
+                <div class="memory-alert" id="photo-memory-alert"></div>
+                <div class="photo-capture-zone">
+                  <div class="btn-group">
+                    <button class="btn btn-info btn-sm" onclick="openCamera('badge')">📷 Caméra</button>
+                    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('badge-photo-file').click()">📂 Fichier</button>
+                    <button class="btn btn-danger btn-sm" onclick="clearPhoto()" id="clear-photo-btn" style="display:none">🗑</button>
+                  </div>
+                  <input type="file" id="badge-photo-file" accept="image/*" style="display:none" onchange="handlePhotoUpload(event,'badge')">
+                  <img id="photo-preview-thumb" class="photo-preview-thumb">
+                  <p class="photo-status" id="photo-status">Aucune photo sélectionnée</p>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-success btn-full" onclick="saveBadge()">💾 Sauvegarder</button>
+                <button class="btn btn-ghost" onclick="downloadBadge()">⬇️ PNG</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h3>🖼️ Aperçu live</h3></div>
+            <div class="card-body">
+              <div class="preview-wrapper">
+                <div id="badge-preview" class="badge-template badge-cr80">
+                  <div class="badge-top-banner">À VOTRE SERVICE</div>
+                  <div class="badge-ribbon">
+                    <div class="badge-ribbon-content">
+                      <div class="badge-logo" id="ribbon-logo"><span class="badge-logo-placeholder">🏢</span></div>
+                      <div class="badge-org-name" id="preview-org">ORGANISATION</div>
+                    </div>
+                  </div>
+                  <div id="badge-body" class="badge-body-with-photo">
+                    <div class="photo-area"><img id="preview-img" class="preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='130'%3E%3Crect fill='%23bbdefb' width='100' height='130'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='%230d47a1' font-size='12'%3EPHOTO%3C/text%3E%3C/svg%3E"></div>
+                    <div class="info-area">
+                      <div class="info-name" id="preview-name">NOM PRÉNOM</div>
+                      <div class="info-sub" id="preview-role">Fonction</div>
+                      <div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div>
+                    </div>
+                  </div>
+                  <div class="qr-area" id="preview-qr"></div>
+                </div>
+                <p class="format-display" id="format-display">CR80 · Avec Photo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPORT EXCEL -->
+      <div class="page" id="page-import-excel">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Import Excel</div>
+            <div class="page-subtitle">Importation en masse</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📂 Configuration</h3></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>🎪 Événement</label>
+              <select id="import-event"><option value="">-- Sélectionner --</option></select>
+            </div>
+            <div class="form-group">
+              <label>🏢 Logo par défaut</label>
+              <div class="logo-upload-zone" onclick="document.getElementById('import-logo-input').click()">
+                <div class="logo-preview" id="import-logo-preview"><span>Logo</span></div>
+                <input type="file" id="import-logo-input" accept="image/*" style="display:none" onchange="handleImportLogoUpload(event)">
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>🎨 Type</label>
+                <div class="option-group" id="import-model-group">
+                  <div class="option-btn active" onclick="selectImportModel('with-photo',this)">📷 Avec</div>
+                  <div class="option-btn" onclick="selectImportModel('no-photo',this)">📋 Sans</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>📐 Format</label>
+                <div class="option-group" id="import-format-group">
+                  <div class="option-btn active" onclick="selectImportFormat('cr80',this)">CR80</div>
+                  <div class="option-btn" onclick="selectImportFormat('cr79',this)">CR79</div>
+                  <div class="option-btn" onclick="selectImportFormat('cr100',this)">CR100</div>
+                  <div class="option-btn" onclick="selectImportFormat('custom85x90',this)">8.5×9</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>📊 Fichier Excel</h3></div>
+          <div class="card-body">
+            <div class="import-zone" id="import-zone" onclick="document.getElementById('excel-input').click()">
+              <div class="zone-icon">📊</div>
+              <h3>Glissez ou appuyez pour importer</h3>
+              <p style="font-size:0.75rem;color:var(--c-text-muted);margin-top:6px;">.xlsx / .xls</p>
+              <input type="file" id="excel-input" accept=".xlsx,.xls" style="display:none" onchange="handleExcelImport(event)">
+            </div>
+            <div class="excel-format-info">
+              <h4>📋 Format des colonnes</h4>
+              <table><tr><th>Col A</th><th>Col B</th><th>Col C</th><th>Col D</th><th>Col E</th></tr><tr><td>Organisation</td><td>Nom & Prénom</td><td>Fonction</td><td>ID/Matricule</td><td>Date JJ/MM/AAAA</td></tr></table>
+            </div>
+            <div id="import-progress" style="display:none;margin-top:12px;">
+              <div class="progress-bar"><div class="progress-fill" id="import-progress-fill" style="width:0%"></div></div>
+              <div class="progress-text" id="import-progress-text"></div>
+            </div>
+            <div id="import-result" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOUS LES BADGES -->
+      <div class="page" id="page-all-badges">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">Tous les badges</div>
+            <div class="page-subtitle"><span id="all-badges-count">0</span> badge(s)</div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="toolbar">
+              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="loadAllBadges()">
+              <select id="filter-event" onchange="loadAllBadges()" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;font-family:var(--font);font-size:0.85rem;outline:none;"></select>
+            </div>
+          </div>
+        </div>
+        <div class="btn-group" style="margin-bottom:14px;">
+          <button class="btn btn-ghost btn-sm" onclick="selectAllBadges()">☑ Tout sélectionner</button>
+          <button class="btn btn-info btn-sm" onclick="openPrintModal()">🖨️ Imprimer</button>
+          <button class="btn btn-pdf btn-sm" onclick="openPrintModal('pdf')">📄 PDF</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSelectedBadges()">🗑️ Supprimer</button>
+        </div>
+        <div id="all-badges-list"></div>
+      </div>
+
+      <!-- ================================================
+           BADGES VISITEURS
+           ================================================ -->
+      <div class="page" id="page-visitors">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">🪪 Badges Visiteurs</div>
+            <div class="page-subtitle"><span id="visitors-total">0</span> visiteur(s)</div>
+          </div>
+          <button class="btn btn-warning" onclick="openVisitorModal()" style="color:#1a0e00;">+ Nouveau visiteur</button>
+        </div>
+
+        <!-- Stats visiteurs -->
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #ff8f00;">
+            <div class="stat-icon">🪪</div>
+            <div class="stat-number" id="vstat-total" style="color:#ff8f00;">0</div>
+            <div class="stat-label">Total visiteurs</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #00c87c;">
+            <div class="stat-icon">🟢</div>
+            <div class="stat-number" id="vstat-today" style="color:#00c87c;">0</div>
+            <div class="stat-label">Aujourd'hui</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #4f74ff;">
+            <div class="stat-icon">📷</div>
+            <div class="stat-number" id="vstat-photos" style="color:#4f74ff;">0</div>
+            <div class="stat-label">Avec photo</div>
+          </div>
+        </div>
+
+        <!-- Toolbar recherche -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="toolbar">
+              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="loadAllVisitors()">
+              <button class="btn btn-ghost btn-sm" onclick="selectAllVisitors()">☑ Tout</button>
+              <button class="btn btn-info btn-sm" onclick="printSelectedVisitors()">🖨️ Imprimer</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSelectedVisitors()">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste visiteurs -->
+        <div id="visitors-list"></div>
+      </div>
+
+      <!-- ================================================
+           JOURNAL DES VISITES
+           ================================================ -->
+      <div class="page" id="page-journal">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">📋 Journal des visites</div>
+            <div class="page-subtitle"><span id="journal-total">0</span> enregistrement(s)</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" onclick="exportJournalCSV()">📊 CSV</button>
+            <button class="btn btn-pdf btn-sm" onclick="exportJournalPDF()">📄 PDF</button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card" style="border-top:3px solid #ff8f00;">
+            <div class="stat-icon">🌅</div>
+            <div class="stat-number" id="jstat-today" style="color:#ff8f00;">0</div>
+            <div class="stat-label">Aujourd'hui</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #4f74ff;">
+            <div class="stat-icon">📅</div>
+            <div class="stat-number" id="jstat-week" style="color:#4f74ff;">0</div>
+            <div class="stat-label">Cette semaine</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid #00c87c;">
+            <div class="stat-icon">🗓️</div>
+            <div class="stat-number" id="jstat-month" style="color:#00c87c;">0</div>
+            <div class="stat-label">Ce mois</div>
+          </div>
+          <div class="stat-card" style="border-top:3px solid var(--c-accent);">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-number" id="jstat-avg" style="color:var(--c-accent);">—</div>
+            <div class="stat-label">Durée moy.</div>
+          </div>
+        </div>
+
+        <!-- Filtres rapides + dates -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="filter-bar" style="margin-bottom:12px;">
+              <button class="filter-btn active" id="jfilter-today" onclick="setJournalFilter('today',this)">🌅 Aujourd'hui</button>
+              <button class="filter-btn" id="jfilter-week" onclick="setJournalFilter('week',this)">📅 Semaine</button>
+              <button class="filter-btn" id="jfilter-month" onclick="setJournalFilter('month',this)">🗓️ Mois</button>
+              <button class="filter-btn" id="jfilter-all" onclick="setJournalFilter('all',this)">📋 Tout</button>
+              <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;">
+                <label style="font-size:0.75rem;color:var(--c-text-muted);">Du</label>
+                <input type="date" id="journal-date-from" class="journal-date-input" onchange="loadJournal()">
+                <label style="font-size:0.75rem;color:var(--c-text-muted);">au</label>
+                <input type="date" id="journal-date-to" class="journal-date-input" onchange="loadJournal()">
+              </div>
+            </div>
+            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="loadJournal()" style="width:100%;">
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="journal-table">
+              <thead>
+                <tr>
+                  <th>📅 Date</th>
+                  <th>🟢 Entrée</th>
+                  <th>🔴 Sortie</th>
+                  <th>⏱️ Durée</th>
+                  <th>👤 Visiteur</th>
+                  <th>🏭 Société</th>
+                  <th>🏛️ Département</th>
+                  <th>🏢 Hôte</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="journal-body"></tbody>
+            </table>
+            <div id="journal-empty" class="empty-state" style="display:none;">
+              <div class="empty-icon">📋</div>
+              <div>Aucun enregistrement pour cette période</div>
+              <button class="btn btn-warning btn-sm" style="margin-top:12px;color:#1a0e00;" onclick="showPage('visitors')">+ Enregistrer un visiteur</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pages -->
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <div class="bottom-nav-item active" onclick="bnNav('dashboard',this)">
+        <span class="bn-icon">🏠</span>
+        <span>Accueil</span>
+      </div>
+      <div class="bottom-nav-item" onclick="bnNav('events',this)">
+        <span class="bn-icon">🎪</span>
+        <span>Événements</span>
+        <span class="bn-badge" id="bn-events-count" style="display:none">0</span>
+      </div>
+      <div class="bottom-nav-item" onclick="bnNav('visitors',this)" style="position:relative;">
+        <div style="position:absolute;top:-14px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff6b00,#ff9a3c);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 16px rgba(255,107,0,0.5);">🪪</div>
+        <span class="bn-icon" style="opacity:0;">🪪</span>
+        <span>Visiteur</span>
+      </div>
+      <div class="bottom-nav-item" onclick="bnNav('all-badges',this)">
+        <span class="bn-icon">📋</span>
+        <span>Badges</span>
+        <span class="bn-badge" id="bn-badges-count" style="display:none">0</span>
+      </div>
+      <div class="bottom-nav-item" onclick="bnNav('create-badge',this)">
+        <span class="bn-icon">✏️</span>
+        <span>Créer</span>
+      </div>
+    </nav>
+
+  </div><!-- /main -->
+</div><!-- /app-shell -->
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<!-- Nouvel événement -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>🎪 Nouvel événement</h3>
+      <span class="modal-close" onclick="closeModal('event-modal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nom *</label><input type="text" id="event-name" placeholder="Ex: Conférence 2025"></div>
+      <div class="form-group"><label>Lieu</label><input type="text" id="event-location" placeholder="Ville, Salle..."></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Date</label><input type="date" id="event-date"></div>
+        <div class="form-group"><label>Organisation</label><input type="text" id="event-org"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="event-desc" rows="3" placeholder="Description..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('event-modal')">Annuler</button>
+      <button class="btn btn-accent" onclick="saveEvent()">💾 Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modifier événement -->
+<div class="modal-overlay" id="edit-event-modal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>✏️ Modifier événement</h3>
+      <span class="modal-close" onclick="closeModal('edit-event-modal')">×</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-event-id">
+      <div class="form-group"><label>Nom</label><input type="text" id="edit-event-name"></div>
+      <div class="form-group"><label>Lieu</label><input type="text" id="edit-event-location"></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Date</label><input type="date" id="edit-event-date"></div>
+        <div class="form-group"><label>Organisation</label><input type="text" id="edit-event-org"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="edit-event-desc" rows="3"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('edit-event-modal')">Annuler</button>
+      <button class="btn btn-accent" onclick="updateEvent()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impression -->
+<div class="modal-overlay" id="print-modal">
+  <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;border-radius:var(--radius-lg)!important;">
+    <div class="modal-handle"></div>
+    <div class="modal-header no-print">
+      <h3 id="print-modal-title">🖨️ Impression A4</h3>
+      <span class="modal-close" onclick="closeModal('print-modal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="no-print">
+        <div class="btn-group print-ctrl" style="margin-bottom:14px;flex-wrap:wrap;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:0.82rem;color:var(--c-text-muted);font-weight:600;">Badges/page:</label>
+            <select id="badges-per-page" onchange="updatePrintPreview()" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:6px 10px;font-family:var(--font);font-size:0.85rem;outline:none;">
+              <option value="2">2</option><option value="4">4</option><option value="6" selected>6</option><option value="8">8</option>
+            </select>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
+            <input type="checkbox" id="individual-qr-check" onchange="updatePrintPreview()" style="accent-color:var(--c-primary);">
+            QR individuel
+          </label>
+          <button class="btn btn-success btn-sm" onclick="window.print()">🖨️ Imprimer</button>
+          <button class="btn btn-pdf btn-sm" onclick="exportBadgesPDF()">📄 PDF</button>
+          <span id="print-badge-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;font-family:var(--font-mono);"></span>
+        </div>
+        <div class="size-panel">
+          <h4>🎛️ Ajuster les tailles</h4>
+          <div class="size-sliders">
+            <div class="size-slider-row"><label>Nom <span id="lbl-font-name">14px</span></label><input type="range" id="sl-font-name" min="8" max="28" value="14" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Fonction <span id="lbl-font-role">10px</span></label><input type="range" id="sl-font-role" min="6" max="20" value="10" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Organisation <span id="lbl-font-org">11px</span></label><input type="range" id="sl-font-org" min="6" max="22" value="11" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Détails <span id="lbl-font-detail">8px</span></label><input type="range" id="sl-font-detail" min="5" max="14" value="8" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Photo L <span id="lbl-photo-w">100px</span></label><input type="range" id="sl-photo-w" min="40" max="160" value="100" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Photo H <span id="lbl-photo-h">130px</span></label><input type="range" id="sl-photo-h" min="40" max="200" value="130" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>QR Code <span id="lbl-qr-size">65px</span></label><input type="range" id="sl-qr-size" min="30" max="100" value="65" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Bannière <span id="lbl-font-banner">6px</span></label><input type="range" id="sl-font-banner" min="4" max="14" value="6" oninput="applyBadgeSizes()"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="resetBadgeSizes()">↺ Réinitialiser</button>
+        </div>
+      </div>
+      <div id="print-content"></div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="data-import-input" accept=".json" style="display:none" onchange="handleDataImport(event)">
+
+<!-- ============================================================
+     MODAL VISITEUR
+     ============================================================ -->
+<div class="modal-overlay" id="visitor-modal">
+  <div class="modal-box" style="max-width:600px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3 id="visitor-modal-title">🪪 Nouveau visiteur</h3>
+      <span class="modal-close" onclick="closeVisitorModal()">×</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="visitor-edit-id">
+
+      <!-- Logo + org hôte -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label>🏢 Organisation hôte</label>
+          <input type="text" id="visitor-host-org" placeholder="Votre société" oninput="updateVisitorPreview()">
+        </div>
+        <div class="form-group">
+          <label>🏢 Logo hôte</label>
+          <div class="logo-upload-zone" onclick="document.getElementById('visitor-logo-input').click()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;">
+            <div class="logo-preview" id="visitor-logo-preview" style="width:44px;height:44px;flex-shrink:0;"><span style="font-size:0.65rem;">Logo</span></div>
+            <span style="font-size:0.78rem;color:var(--c-text-muted);">Cliquer pour ajouter</span>
+            <input type="file" id="visitor-logo-input" accept="image/*" style="display:none" onchange="handleVisitorLogoUpload(event)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Infos visiteur -->
+      <div style="background:rgba(255,143,0,0.08);border:1px solid rgba(255,143,0,0.25);border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:0.72rem;font-weight:700;color:#ff8f00;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">👤 Informations Visiteur</div>
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>Nom *</label>
+            <input type="text" id="visitor-lastname" placeholder="NOM" oninput="updateVisitorPreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>Prénom *</label>
+            <input type="text" id="visitor-firstname" placeholder="Prénom" oninput="updateVisitorPreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>🏭 Société visiteur</label>
+            <input type="text" id="visitor-company" placeholder="Société d'origine" oninput="updateVisitorPreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>🏛️ Département visité</label>
+            <input type="text" id="visitor-dept" placeholder="Ex: RH, IT, Direction..." oninput="updateVisitorPreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>🟢 Heure d'entrée</label>
+            <input type="time" id="visitor-entry" oninput="updateVisitorPreview()">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>🔴 Heure de sortie</label>
+            <input type="time" id="visitor-exit" oninput="updateVisitorPreview()">
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ CHOIX AVEC / SANS PHOTO -->
+      <div class="form-group">
+        <label>🎨 Type de badge visiteur</label>
+        <div class="option-group" id="visitor-model-group">
+          <div class="option-btn active" onclick="selectVisitorModel('with-photo',this)"><span class="icon">📷</span>Avec Photo</div>
+          <div class="option-btn" onclick="selectVisitorModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
+        </div>
+      </div>
+
+      <!-- Photo (cachée si sans photo) -->
+      <div class="form-group" id="visitor-photo-group">
+        <label>📷 Photo du visiteur</label>
+        <div class="photo-capture-zone">
+          <div class="btn-group">
+            <button class="btn btn-info btn-sm" onclick="openCamera('visitor')">📷 Caméra</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('visitor-photo-file').click()">📂 Fichier</button>
+            <button class="btn btn-danger btn-sm" id="visitor-clear-photo-btn" onclick="clearVisitorPhoto()" style="display:none">🗑 Supprimer</button>
+          </div>
+          <input type="file" id="visitor-photo-file" accept="image/*" style="display:none" onchange="handleVisitorPhotoUpload(event)">
+          <img id="visitor-photo-preview" class="photo-preview-thumb">
+          <p class="photo-status" id="visitor-photo-status">Aucune photo sélectionnée</p>
+        </div>
+      </div>
+
+      <!-- ✅ AJUSTEMENT TAILLES -->
+      <div class="size-panel" style="margin-bottom:14px;">
+        <h4 style="font-size:0.82rem;color:#ff8f00;margin-bottom:10px;">🎛️ Ajuster les tailles du badge</h4>
+        <div class="size-sliders">
+          <div class="size-slider-row">
+            <label>Nom <span id="vb-lbl-name">14px</span></label>
+            <input type="range" id="vb-sl-name" min="8" max="22" value="14" oninput="applyVisitorSizes()">
+          </div>
+          <div class="size-slider-row">
+            <label>Société <span id="vb-lbl-company">10px</span></label>
+            <input type="range" id="vb-sl-company" min="6" max="16" value="10" oninput="applyVisitorSizes()">
+          </div>
+          <div class="size-slider-row">
+            <label>Département <span id="vb-lbl-dept">9px</span></label>
+            <input type="range" id="vb-sl-dept" min="6" max="14" value="9" oninput="applyVisitorSizes()">
+          </div>
+          <div class="size-slider-row">
+            <label>Organisation <span id="vb-lbl-org">12px</span></label>
+            <input type="range" id="vb-sl-org" min="7" max="18" value="12" oninput="applyVisitorSizes()">
+          </div>
+          <div class="size-slider-row" id="vb-photo-w-row">
+            <label>Photo L <span id="vb-lbl-pw">76px</span></label>
+            <input type="range" id="vb-sl-pw" min="40" max="120" value="76" oninput="applyVisitorSizes()">
+          </div>
+          <div class="size-slider-row" id="vb-photo-h-row">
+            <label>Photo H <span id="vb-lbl-ph">96px</span></label>
+            <input type="range" id="vb-sl-ph" min="40" max="150" value="96" oninput="applyVisitorSizes()">
+          </div>
+          <div class="size-slider-row">
+            <label>QR Code <span id="vb-lbl-qr">46px</span></label>
+            <input type="range" id="vb-sl-qr" min="28" max="75" value="46" oninput="applyVisitorSizes()">
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="resetVisitorSizes()">↺ Réinitialiser</button>
+      </div>
+
+      <!-- Aperçu badge -->
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;color:var(--c-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🖼️ Aperçu live</div>
+        <div style="display:flex;justify-content:center;overflow-x:auto;padding:16px;background:repeating-conic-gradient(rgba(255,255,255,0.03) 0% 25%,transparent 0% 50%) 0 0/24px 24px;border-radius:12px;border:1px dashed var(--c-border);">
+          <div class="visitor-badge" id="visitor-badge-preview">
+            <div class="vb-top-stripe"></div>
+            <div class="vb-header">
+              <div class="vb-header-logo" id="vb-preview-logo">🏢</div>
+              <div class="vb-header-title">
+                <div class="vb-label-visiteur">★ Visiteur ★</div>
+                <div class="vb-org-name" id="vb-preview-org">ORGANISATION</div>
+              </div>
+            </div>
+            <div class="vb-body" id="vb-preview-body">
+              <!-- Rempli dynamiquement -->
+            </div>
+            <div class="vb-qr" id="vb-preview-qr"></div>
+            <div class="vb-bottom-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeVisitorModal()">Annuler</button>
+      <button class="btn btn-ghost btn-sm" onclick="downloadVisitorBadge()">⬇️ PNG</button>
+      <button class="btn btn-warning" onclick="saveVisitor()" style="color:#1a0e00;font-weight:700;">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impression Visiteurs -->
+<div class="modal-overlay" id="visitor-print-modal">
+  <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;border-radius:var(--radius-lg)!important;">
+    <div class="modal-handle"></div>
+    <div class="modal-header no-print">
+      <h3>🖨️ Impression Badges Visiteurs</h3>
+      <span class="modal-close" onclick="closeModal('visitor-print-modal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="no-print" style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-success btn-sm" onclick="window.print()">🖨️ Imprimer</button>
+        <button class="btn btn-pdf btn-sm" onclick="exportVisitorPDF()">📄 PDF</button>
+        <span id="visitor-print-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;font-family:var(--font-mono);"></span>
+      </div>
+      <div id="visitor-print-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function(){
+  var db = null;
+  var currentBadgeEditId = null;
+  var currentFormat = 'cr80', currentModel = 'with-photo';
+  var importFormat = 'cr80', importModel = 'with-photo';
+  var selectedBadges = new Set();
+  var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = '';
+  var cameraStream = null, cameraFacingMode = 'user', cameraTarget = 'badge';
+  var customBadgeWidthMm = 85, customBadgeHeightMm = 54;
+
+  // ---- Helpers ----
+  function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  function showToast(msg, type='success'){
+    var container = document.getElementById('toast-container');
+    var t = document.createElement('div');
+    t.className = 'toast toast-'+type;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(function(){ if(t.parentNode) t.remove(); }, 3200);
+  }
+
+  function compressImage(dataUrl, maxW=400, maxH=520, quality=0.75){
+    return new Promise(function(resolve){
+      var img = new Image();
+      img.onload = function(){
+        var w=img.width, h=img.height, ratio=Math.min(maxW/w,maxH/h,1);
+        var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
+        var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
+        canvas.getContext('2d').drawImage(img,0,0,cw,ch);
+        resolve(canvas.toDataURL('image/jpeg',quality));
+      };
+      img.onerror=function(){ resolve(dataUrl); };
+      img.src=dataUrl;
+    });
+  }
+  function compressLogo(dataUrl){ return compressImage(dataUrl,150,150,0.8); }
+
+  // ---- DB ----
+  function initDB(){
+    var req = indexedDB.open('MtarabetBadgeMasterV5', 2); // v2 : ajout store visiteurs sans perte de données
+    req.onerror = function(e){
+      showToast('Erreur DB : ' + (e.target.error ? e.target.error.message : 'inconnue') + ' — Rechargez la page (F5).', 'error');
+    };
+    req.onblocked = function(){
+      showToast('Base de données bloquée. Fermez les autres onglets BadgeMaster et rechargez (F5).', 'error');
+    };
+    req.onsuccess = function(e){
+      db = e.target.result;
+      db.onerror = function(ev){ console.error('DB error:', ev.target.error); };
+      refreshAll();
+      loadAllVisitors && loadAllVisitors();
+      updateVisitorStats && updateVisitorStats();
+    };
+    req.onupgradeneeded = function(e){
+      var d = e.target.result;
+      var oldVersion = e.oldVersion; // 0 = nouvelle installation, 1 = ancienne version sans visiteurs
+
+      // --- Migration v0 → v1 : création initiale des stores ---
+      if(oldVersion < 1){
+        if(!d.objectStoreNames.contains('events'))  d.createObjectStore('events',  {keyPath:'id', autoIncrement:true});
+        if(!d.objectStoreNames.contains('badges'))  {
+          var bStore = d.createObjectStore('badges', {keyPath:'id', autoIncrement:true});
+          bStore.createIndex('eventId','eventId',{unique:false});
+        }
+        if(!d.objectStoreNames.contains('imports')) {
+          var iStore = d.createObjectStore('imports',{keyPath:'id', autoIncrement:true});
+          iStore.createIndex('eventId','eventId',{unique:false});
+        }
+      }
+
+      // --- Migration v1 → v2 : ajout du store visiteurs SANS supprimer les données existantes ---
+      if(oldVersion < 2){
+        if(!d.objectStoreNames.contains('visitors')){
+          d.createObjectStore('visitors', {keyPath:'id', autoIncrement:true});
+        }
+      }
+    };
+  }
+
+  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+  function updateStats(){
+    if(!db) return;
+    var tx=db.transaction(['events','badges','imports'],'readonly');
+    tx.objectStore('events').count().onsuccess=function(e){
+      var n=e.target.result;
+      document.getElementById('stat-events').textContent=n;
+      var bnBadge=document.getElementById('bn-events-count');
+      if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
+    };
+    tx.objectStore('badges').count().onsuccess=function(e){
+      var n=e.target.result;
+      document.getElementById('stat-badges').textContent=n;
+      document.getElementById('badges-count').textContent=n;
+      var bnBadge=document.getElementById('bn-badges-count');
+      if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
+    };
+    tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
+    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+    // Visiteurs stat sur dashboard
+    if(db.objectStoreNames.contains('visitors')){
+      var tx2=db.transaction(['visitors'],'readonly');
+      tx2.objectStore('visitors').count().onsuccess=function(e){
+        var n=e.target.result;
+        var el=document.getElementById('stat-visitors'); if(el) el.textContent=n;
+        var vc=document.getElementById('visitors-count'); if(vc) vc.textContent=n;
+      };
+    }
+  }
+
+  // ---- Navigation ----
+  function showPage(pageId, navItem){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+pageId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    if(navItem) navItem.classList.add('active');
+    if(pageId==='dashboard'){ updateStats(); loadEvents(); updateVisitorStats && updateVisitorStats(); }
+    if(pageId==='events') loadEvents();
+    if(pageId==='all-badges') loadAllBadges();
+    if(pageId==='import-excel') loadImportsHistory();
+    if(pageId==='visitors'){ loadAllVisitors && loadAllVisitors(); updateVisitorStats && updateVisitorStats(); }
+    if(pageId==='journal'){ loadJournal && loadJournal(); }
+    if(window.innerWidth<=768) closeSidebar();
+  }
+  window.showPage=showPage;
+
+  window.bnNav=function(pageId, item){
+    document.querySelectorAll('.bottom-nav-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    // Sync sidebar nav
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    showPage(pageId, null);
+  };
+
+  // ---- Sidebar ----
+  window.toggleSidebar=function(){
+    var s=document.getElementById('sidebar');
+    var o=document.getElementById('overlay');
+    s.classList.toggle('open');
+    o.classList.toggle('show');
+  };
+  window.closeSidebar=function(){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  };
+
+  // ---- Events ----
+  function openEventModal(){ document.getElementById('event-modal').classList.add('show'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+  function saveEvent(){
+    if(!db) return;
+    var name=document.getElementById('event-name').value.trim();
+    if(!name){ showToast('Nom requis','error'); return; }
+    var evt={name,location:document.getElementById('event-location').value,date:document.getElementById('event-date').value,org:document.getElementById('event-org').value,desc:document.getElementById('event-desc').value,createdAt:new Date().toISOString()};
+    var tx=db.transaction(['events'],'readwrite');
+    tx.objectStore('events').add(evt).onsuccess=function(){ showToast('Événement créé ✅'); closeModal('event-modal'); ['event-name','event-location','event-date','event-org','event-desc'].forEach(id=>document.getElementById(id).value=''); refreshAll(); };
+  }
+  function loadEvents(){
+    if(!db) return;
+    var tx=db.transaction(['events','badges'],'readonly');
+    tx.objectStore('events').getAll().onsuccess=function(e){
+      var events=e.target.result;
+      tx.objectStore('badges').getAll().onsuccess=function(ev){
+        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+        renderEvents(events,counts);
+        populateEventSelectors(events);
+        document.getElementById('events-count').textContent=events.length;
+        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      };
+    };
+  }
+  function renderEvents(events, counts){
+    var container=document.getElementById('events-list');
+    var dash=document.getElementById('dashboard-events');
+    if(!events.length){
+      var empty='<div class="empty-state"><div class="empty-icon">🎪</div><div>Aucun événement</div><button class="btn btn-accent btn-sm" style="margin-top:12px;" onclick="openEventModal()">+ Créer le premier</button></div>';
+      container.innerHTML=dash.innerHTML=empty;
+      return;
+    }
+    events.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    var html=events.map(ev=>{
+      var cnt=counts[ev.id]||0;
+      return '<div class="event-card"><div class="event-icon">🎪</div><div class="event-info"><div class="event-name">'+escapeHTML(ev.name)+'</div><div class="event-meta">'+escapeHTML(ev.location||'—')+' · '+escapeHTML(ev.org||'—')+'</div><div style="margin-top:8px;"><span class="chip chip-green">'+cnt+' badges</span></div></div><div class="event-actions"><button class="btn btn-info btn-sm btn-icon" onclick="createBadgeForEvent('+ev.id+')" title="Créer badge">✏️</button><button class="btn btn-accent btn-sm btn-icon" onclick="importForEvent('+ev.id+')" title="Importer">📊</button><button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('+ev.id+')" title="Modifier">⚙️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('+ev.id+')" title="Supprimer">🗑️</button></div></div>';
+    }).join('');
+    container.innerHTML=html;
+    dash.innerHTML=events.slice(0,3).map(ev=>'<div class="event-card"><div class="event-icon">🎪</div><div class="event-info"><div class="event-name">'+escapeHTML(ev.name)+'</div><div class="event-meta">'+escapeHTML(ev.org||'—')+'</div></div></div>').join('');
+  }
+  function populateEventSelectors(events){
+    ['badge-event','import-event','filter-event'].forEach(id=>{
+      var sel=document.getElementById(id); if(!sel) return;
+      var val=sel.value;
+      sel.innerHTML='<option value="">'+(id==='filter-event'?'Tous les événements':'-- Sélectionner --')+'</option>';
+      events.forEach(ev=>sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>');
+      if(val) sel.value=val;
+    });
+  }
+  window.createBadgeForEvent=function(id){ document.getElementById('badge-event').value=id; showPage('create-badge'); };
+  window.importForEvent=function(id){ document.getElementById('import-event').value=id; showPage('import-excel'); };
+  window.editEvent=function(id){
+    var tx=db.transaction(['events'],'readonly');
+    tx.objectStore('events').get(id).onsuccess=function(e){
+      var ev=e.target.result; if(!ev) return;
+      document.getElementById('edit-event-id').value=id;
+      document.getElementById('edit-event-name').value=ev.name||'';
+      document.getElementById('edit-event-location').value=ev.location||'';
+      document.getElementById('edit-event-date').value=ev.date||'';
+      document.getElementById('edit-event-org').value=ev.org||'';
+      document.getElementById('edit-event-desc').value=ev.desc||'';
+      document.getElementById('edit-event-modal').classList.add('show');
+    };
+  };
+  window.updateEvent=function(){
+    var id=parseInt(document.getElementById('edit-event-id').value);
+    var tx=db.transaction(['events'],'readwrite');
+    tx.objectStore('events').get(id).onsuccess=function(e){
+      var ev=e.target.result;
+      ev.name=document.getElementById('edit-event-name').value.trim();
+      ev.location=document.getElementById('edit-event-location').value;
+      ev.date=document.getElementById('edit-event-date').value;
+      ev.org=document.getElementById('edit-event-org').value;
+      ev.desc=document.getElementById('edit-event-desc').value;
+      tx.objectStore('events').put(ev).onsuccess=function(){ showToast('Modifié ✅'); closeModal('edit-event-modal'); refreshAll(); };
+    };
+  };
+  window.deleteEvent=function(id){
+    if(!confirm('Supprimer cet événement et tous ses badges ?')) return;
+    var tx=db.transaction(['badges','imports'],'readwrite');
+    var badgeReq=tx.objectStore('badges').index('eventId').openCursor(IDBKeyRange.only(id));
+    badgeReq.onsuccess=function(e){ var c=e.target.result; if(c){ c.delete(); c.continue(); } };
+    var importReq=tx.objectStore('imports').index('eventId').openCursor(IDBKeyRange.only(id));
+    importReq.onsuccess=function(e){ var c=e.target.result; if(c){ c.delete(); c.continue(); } };
+    tx.oncomplete=function(){ db.transaction(['events'],'readwrite').objectStore('events').delete(id).onsuccess=function(){ refreshAll(); showToast('Événement supprimé'); }; };
+    tx.onerror=function(ev){ showToast('Erreur: '+ev.target.error,'error'); };
+  };
+
+  // ---- Logo ----
+  window.handleLogoUpload=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ currentLogoSrc=c; document.getElementById('logo-preview').innerHTML='<img src="'+c+'">'; document.getElementById('ribbon-logo').innerHTML='<img src="'+c+'">'; }); };
+    r.readAsDataURL(f);
+  };
+  window.handleImportLogoUpload=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ importLogoSrc=c; document.getElementById('import-logo-preview').innerHTML='<img src="'+c+'">'; }); };
+    r.readAsDataURL(f);
+  };
+
+  // ---- Badge Preview ----
+  function buildQRText(org, name, role, id, date){
+    return 'ORG:'+org+'|NOM:'+name+'|ROLE:'+role+'|ID:'+id+'|EXP:'+date;
+  }
+
+  function updateBadgePreview(){
+    var org=document.getElementById('badge-org').value||'ORGANISATION';
+    var name=document.getElementById('badge-name').value||'NOM PRÉNOM';
+    var role=document.getElementById('badge-role').value||'Fonction';
+    var id=document.getElementById('badge-id').value||'---';
+    var date=document.getElementById('badge-date').value||'--/--/----';
+    document.getElementById('preview-org').textContent=org;
+    document.getElementById('preview-name').textContent=name;
+    document.getElementById('preview-role').textContent=role;
+    document.getElementById('preview-badge-id').textContent=id;
+    document.getElementById('preview-date').textContent=date;
+    var qrDiv=document.getElementById('preview-qr');
+    qrDiv.innerHTML='';
+    // QR encode toutes les 5 informations
+    var qrText=buildQRText(org,name,role,id,date);
+    setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20);
+  }
+  window.updateBadgePreview=updateBadgePreview;
+
+  window.selectModel=function(model, btn){
+    currentModel=model;
+    // Ne réinitialiser QUE les boutons du groupe "type" (avec/sans photo)
+    document.querySelectorAll('#model-group .option-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    var body=document.getElementById('badge-body');
+    var photoGroup=document.getElementById('photo-input-group');
+    var imgSrc=currentPhotoSrc||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='130'%3E%3Crect fill='%23bbdefb' width='100' height='130'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='%230d47a1' font-size='12'%3EPHOTO%3C/text%3E%3C/svg%3E";
+    if(model==='with-photo'){
+      body.className='badge-body-with-photo';
+      body.innerHTML='<div class="photo-area"><img id="preview-img" class="preview-img" src="'+imgSrc+'"></div><div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
+      photoGroup.style.display='block';
+    } else {
+      body.className='badge-body-no-photo';
+      body.innerHTML='<div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
+      photoGroup.style.display='none';
+    }
+    updateBadgePreview();
+  };
+
+  window.selectFormat=function(fmt, btn){
+    currentFormat=fmt;
+    // Ne réinitialiser QUE les boutons du groupe "format"
+    document.querySelectorAll('#format-group .option-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    var badge=document.getElementById('badge-preview');
+    badge.classList.remove('badge-cr80','badge-cr79','badge-cr100','badge-custom85x90','badge-custom');
+    badge.classList.add('badge-'+fmt);
+    // Afficher/masquer le panneau dimensions personnalisées
+    var customPanel=document.getElementById('custom-size-inputs');
+    if(fmt==='custom'){
+      customPanel.style.display='block';
+      applyCustomSize();
+    } else {
+      customPanel.style.display='none';
+    }
+    var fmtLabels={cr80:'CR80',cr79:'CR79',cr100:'CR100',custom85x90:'8.5×9cm',custom:'Personnalisé'};
+    document.getElementById('format-display').textContent=(fmtLabels[fmt]||fmt)+' · '+(currentModel==='with-photo'?'Avec Photo':'Sans Photo');
+  };
+  window.applyCustomSize=function(){
+    var w=parseFloat(document.getElementById('custom-width-mm').value)||85;
+    var h=parseFloat(document.getElementById('custom-height-mm').value)||54;
+    // Conversion mm -> px (96dpi : 1mm = 3.7795px)
+    var MM_TO_PX=3.7795;
+    var wPx=Math.round(w*MM_TO_PX);
+    var hPx=Math.round(h*MM_TO_PX);
+    document.documentElement.style.setProperty('--custom-badge-w', wPx+'px');
+    document.documentElement.style.setProperty('--custom-badge-h', hPx+'px');
+    // Stocker pour l'export PDF
+    customBadgeWidthMm=w;
+    customBadgeHeightMm=h;
+    var disp=document.getElementById('custom-size-display');
+    if(disp) disp.textContent=w+' × '+h+' mm';
+  };
+  window.selectImportModel=function(m,btn){ importModel=m; document.querySelectorAll('#import-model-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+  window.selectImportFormat=function(f,btn){ importFormat=f; document.querySelectorAll('#import-format-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+
+  // ---- Camera ----
+  window.openCamera=function(target){
+    cameraTarget=target;
+    if(!navigator.mediaDevices){ showToast('Caméra non supportée','error'); return; }
+    if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+    navigator.mediaDevices.getUserMedia({video:{facingMode:cameraFacingMode,width:1280,height:720}})
+      .then(s=>{ cameraStream=s; document.getElementById('camera-video').srcObject=s; document.getElementById('camera-modal').classList.add('show'); })
+      .catch(()=>showToast('Erreur caméra','error'));
+  };
+  window.closeCamera=function(){
+    if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+    document.getElementById('camera-modal').classList.remove('show');
+  };
+  window.switchCamera=function(){ cameraFacingMode=cameraFacingMode==='user'?'environment':'user'; openCamera(cameraTarget); };
+  window.takeSnapshot=function(){
+    var video=document.getElementById('camera-video');
+    var canvas=document.getElementById('camera-canvas');
+    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+    canvas.getContext('2d').drawImage(video,0,0);
+    compressImage(canvas.toDataURL('image/jpeg',0.9),400,520,0.8).then(function(c){ applyPhoto(c); closeCamera(); showToast('Photo prise ✅'); });
+  };
+  function applyPhoto(dataUrl){
+    currentPhotoSrc=dataUrl;
+    var thumb=document.getElementById('photo-preview-thumb');
+    thumb.src=dataUrl; thumb.classList.add('visible');
+    document.getElementById('photo-status').textContent='✅ Photo chargée';
+    document.getElementById('clear-photo-btn').style.display='inline-flex';
+    var pi=document.getElementById('preview-img'); if(pi) pi.src=dataUrl;
+  }
+  window.clearPhoto=function(){
+    currentPhotoSrc='';
+    document.getElementById('photo-preview-thumb').classList.remove('visible');
+    document.getElementById('photo-status').textContent='Aucune photo sélectionnée';
+    document.getElementById('clear-photo-btn').style.display='none';
+    var pi=document.getElementById('preview-img');
+    if(pi) pi.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='130'%3E%3Crect fill='%23bbdefb' width='100' height='130'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='%230d47a1' font-size='12'%3EPHOTO%3C/text%3E%3C/svg%3E";
+  };
+  window.handlePhotoUpload=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ compressImage(ev.target.result,400,520,0.8).then(c=>{ applyPhoto(c); }); };
+    r.readAsDataURL(f);
+  };
+
+  // ---- Save Badge ----
+  window.saveBadge=function(){
+    if(!db) return;
+    var name=document.getElementById('badge-name').value.trim();
+    if(!name){ showToast('Nom requis','error'); return; }
+    var badge={
+      eventId:parseInt(document.getElementById('badge-event').value)||null,
+      org:document.getElementById('badge-org').value.trim()||'Sans organisation',
+      name, role:document.getElementById('badge-role').value.trim(),
+      badgeId:document.getElementById('badge-id').value.trim()||'AUTO-'+Date.now(),
+      date:document.getElementById('badge-date').value,
+      photo:currentPhotoSrc, logo:currentLogoSrc,
+      format:currentFormat, model:currentModel,
+      customW:currentFormat==='custom'?customBadgeWidthMm:null,
+      customH:currentFormat==='custom'?customBadgeHeightMm:null,
+      createdAt:new Date().toISOString()
+    };
+    var tx=db.transaction(['badges'],'readwrite');
+    var req=currentBadgeEditId?tx.objectStore('badges').put(Object.assign({},badge,{id:currentBadgeEditId})):tx.objectStore('badges').add(badge);
+    req.onsuccess=function(){ showToast(currentBadgeEditId?'Badge modifié ✅':'Badge créé ✅'); currentBadgeEditId=null; resetBadgeForm(); refreshAll(); };
+  };
+  window.resetBadgeForm=function(){
+    currentBadgeEditId=null; currentLogoSrc=''; currentPhotoSrc='';
+    ['badge-org','badge-name','badge-role','badge-id','badge-date'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('logo-preview').innerHTML='<span>Logo</span>';
+    document.getElementById('ribbon-logo').innerHTML='<span class="badge-logo-placeholder">🏢</span>';
+    // Masquer le panneau dimensions personnalisées
+    var cp=document.getElementById('custom-size-inputs');
+    if(cp) cp.style.display='none';
+    clearPhoto();
+    selectModel('with-photo',document.querySelector('#model-group .option-btn:first-child'));
+    selectFormat('cr80',document.querySelector('#format-group .option-btn:first-child'));
+    updateBadgePreview();
+  };
+  window.downloadBadge=function(){
+    html2canvas(document.getElementById('badge-preview'),{scale:3,backgroundColor:'#fff'}).then(c=>{
+      var a=document.createElement('a'); a.download='badge.png'; a.href=c.toDataURL(); a.click();
+    });
+  };
+  window.editBadge=function(id){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').get(id).onsuccess=function(e){
+      var b=e.target.result; if(!b) return;
+      currentBadgeEditId=id;
+      document.getElementById('badge-event').value=b.eventId||'';
+      document.getElementById('badge-org').value=b.org||'';
+      document.getElementById('badge-name').value=b.name||'';
+      document.getElementById('badge-role').value=b.role||'';
+      document.getElementById('badge-id').value=b.badgeId||'';
+      document.getElementById('badge-date').value=b.date||'';
+      selectModel(b.model||'with-photo',document.querySelector('#model-group .option-btn[onclick*="'+( b.model||'with-photo' )+'"]')||document.querySelector('#model-group .option-btn:first-child'));
+      selectFormat(b.format||'cr80',document.querySelector('#format-group .option-btn[onclick*="'+(b.format||'cr80')+'"]')||document.querySelector('#format-group .option-btn:first-child'));
+      setTimeout(function(){
+        currentPhotoSrc=b.photo||'';
+        if(b.photo){ applyPhoto(b.photo); }
+        currentLogoSrc=b.logo||'';
+        if(b.logo){ document.getElementById('logo-preview').innerHTML='<img src="'+b.logo+'">'; document.getElementById('ribbon-logo').innerHTML='<img src="'+b.logo+'">'; }
+        updateBadgePreview();
+      },50);
+      showPage('create-badge');
+    };
+  };
+
+  // ---- All Badges ----
+  function loadAllBadges(){
+    if(!db) return;
+    var tx=db.transaction(['badges','events'],'readonly');
+    tx.objectStore('badges').getAll().onsuccess=function(e){
+      var badges=e.target.result;
+      var filter=document.getElementById('filter-event').value;
+      if(filter) badges=badges.filter(b=>b.eventId===parseInt(filter));
+      var search=document.getElementById('search-badges').value.toLowerCase();
+      if(search) badges=badges.filter(b=>(b.name||'').toLowerCase().includes(search)||(b.org||'').toLowerCase().includes(search)||(b.badgeId||'').toLowerCase().includes(search));
+      document.getElementById('all-badges-count').textContent=badges.length;
+      document.getElementById('badges-count').textContent=badges.length;
+      tx.objectStore('events').getAll().onsuccess=function(ev){
+        var evtMap={}; ev.target.result.forEach(e=>evtMap[e.id]=e.name);
+        renderAllBadges(badges,evtMap);
+      };
+    };
+  }
+  function renderAllBadges(badges, evtMap){
+    var cont=document.getElementById('all-badges-list');
+    if(!badges.length){
+      cont.innerHTML='<div class="empty-state"><div class="empty-icon">🏷</div><div>Aucun badge trouvé</div></div>';
+      return;
+    }
+    cont.innerHTML=badges.map(b=>'<div class="badge-list-item '+(selectedBadges.has(b.id)?'selected':'')+'"><input type="checkbox" '+(selectedBadges.has(b.id)?'checked':'')+' onchange="toggleSelect('+b.id+')"><img src="'+(b.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'65\'%3E%3Crect fill=\'%23263756\' width=\'50\' height=\'65\'/%3E%3Ctext x=\'25\' y=\'36\' text-anchor=\'middle\' fill=\'%234f74ff\' font-size=\'8\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"><div class="info"><div class="name">'+escapeHTML(b.name)+'</div><div class="meta">'+escapeHTML(b.role)+' · '+escapeHTML(b.org)+(b.eventId?' · 🎪 '+escapeHTML(evtMap[b.eventId]||''):'')+'</div></div><div class="actions"><button class="btn btn-info btn-sm btn-icon" onclick="editBadge('+b.id+')">✏️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteBadge('+b.id+')">🗑️</button></div></div>').join('');
+  }
+  window.toggleSelect=function(id){ if(selectedBadges.has(id)) selectedBadges.delete(id); else selectedBadges.add(id); loadAllBadges(); };
+  window.selectAllBadges=function(){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').getAll().onsuccess=function(e){ e.target.result.forEach(b=>selectedBadges.add(b.id)); loadAllBadges(); };
+  };
+  window.deleteSelectedBadges=function(){
+    if(!selectedBadges.size) return;
+    if(!confirm('Supprimer '+selectedBadges.size+' badge(s) ?')) return;
+    var tx=db.transaction(['badges'],'readwrite');
+    selectedBadges.forEach(id=>tx.objectStore('badges').delete(id));
+    tx.oncomplete=function(){ selectedBadges.clear(); refreshAll(); showToast('Badges supprimés'); };
+  };
+  window.deleteBadge=function(id){
+    if(confirm('Supprimer ce badge ?')){ db.transaction(['badges'],'readwrite').objectStore('badges').delete(id); setTimeout(refreshAll,100); showToast('Supprimé'); }
+  };
+
+  // ---- Import Excel ----
+  window.handleExcelImport=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var eventId=parseInt(document.getElementById('import-event').value);
+    if(!eventId){ showToast('Sélectionnez un événement','error'); return; }
+    var prog=document.getElementById('import-progress');
+    var fill=document.getElementById('import-progress-fill');
+    var txt=document.getElementById('import-progress-text');
+    prog.style.display='block'; fill.style.width='0%'; txt.textContent='Lecture du fichier...';
+    var reader=new FileReader();
+    reader.onerror=function(){ showToast('Erreur lecture fichier','error'); prog.style.display='none'; };
+    reader.onload=function(ev){
+      try {
+        var wb=XLSX.read(ev.target.result,{type:'array'});
+        var sheet=wb.Sheets[wb.SheetNames[0]];
+        var data=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
+        var rows=data.slice(1).filter(function(r){ return r&&(r[0]||r[1]||r[2]); });
+        if(!rows.length){ showToast('Aucune ligne valide','error'); prog.style.display='none'; return; }
+        txt.textContent='0 / '+rows.length+' badges...';
+        var txImport=db.transaction(['imports'],'readwrite');
+        txImport.objectStore('imports').add({fileName:f.name,eventId,totalRows:rows.length,createdAt:new Date().toISOString()}).onsuccess=function(evt){
+          var importId=evt.target.result;
+          var txBadges=db.transaction(['badges'],'readwrite');
+          var store=txBadges.objectStore('badges');
+          var imported=0;
+          rows.forEach(function(r,i){
+            var badge={eventId,importId,org:String(r[0]||'').trim(),name:String(r[1]||'').trim(),role:String(r[2]||'').trim(),badgeId:String(r[3]||'AUTO-'+Date.now()+'-'+i).trim(),date:formatExcelDate(r[4]),photo:'',logo:importLogoSrc,format:importFormat,model:importModel,createdAt:new Date().toISOString()};
+            var req=store.add(badge);
+            req.onsuccess=function(){
+              imported++;
+              var pct=Math.round((imported/rows.length)*100);
+              fill.style.width=pct+'%';
+              txt.textContent=imported+' / '+rows.length+' badges...';
+            };
+          });
+          txBadges.oncomplete=function(){
+            prog.style.display='none';
+            document.getElementById('import-result').style.display='block';
+            document.getElementById('import-result').innerHTML='<div style="background:var(--c-accent-dim);border:1px solid rgba(0,212,170,0.3);border-radius:8px;padding:15px;color:var(--c-accent);margin-top:12px;">✅ <strong>'+imported+' badges importés</strong> depuis '+escapeHTML(f.name)+'</div>';
+            showToast(imported+' badges importés ✅');
+            refreshAll();
+            document.getElementById('excel-input').value='';
+          };
+          txBadges.onerror=function(ev){ prog.style.display='none'; showToast('Erreur import: '+(ev.target.error||'inconnue'),'error'); };
+        };
+      } catch(err){ prog.style.display='none'; showToast('Erreur Excel: '+err.message,'error'); }
+    };
+    reader.readAsArrayBuffer(f);
+  };
+  function formatExcelDate(v){
+    if(!v) return '';
+    if(typeof v==='string') return v;
+    if(typeof v==='number'){ var d=new Date((v-25569)*86400*1000); return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
+    return '';
+  }
+  function loadImportsHistory(){}
+
+  // ---- Print ----
+  window.openPrintModal=function(mode){
+    if(!selectedBadges.size){ showToast('Sélectionnez des badges d\'abord','info'); return; }
+    document.getElementById('print-modal').classList.add('show');
+    document.getElementById('print-badge-count').textContent=selectedBadges.size+' badge(s) sélectionné(s)';
+    updatePrintPreview();
+  };
+  window.updatePrintPreview=function(){
+    var perPage=parseInt(document.getElementById('badges-per-page').value);
+    var individualQR=document.getElementById('individual-qr-check').checked;
+    var tx=db.transaction(['badges'],'readonly');
+    var promises=Array.from(selectedBadges).map(id=>new Promise(res=>tx.objectStore('badges').get(id).onsuccess=e=>res(e.target.result)));
+    Promise.all(promises).then(badges=>{
+      badges=badges.filter(b=>b);
+      var content=document.getElementById('print-content'); content.innerHTML='';
+      for(var p=0;p<Math.ceil(badges.length/perPage);p++){
+        var page=document.createElement('div'); page.className='a4-page';
+        var grid=document.createElement('div'); grid.className='badges-grid';
+        for(var i=p*perPage;i<Math.min((p+1)*perPage,badges.length);i++){
+          grid.innerHTML+=createPrintBadgeHTML(badges[i],i,individualQR);
+        }
+        page.appendChild(grid); content.appendChild(page);
+      }
+      setTimeout(function(){
+        for(var i=0;i<badges.length;i++){
+          var qrDiv=document.getElementById('pqr-'+i); if(!qrDiv) continue;
+          qrDiv.innerHTML='';
+          var b=badges[i];
+          (function(div,badge,idx){
+            if(individualQR){
+              // QR individuel = toutes les 5 infos du badge
+              var qrText='ORG:'+badge.org+'|NOM:'+badge.name+'|ROLE:'+badge.role+'|ID:'+badge.badgeId+'|EXP:'+(badge.date||'');
+              new QRCode(div,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M});
+            } else {
+              if(idx%5===0){
+                var group=badges.slice(idx,idx+5).map(function(x){ return 'ORG:'+x.org+'|NOM:'+x.name+'|ROLE:'+x.role+'|ID:'+x.badgeId+'|EXP:'+(x.date||''); }).join('||');
+                new QRCode(div,{text:group,width:60,height:60,correctLevel:QRCode.CorrectLevel.L});
+              } else { div.innerHTML='<div class="qr-message">QR groupe '+(Math.floor(idx/5)+1)+'</div>'; return; }
+            }
+            setTimeout(function(){
+              var cvs=div.querySelector('canvas');
+              if(cvs){ var dataUrl=cvs.toDataURL('image/png'); div.innerHTML=''; var img=document.createElement('img'); img.src=dataUrl; img.style.cssText='width:100%;height:100%;display:block;'; div.appendChild(img); }
+            },150);
+          })(qrDiv,b,i);
+        }
+      },100);
+    });
+  };
+  function createPrintBadgeHTML(badge, idx, individual){
+    var fmt='badge-'+(badge.format||'cr80');
+    // Pour le format custom, on applique les dimensions via style inline
+    var customStyle='';
+    if(badge.format==='custom' && badge.customW && badge.customH){
+      var MM_TO_PX=3.7795;
+      customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
+    }
+    var logo=badge.logo?'<div class="badge-logo"><img src="'+badge.logo+'"></div>':'<div class="badge-logo"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
+    var body=badge.model==='with-photo'?
+      '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>':
+      '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>';
+    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">À VOTRE SERVICE</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+  }
+  window.exportBadgesPDF=function(){
+    var {jsPDF}=window.jspdf;
+    var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var pages=document.querySelectorAll('#print-content .a4-page');
+    // A4 = 210×297mm. On utilise toute la surface utile sans marges réductrices.
+    var PDF_W=210, PDF_H=297;
+    setTimeout(function(){
+      function addPage(i){
+        if(i>=pages.length){ pdf.save('badges.pdf'); return; }
+        html2canvas(pages[i],{
+          scale:3,
+          backgroundColor:'#fff',
+          useCORS:true,
+          allowTaint:false,
+          logging:false,
+          // Capturer la taille réelle de la page sans la déformer
+          width:pages[i].offsetWidth,
+          height:pages[i].offsetHeight
+        }).then(function(c){
+          if(i>0) pdf.addPage();
+          // Ratio canvas → A4 sans marges arbitraires
+          var canvasW=c.width, canvasH=c.height;
+          var ratio=Math.min(PDF_W/canvasW*3, PDF_H/canvasH*3);
+          var imgW=canvasW/3*ratio, imgH=canvasH/3*ratio;
+          // Centrer sur la page
+          var offX=(PDF_W-imgW)/2, offY=(PDF_H-imgH)/2;
+          pdf.addImage(c.toDataURL('image/jpeg',0.97),'JPEG',offX,offY,imgW,imgH);
+          addPage(i+1);
+        });
+      }
+      addPage(0);
+    },400);
+  };
+  window.applyBadgeSizes=function(){
+    var ids=['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'];
+    var lbls=['lbl-font-name','lbl-font-role','lbl-font-org','lbl-font-detail','lbl-photo-w','lbl-photo-h','lbl-qr-size','lbl-font-banner'];
+    var vals=ids.reduce((o,id)=>{ o[id]=document.getElementById(id).value; return o; },{});
+    ids.forEach((id,i)=>{ document.getElementById(lbls[i]).textContent=vals[id]+'px'; });
+    document.querySelectorAll('#print-content .info-name').forEach(el=>el.style.fontSize=vals['sl-font-name']+'px');
+    document.querySelectorAll('#print-content .info-sub').forEach(el=>el.style.fontSize=vals['sl-font-role']+'px');
+    document.querySelectorAll('#print-content .badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
+    document.querySelectorAll('#print-content .info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
+    document.querySelectorAll('#print-content .photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
+    document.querySelectorAll('#print-content .qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
+    document.querySelectorAll('#print-content .badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
+  };
+  window.resetBadgeSizes=function(){
+    ['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'].forEach((id,i)=>document.getElementById(id).value=[14,10,11,8,100,130,65,6][i]);
+    applyBadgeSizes();
+  };
+
+  // ---- Data Export/Import ----
+  window.exportAllData=function(){
+    var tx=db.transaction(['events','badges','imports','visitors'],'readonly');
+    var data={};
+    tx.objectStore('events').getAll().onsuccess=e=>{ data.events=e.target.result; };
+    tx.objectStore('badges').getAll().onsuccess=e=>{ data.badges=e.target.result; };
+    tx.objectStore('imports').getAll().onsuccess=e=>{ data.imports=e.target.result; };
+    tx.objectStore('visitors').getAll().onsuccess=e=>{ data.visitors=e.target.result; };
+    tx.oncomplete=function(){
+      var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+      var a=document.createElement('a'); a.download='badgemaster-backup.json'; a.href=URL.createObjectURL(blob); a.click();
+      showToast('Export réussi ✅');
+    };
+  };
+  window.handleDataImport=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){
+      var data=JSON.parse(ev.target.result);
+      var tx=db.transaction(['events','badges','imports','visitors'],'readwrite');
+      (data.events||[]).forEach(o=>{ delete o.id; tx.objectStore('events').add(o); });
+      (data.badges||[]).forEach(o=>{ delete o.id; tx.objectStore('badges').add(o); });
+      (data.imports||[]).forEach(o=>{ delete o.id; tx.objectStore('imports').add(o); });
+      (data.visitors||[]).forEach(o=>{ delete o.id; tx.objectStore('visitors').add(o); });
+      tx.oncomplete=function(){ refreshAll(); loadAllVisitors(); updateVisitorStats(); showToast('Import réussi ✅'); };
+    };
+    r.readAsText(f);
+  };
+  window.clearAllData=function(){
+    if(confirm('Effacer TOUTES les données ? Cette action est irréversible.')){
+      var tx=db.transaction(['events','badges','imports','visitors'],'readwrite');
+      tx.objectStore('events').clear(); tx.objectStore('badges').clear();
+      tx.objectStore('imports').clear(); tx.objectStore('visitors').clear();
+      tx.oncomplete=function(){ refreshAll(); loadAllVisitors(); updateVisitorStats(); showToast('Données effacées'); };
+    }
+  };
+
+  // ---- Init ----
+  window.onload=function(){
+    var dateStr=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('current-date').textContent=dateStr;
+    document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('fr-FR');
+    document.getElementById('sidebar-date').textContent=dateStr;
+
+    initDB();
+
+    // Init journal date = aujourd'hui
+    var todayStr = new Date().toISOString().split('T')[0];
+    var jFrom = document.getElementById('journal-date-from');
+    var jTo   = document.getElementById('journal-date-to');
+    if(jFrom) jFrom.value = todayStr;
+    if(jTo)   jTo.value   = todayStr;
+
+    // Drag & Drop import
+    var zone=document.getElementById('import-zone');
+    zone.addEventListener('dragover',e=>{ e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+    zone.addEventListener('drop',e=>{
+      e.preventDefault(); zone.classList.remove('drag-over');
+      var f=e.dataTransfer.files[0];
+      if(f){ var inp=document.getElementById('excel-input'); inp.files=e.dataTransfer.files; handleExcelImport({target:inp}); }
+    });
+  };
+
+  window.closeModal=closeModal;
+  window.openEventModal=openEventModal;
+  window.saveEvent=saveEvent;
+  window.loadAllBadges=loadAllBadges;
+  window.loadImportsHistory=loadImportsHistory;
+
+  // ====================================================================
+  //  MODULE BADGES VISITEURS — v2 (avec/sans photo + tailles + save fix)
+  // ====================================================================
+  var visitorLogoSrc   = '';
+  var visitorPhotoSrc  = '';
+  var visitorModel     = 'with-photo';   // 'with-photo' | 'no-photo'
+  var selectedVisitors = new Set();
+  var visitorEditId    = null;
+
+  // Tailles courantes du badge visiteur (appliquées à l'aperçu ET à l'impression)
+  var vbSizes = { name:14, company:10, dept:9, org:12, pw:76, ph:96, qr:46 };
+
+  // ---- Helpers preview body ----
+  function renderVBBody(){
+    var body = document.getElementById('vb-preview-body');
+    if(!body) return;
+    var last   = document.getElementById('visitor-lastname').value  || 'NOM';
+    var first  = document.getElementById('visitor-firstname').value || 'Prénom';
+    var comp   = document.getElementById('visitor-company').value   || 'Société';
+    var dept   = document.getElementById('visitor-dept').value      || 'Département';
+    var entry  = document.getElementById('visitor-entry').value     || '--:--';
+    var exit   = document.getElementById('visitor-exit').value      || '--:--';
+    var photoSrc = visitorPhotoSrc ||
+      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='76' height='96'%3E%3Crect fill='%23fff3e0' width='76' height='96'/%3E%3Ctext x='38' y='52' text-anchor='middle' fill='%23e65100' font-size='28'%3E👤%3C/text%3E%3C/svg%3E";
+
+    if(visitorModel === 'with-photo'){
+      body.innerHTML =
+        '<div class="vb-photo" id="vb-pw-el" style="width:'+vbSizes.pw+'px;height:'+vbSizes.ph+'px;">'
+          +'<img id="vb-preview-img" src="'+photoSrc+'" style="width:100%;height:100%;object-fit:cover;">'
+        +'</div>'
+        +'<div class="vb-info">'
+          +'<div class="vb-name" id="vb-preview-name" style="font-size:'+vbSizes.name+'px;">'+escapeHTML(last.toUpperCase()+' '+first)+'</div>'
+          +'<div class="vb-company" id="vb-preview-company" style="font-size:'+vbSizes.company+'px;">'+escapeHTML(comp)+'</div>'
+          +'<div class="vb-dept" id="vb-preview-dept" style="font-size:'+vbSizes.dept+'px;">'+escapeHTML(dept)+'</div>'
+          +'<div class="vb-times">'
+            +'<div class="vb-time-badge entry"><div class="t-label">Entrée</div><div class="t-value" id="vb-preview-entry">'+escapeHTML(entry)+'</div></div>'
+            +'<div class="vb-time-badge exit"><div class="t-label">Sortie</div><div class="t-value" id="vb-preview-exit">'+escapeHTML(exit)+'</div></div>'
+          +'</div>'
+        +'</div>';
+    } else {
+      // Sans photo — infos centrées avec plus d'espace
+      body.innerHTML =
+        '<div class="vb-info" style="width:100%;text-align:center;justify-content:center;align-items:center;display:flex;flex-direction:column;gap:4px;">'
+          +'<div class="vb-name" id="vb-preview-name" style="font-size:'+vbSizes.name+'px;">'+escapeHTML(last.toUpperCase()+' '+first)+'</div>'
+          +'<div class="vb-company" id="vb-preview-company" style="font-size:'+vbSizes.company+'px;border-left:none;text-align:center;">'+escapeHTML(comp)+'</div>'
+          +'<div class="vb-dept" id="vb-preview-dept" style="font-size:'+vbSizes.dept+'px;">'+escapeHTML(dept)+'</div>'
+          +'<div class="vb-times" style="justify-content:center;">'
+            +'<div class="vb-time-badge entry"><div class="t-label">Entrée</div><div class="t-value" id="vb-preview-entry">'+escapeHTML(entry)+'</div></div>'
+            +'<div class="vb-time-badge exit"><div class="t-label">Sortie</div><div class="t-value" id="vb-preview-exit">'+escapeHTML(exit)+'</div></div>'
+          +'</div>'
+        +'</div>';
+    }
+    // Update org & QR size
+    var orgEl = document.getElementById('vb-preview-org');
+    if(orgEl) orgEl.style.fontSize = vbSizes.org+'px';
+    var qrArea = document.getElementById('vb-preview-qr');
+    if(qrArea){ qrArea.style.width=vbSizes.qr+'px'; qrArea.style.height=vbSizes.qr+'px'; }
+    // Show/hide photo slider rows
+    var pwRow = document.getElementById('vb-photo-w-row');
+    var phRow = document.getElementById('vb-photo-h-row');
+    if(pwRow) pwRow.style.display = visitorModel==='with-photo' ? '' : 'none';
+    if(phRow) phRow.style.display = visitorModel==='with-photo' ? '' : 'none';
+  }
+
+  // ---- Select model ----
+  window.selectVisitorModel = function(model, btn){
+    visitorModel = model;
+    document.querySelectorAll('#visitor-model-group .option-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    var photoGroup = document.getElementById('visitor-photo-group');
+    if(photoGroup) photoGroup.style.display = model==='with-photo' ? 'block' : 'none';
+    renderVBBody();
+    updateVisitorQR();
+  };
+
+  // ---- Live Preview ----
+  window.updateVisitorPreview = function(){
+    var org = document.getElementById('visitor-host-org').value || 'ORGANISATION';
+    var orgEl = document.getElementById('vb-preview-org');
+    if(orgEl){ orgEl.textContent = org.toUpperCase(); orgEl.style.fontSize = vbSizes.org+'px'; }
+    renderVBBody();
+    updateVisitorQR();
+  };
+
+  function updateVisitorQR(){
+    var last   = document.getElementById('visitor-lastname').value  || '';
+    var first  = document.getElementById('visitor-firstname').value || '';
+    var comp   = document.getElementById('visitor-company').value   || '';
+    var dept   = document.getElementById('visitor-dept').value      || '';
+    var org    = document.getElementById('visitor-host-org').value  || '';
+    var entry  = document.getElementById('visitor-entry').value     || '';
+    var exit   = document.getElementById('visitor-exit').value      || '';
+    var qrDiv  = document.getElementById('vb-preview-qr');
+    if(!qrDiv) return;
+    qrDiv.style.width  = vbSizes.qr+'px';
+    qrDiv.style.height = vbSizes.qr+'px';
+    qrDiv.innerHTML = '';
+    var qrText = 'NOM:'+last+' '+first+'|SOC:'+comp+'|DEPT:'+dept+'|ENTREE:'+entry+'|SORTIE:'+exit+'|HOTE:'+org;
+    setTimeout(function(){
+      new QRCode(qrDiv,{text:qrText||'VISITEUR',width:vbSizes.qr-6,height:vbSizes.qr-6,correctLevel:QRCode.CorrectLevel.M});
+    },20);
+  }
+
+  // ---- Tailles ----
+  window.applyVisitorSizes = function(){
+    vbSizes.name    = +document.getElementById('vb-sl-name').value;
+    vbSizes.company = +document.getElementById('vb-sl-company').value;
+    vbSizes.dept    = +document.getElementById('vb-sl-dept').value;
+    vbSizes.org     = +document.getElementById('vb-sl-org').value;
+    vbSizes.pw      = +document.getElementById('vb-sl-pw').value;
+    vbSizes.ph      = +document.getElementById('vb-sl-ph').value;
+    vbSizes.qr      = +document.getElementById('vb-sl-qr').value;
+    // Update labels
+    document.getElementById('vb-lbl-name').textContent    = vbSizes.name+'px';
+    document.getElementById('vb-lbl-company').textContent = vbSizes.company+'px';
+    document.getElementById('vb-lbl-dept').textContent    = vbSizes.dept+'px';
+    document.getElementById('vb-lbl-org').textContent     = vbSizes.org+'px';
+    document.getElementById('vb-lbl-pw').textContent      = vbSizes.pw+'px';
+    document.getElementById('vb-lbl-ph').textContent      = vbSizes.ph+'px';
+    document.getElementById('vb-lbl-qr').textContent      = vbSizes.qr+'px';
+    renderVBBody();
+    updateVisitorQR();
+  };
+  window.resetVisitorSizes = function(){
+    vbSizes = { name:14, company:10, dept:9, org:12, pw:76, ph:96, qr:46 };
+    document.getElementById('vb-sl-name').value    = 14;
+    document.getElementById('vb-sl-company').value = 10;
+    document.getElementById('vb-sl-dept').value    = 9;
+    document.getElementById('vb-sl-org').value     = 12;
+    document.getElementById('vb-sl-pw').value      = 76;
+    document.getElementById('vb-sl-ph').value      = 96;
+    document.getElementById('vb-sl-qr').value      = 46;
+    applyVisitorSizes();
+  };
+
+  // ---- Open/Close modal ----
+  window.openVisitorModal = function(){
+    visitorEditId   = null;
+    visitorLogoSrc  = '';
+    visitorPhotoSrc = '';
+    visitorModel    = 'with-photo';
+    ['visitor-lastname','visitor-firstname','visitor-company','visitor-dept','visitor-host-org','visitor-entry','visitor-exit'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value='';
+    });
+    document.getElementById('visitor-logo-preview').innerHTML = '<span style="font-size:0.65rem;">Logo</span>';
+    document.getElementById('vb-preview-logo').textContent    = '🏢';
+    var pp = document.getElementById('visitor-photo-preview');
+    if(pp){ pp.classList.remove('visible'); pp.src=''; }
+    document.getElementById('visitor-photo-status').textContent  = 'Aucune photo sélectionnée';
+    document.getElementById('visitor-clear-photo-btn').style.display = 'none';
+    document.getElementById('visitor-edit-id').value = '';
+    document.getElementById('visitor-modal-title').textContent  = '🪪 Nouveau visiteur';
+    // Reset model buttons
+    document.querySelectorAll('#visitor-model-group .option-btn').forEach(function(b,i){ b.classList.toggle('active',i===0); });
+    document.getElementById('visitor-photo-group').style.display = 'block';
+    resetVisitorSizes();
+    // Heure courante en défaut
+    var now  = new Date();
+    var hhmm = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('visitor-entry').value = hhmm;
+    renderVBBody();
+    updateVisitorQR();
+    document.getElementById('visitor-modal').classList.add('show');
+  };
+  window.closeVisitorModal = function(){
+    document.getElementById('visitor-modal').classList.remove('show');
+  };
+
+  // ---- Logo ----
+  window.handleVisitorLogoUpload = function(e){
+    var f = e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev){
+      compressLogo(ev.target.result).then(function(c){
+        visitorLogoSrc = c;
+        document.getElementById('visitor-logo-preview').innerHTML = '<img src="'+c+'">';
+        document.getElementById('vb-preview-logo').innerHTML = '<img src="'+c+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+      });
+    };
+    r.readAsDataURL(f);
+  };
+
+  // ---- Photo ----
+  function applyVisitorPhoto(dataUrl){
+    visitorPhotoSrc = dataUrl;
+    var thumb = document.getElementById('visitor-photo-preview');
+    if(thumb){ thumb.src = dataUrl; thumb.classList.add('visible'); }
+    document.getElementById('visitor-photo-status').textContent = '✅ Photo chargée';
+    document.getElementById('visitor-clear-photo-btn').style.display = 'inline-flex';
+    // Update live preview img if exists
+    var pi = document.getElementById('vb-preview-img');
+    if(pi) pi.src = dataUrl;
+  }
+  window.clearVisitorPhoto = function(){
+    visitorPhotoSrc = '';
+    var thumb = document.getElementById('visitor-photo-preview');
+    if(thumb){ thumb.classList.remove('visible'); thumb.src=''; }
+    document.getElementById('visitor-photo-status').textContent = 'Aucune photo sélectionnée';
+    document.getElementById('visitor-clear-photo-btn').style.display = 'none';
+    renderVBBody(); // re-render avec placeholder
+  };
+  window.handleVisitorPhotoUpload = function(e){
+    var f = e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev){ compressImage(ev.target.result,300,400,0.8).then(function(c){ applyVisitorPhoto(c); }); };
+    r.readAsDataURL(f);
+  };
+
+  // Override takeSnapshot to support visitor
+  var _origTakeSnapshot = window.takeSnapshot;
+  window.takeSnapshot = function(){
+    if(cameraTarget === 'visitor'){
+      var video  = document.getElementById('camera-video');
+      var canvas = document.getElementById('camera-canvas');
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video,0,0);
+      compressImage(canvas.toDataURL('image/jpeg',0.9),300,400,0.8).then(function(c){
+        applyVisitorPhoto(c); closeCamera(); showToast('Photo prise ✅');
+      });
+    } else {
+      _origTakeSnapshot();
+    }
+  };
+
+  // ---- Save (robuste) ----
+  window.saveVisitor = function(){
+    if(!db){ showToast('Base de données non disponible — Rechargez la page (F5) et réessayez.','error'); return; }
+    // Vérifier que le store existe (ne devrait plus arriver avec la migration v2)
+    if(!db.objectStoreNames.contains('visitors')){
+      showToast('Store visiteurs manquant. Rechargez la page (F5) pour appliquer la mise à jour.','error'); return;
+    }
+    var last  = document.getElementById('visitor-lastname').value.trim();
+    var first = document.getElementById('visitor-firstname').value.trim();
+    if(!last && !first){ showToast('Nom et prénom requis','error'); return; }
+    if(!last){ showToast('Nom requis','error'); return; }
+    if(!first){ showToast('Prénom requis','error'); return; }
+
+    var visitor = {
+      lastname  : last,
+      firstname : first,
+      company   : document.getElementById('visitor-company').value.trim(),
+      dept      : document.getElementById('visitor-dept').value.trim(),
+      hostOrg   : document.getElementById('visitor-host-org').value.trim(),
+      entry     : document.getElementById('visitor-entry').value,
+      exit      : document.getElementById('visitor-exit').value,
+      model     : visitorModel,
+      logo      : visitorLogoSrc,
+      photo     : visitorModel==='with-photo' ? visitorPhotoSrc : '',
+      sizes     : Object.assign({}, vbSizes),
+      visitDate : new Date().toISOString().split('T')[0],
+      createdAt : new Date().toISOString()
+    };
+
+    try {
+      var tx  = db.transaction(['visitors'],'readwrite');
+      var req = visitorEditId
+        ? tx.objectStore('visitors').put(Object.assign({},visitor,{id:visitorEditId}))
+        : tx.objectStore('visitors').add(visitor);
+
+      req.onsuccess = function(){
+        showToast(visitorEditId ? 'Visiteur modifié ✅' : 'Visiteur enregistré ✅');
+        visitorEditId = null;
+        closeVisitorModal();
+        loadAllVisitors();
+        updateVisitorStats();
+      };
+      req.onerror = function(e){
+        showToast('Erreur enregistrement: '+(e.target.error||'inconnue'),'error');
+      };
+      tx.onerror = function(e){
+        showToast('Erreur transaction: '+(e.target.error||'inconnue'),'error');
+      };
+    } catch(err){
+      showToast('Exception: '+err.message,'error');
+    }
+  };
+
+  // ---- Load & Render ----
+  function loadAllVisitors(){
+    if(!db) return;
+    if(!db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').getAll().onsuccess = function(e){
+      var visitors = e.target.result;
+      var search = (document.getElementById('search-visitors')||{}).value||'';
+      search = search.toLowerCase();
+      if(search) visitors = visitors.filter(function(v){
+        return (v.lastname+' '+v.firstname).toLowerCase().includes(search)
+            || (v.company||'').toLowerCase().includes(search)
+            || (v.dept||'').toLowerCase().includes(search);
+      });
+      visitors.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+      var totEl = document.getElementById('visitors-total');
+      if(totEl) totEl.textContent = visitors.length;
+      renderVisitors(visitors);
+    };
+    tx.onerror = function(e){ console.warn('loadAllVisitors error:',e.target.error); };
+  }
+  window.loadAllVisitors = loadAllVisitors;
+
+  function renderVisitors(visitors){
+    var cont = document.getElementById('visitors-list');
+    if(!cont) return;
+    if(!visitors || !visitors.length){
+      cont.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div><div>Aucun visiteur enregistré</div>'
+        +'<button class="btn btn-warning btn-sm" style="margin-top:12px;color:#1a0e00;" onclick="openVisitorModal()">+ Enregistrer le premier visiteur</button></div>';
+      return;
+    }
+    cont.innerHTML = visitors.map(function(v){
+      var initials = ((v.lastname||'?').charAt(0)+(v.firstname||'?').charAt(0)).toUpperCase();
+      var avatarHtml = v.photo ? '<img src="'+v.photo+'">' : initials;
+      var modelBadge = v.model==='no-photo'
+        ? '<span style="font-size:0.62rem;background:rgba(255,143,0,0.15);color:#ff8f00;border:1px solid #ff8f00;border-radius:8px;padding:1px 6px;font-weight:700;margin-left:4px;">Sans photo</span>'
+        : '';
+      return '<div class="visitor-list-item '+(selectedVisitors.has(v.id)?'selected':'')+'">'
+        +'<input type="checkbox" '+(selectedVisitors.has(v.id)?'checked':'')+' onchange="toggleVisitor('+v.id+')" style="accent-color:#ff8f00;width:16px;height:16px;flex-shrink:0;cursor:pointer;">'
+        +'<div class="v-avatar">'+avatarHtml+'</div>'
+        +'<div class="v-info">'
+          +'<div class="v-name">'+escapeHTML((v.lastname||'').toUpperCase())+' '+escapeHTML(v.firstname||'')+modelBadge+'</div>'
+          +'<div class="v-meta">'+escapeHTML(v.company||'—')+' · '+escapeHTML(v.dept||'—')+'</div>'
+          +'<div class="v-meta" style="font-family:var(--font-mono);font-size:0.7rem;">🟢 '+(v.entry||'--:--')+'  🔴 '+(v.exit||'--:--')+'  📅 '+(v.visitDate||'')+'</div>'
+        +'</div>'
+        +'<div class="v-actions">'
+          +'<button class="btn btn-info btn-sm btn-icon" onclick="editVisitor('+v.id+')" title="Modifier">✏️</button>'
+          +'<button class="btn btn-warning btn-sm btn-icon" onclick="printOneVisitor('+v.id+')" title="Imprimer" style="color:#1a0e00;">🖨️</button>'
+          +'<button class="btn btn-danger btn-sm btn-icon" onclick="deleteVisitor('+v.id+')" title="Supprimer">🗑️</button>'
+        +'</div>'
+      +'</div>';
+    }).join('');
+  }
+
+  function updateVisitorStats(){
+    if(!db) return;
+    if(!db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').getAll().onsuccess = function(e){
+      var all   = e.target.result;
+      var today = new Date().toISOString().split('T')[0];
+      var t = document.getElementById('vstat-total');   if(t) t.textContent = all.length;
+      var d = document.getElementById('vstat-today');   if(d) d.textContent = all.filter(function(v){ return v.visitDate===today; }).length;
+      var p = document.getElementById('vstat-photos');  if(p) p.textContent = all.filter(function(v){ return v.photo; }).length;
+      var vc = document.getElementById('visitors-count'); if(vc) vc.textContent = all.length;
+      var sv = document.getElementById('stat-visitors'); if(sv) sv.textContent = all.length;
+    };
+  }
+
+  // ---- Select / Delete ----
+  window.toggleVisitor = function(id){
+    if(selectedVisitors.has(id)) selectedVisitors.delete(id); else selectedVisitors.add(id);
+    loadAllVisitors();
+  };
+  window.selectAllVisitors = function(){
+    if(!db || !db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').getAll().onsuccess = function(e){
+      e.target.result.forEach(function(v){ selectedVisitors.add(v.id); });
+      loadAllVisitors();
+    };
+  };
+  window.deleteSelectedVisitors = function(){
+    if(!selectedVisitors.size) return;
+    if(!confirm('Supprimer '+selectedVisitors.size+' visiteur(s) ?')) return;
+    var tx = db.transaction(['visitors'],'readwrite');
+    selectedVisitors.forEach(function(id){ tx.objectStore('visitors').delete(id); });
+    tx.oncomplete = function(){ selectedVisitors.clear(); loadAllVisitors(); updateVisitorStats(); showToast('Visiteurs supprimés'); };
+  };
+  window.deleteVisitor = function(id){
+    if(!confirm('Supprimer ce visiteur ?')) return;
+    var tx = db.transaction(['visitors'],'readwrite');
+    tx.objectStore('visitors').delete(id).onsuccess = function(){ loadAllVisitors(); updateVisitorStats(); showToast('Supprimé'); };
+  };
+
+  // ---- Edit ----
+  window.editVisitor = function(id){
+    if(!db || !db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').get(id).onsuccess = function(e){
+      var v = e.target.result; if(!v) return;
+      visitorEditId   = id;
+      visitorLogoSrc  = v.logo  || '';
+      visitorPhotoSrc = v.photo || '';
+      visitorModel    = v.model || 'with-photo';
+
+      document.getElementById('visitor-edit-id').value       = id;
+      document.getElementById('visitor-lastname').value      = v.lastname  || '';
+      document.getElementById('visitor-firstname').value     = v.firstname || '';
+      document.getElementById('visitor-company').value       = v.company   || '';
+      document.getElementById('visitor-dept').value          = v.dept      || '';
+      document.getElementById('visitor-host-org').value      = v.hostOrg   || '';
+      document.getElementById('visitor-entry').value         = v.entry     || '';
+      document.getElementById('visitor-exit').value          = v.exit      || '';
+      document.getElementById('visitor-modal-title').textContent = '✏️ Modifier visiteur';
+
+      // Restore sizes if saved
+      if(v.sizes) Object.assign(vbSizes, v.sizes);
+      document.getElementById('vb-sl-name').value    = vbSizes.name;
+      document.getElementById('vb-sl-company').value = vbSizes.company;
+      document.getElementById('vb-sl-dept').value    = vbSizes.dept;
+      document.getElementById('vb-sl-org').value     = vbSizes.org;
+      document.getElementById('vb-sl-pw').value      = vbSizes.pw;
+      document.getElementById('vb-sl-ph').value      = vbSizes.ph;
+      document.getElementById('vb-sl-qr').value      = vbSizes.qr;
+      applyVisitorSizes();
+
+      // Model buttons
+      document.querySelectorAll('#visitor-model-group .option-btn').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('onclick').includes(visitorModel));
+      });
+      document.getElementById('visitor-photo-group').style.display = visitorModel==='with-photo' ? 'block' : 'none';
+
+      // Logo
+      if(v.logo){
+        document.getElementById('visitor-logo-preview').innerHTML = '<img src="'+v.logo+'">';
+        document.getElementById('vb-preview-logo').innerHTML = '<img src="'+v.logo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+      } else {
+        document.getElementById('visitor-logo-preview').innerHTML = '<span style="font-size:0.65rem;">Logo</span>';
+        document.getElementById('vb-preview-logo').textContent = '🏢';
+      }
+
+      // Photo
+      var pp = document.getElementById('visitor-photo-preview');
+      if(v.photo){ pp.src = v.photo; pp.classList.add('visible'); document.getElementById('visitor-photo-status').textContent='✅ Photo chargée'; document.getElementById('visitor-clear-photo-btn').style.display='inline-flex'; }
+      else { pp.classList.remove('visible'); pp.src=''; document.getElementById('visitor-photo-status').textContent='Aucune photo'; document.getElementById('visitor-clear-photo-btn').style.display='none'; }
+
+      renderVBBody();
+      updateVisitorQR();
+      document.getElementById('visitor-modal').classList.add('show');
+    };
+  };
+
+  // ---- Download PNG ----
+  window.downloadVisitorBadge = function(){
+    html2canvas(document.getElementById('visitor-badge-preview'),{scale:3,backgroundColor:'#fff'}).then(function(c){
+      var a = document.createElement('a'); a.download='badge-visiteur.png'; a.href=c.toDataURL(); a.click();
+    });
+  };
+
+  // ---- Build HTML for print ----
+  function buildVisitorBadgeHTML(v, qrId){
+    var s = v.sizes || vbSizes;
+    var logoHtml  = v.logo
+      ? '<img src="'+v.logo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+      : '🏢';
+    var bodyHtml;
+    if((v.model||'with-photo') === 'with-photo'){
+      var photoHtml = v.photo
+        ? '<img src="'+v.photo+'" style="width:100%;height:100%;object-fit:cover;">'
+        : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#e65100;opacity:0.4;">👤</div>';
+      bodyHtml = '<div class="vb-body">'
+        +'<div class="vb-photo" style="width:'+s.pw+'px;height:'+s.ph+'px;">'+photoHtml+'</div>'
+        +'<div class="vb-info">'
+          +'<div class="vb-name" style="font-size:'+s.name+'px;">'+escapeHTML((v.lastname||'').toUpperCase()+' '+(v.firstname||''))+'</div>'
+          +'<div class="vb-company" style="font-size:'+s.company+'px;">'+escapeHTML(v.company||'—')+'</div>'
+          +'<div class="vb-dept" style="font-size:'+s.dept+'px;">'+escapeHTML(v.dept||'—')+'</div>'
+          +'<div class="vb-times">'
+            +'<div class="vb-time-badge entry"><div class="t-label">Entrée</div><div class="t-value">'+escapeHTML(v.entry||'--:--')+'</div></div>'
+            +'<div class="vb-time-badge exit"><div class="t-label">Sortie</div><div class="t-value">'+escapeHTML(v.exit||'--:--')+'</div></div>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+    } else {
+      bodyHtml = '<div class="vb-body">'
+        +'<div class="vb-info" style="width:100%;text-align:center;justify-content:center;align-items:center;display:flex;flex-direction:column;gap:4px;">'
+          +'<div class="vb-name" style="font-size:'+s.name+'px;">'+escapeHTML((v.lastname||'').toUpperCase()+' '+(v.firstname||''))+'</div>'
+          +'<div class="vb-company" style="font-size:'+s.company+'px;border-left:none;">'+escapeHTML(v.company||'—')+'</div>'
+          +'<div class="vb-dept" style="font-size:'+s.dept+'px;">'+escapeHTML(v.dept||'—')+'</div>'
+          +'<div class="vb-times" style="justify-content:center;">'
+            +'<div class="vb-time-badge entry"><div class="t-label">Entrée</div><div class="t-value">'+escapeHTML(v.entry||'--:--')+'</div></div>'
+            +'<div class="vb-time-badge exit"><div class="t-label">Sortie</div><div class="t-value">'+escapeHTML(v.exit||'--:--')+'</div></div>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+    }
+    return '<div class="visitor-badge" style="width:342px;height:216px;background:white;border-radius:12px;position:relative;overflow:hidden;border:1px solid rgba(0,0,0,0.15);font-family:Segoe UI,Arial,sans-serif;">'
+      +'<div style="background:linear-gradient(90deg,#ff6b00 0%,#ff9a3c 50%,#ff6b00 100%);height:8px;width:100%;"></div>'
+      +'<div style="background:linear-gradient(135deg,#e65100 0%,#ff8f00 100%);display:flex;align-items:center;gap:10px;padding:8px 14px;position:relative;overflow:hidden;">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;z-index:1;box-shadow:0 2px 6px rgba(0,0,0,0.2);overflow:hidden;">'+logoHtml+'</div>'
+        +'<div style="z-index:1;">'
+          +'<div style="font-size:0.6rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.85);">★ Visiteur ★</div>'
+          +'<div style="font-size:'+s.org+'px;font-weight:800;color:white;text-transform:uppercase;letter-spacing:0.5px;text-shadow:0 1px 3px rgba(0,0,0,0.3);">'+escapeHTML((v.hostOrg||'ORGANISATION').toUpperCase())+'</div>'
+        +'</div>'
+      +'</div>'
+      +bodyHtml
+      +'<div id="'+qrId+'" style="position:absolute;bottom:8px;right:8px;width:'+s.qr+'px;height:'+s.qr+'px;background:white;padding:3px;border:1.5px solid #e0e0e0;border-radius:6px;"></div>'
+      +'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(90deg,#e65100,#ff8f00);height:5px;"></div>'
+    +'</div>';
+  }
+
+  function generateVisitorPrintContent(visitors, containerId){
+    return new Promise(function(resolve){
+      var content = document.getElementById(containerId);
+      content.innerHTML = '';
+      var perPage = 6;
+      for(var p=0; p<Math.ceil(visitors.length/perPage); p++){
+        var page = document.createElement('div'); page.className='a4-page';
+        var grid = document.createElement('div'); grid.className='badges-grid';
+        for(var i=p*perPage; i<Math.min((p+1)*perPage,visitors.length); i++){
+          grid.innerHTML += buildVisitorBadgeHTML(visitors[i],'vqr-'+i);
+        }
+        page.appendChild(grid); content.appendChild(page);
+      }
+      if(!visitors.length){ resolve(); return; }
+      setTimeout(function(){
+        var qrPromises = [];
+        for(var i=0; i<visitors.length; i++){
+          var div = document.getElementById('vqr-'+i); if(!div) continue;
+          var v = visitors[i];
+          var s = v.sizes || vbSizes;
+          var qrText = 'NOM:'+v.lastname+' '+v.firstname+'|SOC:'+(v.company||'')+'|DEPT:'+(v.dept||'')+'|ENTREE:'+(v.entry||'')+'|SORTIE:'+(v.exit||'')+'|HOTE:'+(v.hostOrg||'')+'|DATE:'+(v.visitDate||'');
+          qrPromises.push(new Promise(function(qrResolve){
+            (function(d, sz, txt){
+              new QRCode(d,{text:txt||'VISITEUR',width:sz-6,height:sz-6,correctLevel:QRCode.CorrectLevel.M});
+              setTimeout(function(){
+                var cvs=d.querySelector('canvas');
+                if(cvs){ var du=cvs.toDataURL('image/png'); d.innerHTML=''; var img=document.createElement('img'); img.src=du; img.style.cssText='width:100%;height:100%;display:block;'; d.appendChild(img); }
+                qrResolve();
+              },350);
+            })(div, s.qr||46, qrText);
+          }));
+        }
+        Promise.all(qrPromises).then(resolve);
+      },150);
+    });
+  }
+
+  window.printOneVisitor = function(id){
+    if(!db || !db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').get(id).onsuccess = function(e){
+      var v = e.target.result; if(!v) return;
+      document.getElementById('visitor-print-modal').classList.add('show');
+      document.getElementById('visitor-print-count').textContent = '1 visiteur';
+      generateVisitorPrintContent([v],'visitor-print-content');
+    };
+  };
+  window.printSelectedVisitors = function(){
+    if(!selectedVisitors.size){ showToast('Sélectionnez des visiteurs','info'); return; }
+    if(!db || !db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    var promises = Array.from(selectedVisitors).map(function(id){
+      return new Promise(function(res){ tx.objectStore('visitors').get(id).onsuccess=function(e){ res(e.target.result); }; });
+    });
+    Promise.all(promises).then(function(visitors){
+      visitors = visitors.filter(function(v){ return !!v; });
+      document.getElementById('visitor-print-modal').classList.add('show');
+      document.getElementById('visitor-print-count').textContent = visitors.length+' visiteur(s)';
+      generateVisitorPrintContent(visitors,'visitor-print-content');
+    });
+  };
+  window.exportVisitorPDF = function(){
+    var jsPDF = window.jspdf.jsPDF;
+    showToast('Génération PDF en cours… ⏳','info');
+    var PDF_W=210, PDF_H=297;
+    // Attendre que les QR codes soient bien rendus (images dans le DOM)
+    setTimeout(function(){
+      var pdf   = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+      var pages = document.querySelectorAll('#visitor-print-content .a4-page');
+      if(!pages.length){ showToast('Rien à exporter','error'); return; }
+      function addPage(i){
+        if(i>=pages.length){ pdf.save('badges-visiteurs.pdf'); showToast('PDF exporté ✅'); return; }
+        html2canvas(pages[i],{scale:3,backgroundColor:'#fff',useCORS:true,allowTaint:true,imageTimeout:0,logging:false,width:pages[i].offsetWidth,height:pages[i].offsetHeight}).then(function(c){
+          if(i>0) pdf.addPage();
+          var canvasW=c.width, canvasH=c.height;
+          var ratio=Math.min(PDF_W/canvasW*3, PDF_H/canvasH*3);
+          var imgW=canvasW/3*ratio, imgH=canvasH/3*ratio;
+          var offX=(PDF_W-imgW)/2, offY=(PDF_H-imgH)/2;
+          pdf.addImage(c.toDataURL('image/jpeg',0.97),'JPEG',offX,offY,imgW,imgH);
+          addPage(i+1);
+        });
+      }
+      addPage(0);
+    }, 800);
+  };
+
+  // ====================================================================
+  //  MODULE JOURNAL DES VISITES
+  // ====================================================================
+  var currentJournalFilter = 'today';
+
+  window.setJournalFilter = function(filter, btn){
+    currentJournalFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+    var today = new Date().toISOString().split('T')[0];
+    var fromEl = document.getElementById('journal-date-from');
+    var toEl   = document.getElementById('journal-date-to');
+    if(filter === 'today'){
+      fromEl.value = today; toEl.value = today;
+    } else if(filter === 'week'){
+      var d = new Date();
+      d.setDate(d.getDate() - ((d.getDay()+6)%7)); // lundi
+      fromEl.value = d.toISOString().split('T')[0]; toEl.value = today;
+    } else if(filter === 'month'){
+      var d2 = new Date(); d2.setDate(1);
+      fromEl.value = d2.toISOString().split('T')[0]; toEl.value = today;
+    } else {
+      fromEl.value = ''; toEl.value = '';
+    }
+    loadJournal();
+  };
+
+  function calcDuration(entry, exit){
+    if(!entry || !exit) return null;
+    var e = entry.split(':').map(Number);
+    var x = exit.split(':').map(Number);
+    var mins = (x[0]*60+x[1]) - (e[0]*60+e[1]);
+    if(mins <= 0) return null;
+    var h = Math.floor(mins/60), m = mins%60;
+    return h > 0 ? h+'h'+String(m).padStart(2,'0') : m+'min';
+  }
+
+  function loadJournal(){
+    if(!db || !db.objectStoreNames.contains('visitors')) return;
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').getAll().onsuccess = function(e){
+      var all = e.target.result;
+      var today = new Date().toISOString().split('T')[0];
+      var weekD = new Date(); weekD.setDate(weekD.getDate() - ((weekD.getDay()+6)%7));
+      var weekStr  = weekD.toISOString().split('T')[0];
+      var monthStr = today.slice(0,7);
+
+      // Stats globales (non filtrées)
+      document.getElementById('jstat-today').textContent  = all.filter(function(v){ return v.visitDate===today; }).length;
+      document.getElementById('jstat-week').textContent   = all.filter(function(v){ return (v.visitDate||'')>=weekStr; }).length;
+      document.getElementById('jstat-month').textContent  = all.filter(function(v){ return (v.visitDate||'').startsWith(monthStr); }).length;
+
+      var durations = all.map(function(v){
+        var e2 = (v.entry||'').split(':').map(Number);
+        var x  = (v.exit||'').split(':').map(Number);
+        if(e2.length<2||x.length<2) return null;
+        var m = (x[0]*60+x[1])-(e2[0]*60+e2[1]);
+        return m>0 ? m : null;
+      }).filter(function(m){ return m!==null; });
+      if(durations.length){
+        var avg = Math.round(durations.reduce(function(a,b){return a+b;},0)/durations.length);
+        document.getElementById('jstat-avg').textContent = Math.floor(avg/60)+'h'+String(avg%60).padStart(2,'0');
+      } else {
+        document.getElementById('jstat-avg').textContent = '—';
+      }
+
+      // Filtrage
+      var visitors = all.slice();
+      var from   = (document.getElementById('journal-date-from')||{}).value||'';
+      var to     = (document.getElementById('journal-date-to')||{}).value||'';
+      var search = ((document.getElementById('search-journal')||{}).value||'').toLowerCase();
+      if(from) visitors = visitors.filter(function(v){ return (v.visitDate||'')>=from; });
+      if(to)   visitors = visitors.filter(function(v){ return (v.visitDate||'')<=to; });
+      if(search) visitors = visitors.filter(function(v){
+        return ((v.lastname||'')+' '+(v.firstname||'')).toLowerCase().includes(search)
+            || (v.company||'').toLowerCase().includes(search)
+            || (v.dept||'').toLowerCase().includes(search)
+            || (v.hostOrg||'').toLowerCase().includes(search);
+      });
+
+      visitors.sort(function(a,b){
+        var d = (b.visitDate||'').localeCompare(a.visitDate||'');
+        return d!==0 ? d : (b.entry||'').localeCompare(a.entry||'');
+      });
+
+      document.getElementById('journal-total').textContent = visitors.length;
+      renderJournal(visitors);
+    };
+  }
+  window.loadJournal = loadJournal;
+
+  function renderJournal(visitors){
+    var tbody = document.getElementById('journal-body');
+    var empty = document.getElementById('journal-empty');
+    if(!tbody) return;
+    if(!visitors.length){
+      tbody.innerHTML = '';
+      if(empty) empty.style.display='block';
+      return;
+    }
+    if(empty) empty.style.display='none';
+    tbody.innerHTML = visitors.map(function(v){
+      var dur    = calcDuration(v.entry, v.exit);
+      var durHtml = dur
+        ? '<span class="duration-badge">'+escapeHTML(dur)+'</span>'
+        : '<span style="color:var(--c-text-muted);font-size:0.72rem;">—</span>';
+      var date = v.visitDate
+        ? new Date(v.visitDate+'T00:00:00').toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})
+        : '—';
+      return '<tr>'
+        +'<td style="font-family:var(--font-mono);font-size:0.78rem;color:var(--c-text-sub);white-space:nowrap;">'+escapeHTML(date)+'</td>'
+        +'<td><span style="color:#00c87c;font-weight:700;font-family:var(--font-mono);">'+escapeHTML(v.entry||'—')+'</span></td>'
+        +'<td><span style="color:#ff4d6a;font-weight:700;font-family:var(--font-mono);">'+escapeHTML(v.exit||'—')+'</span></td>'
+        +'<td>'+durHtml+'</td>'
+        +'<td style="white-space:nowrap;"><strong>'+escapeHTML((v.lastname||'').toUpperCase())+' '+escapeHTML(v.firstname||'')+'</strong></td>'
+        +'<td style="color:var(--c-text-sub);">'+escapeHTML(v.company||'—')+'</td>'
+        +'<td style="color:var(--c-text-sub);">'+escapeHTML(v.dept||'—')+'</td>'
+        +'<td style="color:var(--c-text-sub);">'+escapeHTML(v.hostOrg||'—')+'</td>'
+        +'<td><div style="display:flex;gap:4px;">'
+          +'<button class="btn btn-info btn-sm btn-icon" onclick="editVisitor('+v.id+')" title="Modifier">✏️</button>'
+          +'<button class="btn btn-warning btn-sm btn-icon" onclick="printOneVisitor('+v.id+')" title="Imprimer" style="color:#1a0e00;">🖨️</button>'
+        +'</div></td>'
+      +'</tr>';
+    }).join('');
+  }
+
+  window.exportJournalCSV = function(){
+    if(!db || !db.objectStoreNames.contains('visitors')){ showToast('Base de données non disponible','error'); return; }
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').getAll().onsuccess = function(e){
+      var visitors = e.target.result;
+      var from = (document.getElementById('journal-date-from')||{}).value||'';
+      var to   = (document.getElementById('journal-date-to')||{}).value||'';
+      if(from) visitors = visitors.filter(function(v){ return (v.visitDate||'')>=from; });
+      if(to)   visitors = visitors.filter(function(v){ return (v.visitDate||'')<=to; });
+      visitors.sort(function(a,b){ return (b.visitDate||'').localeCompare(a.visitDate||''); });
+
+      var header = ['Date','Entrée','Sortie','Durée','Nom','Prénom','Société','Département','Organisation hôte'];
+      var rows = visitors.map(function(v){
+        var date = v.visitDate ? new Date(v.visitDate+'T00:00:00').toLocaleDateString('fr-FR') : '';
+        return [
+          date, v.entry||'', v.exit||'', calcDuration(v.entry,v.exit)||'',
+          v.lastname||'', v.firstname||'', v.company||'', v.dept||'', v.hostOrg||''
+        ].map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(';');
+      });
+      var csv = '\uFEFF' + [header.join(';')].concat(rows).join('\n');
+      var blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+      var a = document.createElement('a');
+      a.download = 'journal-visites-'+new Date().toISOString().split('T')[0]+'.csv';
+      a.href = URL.createObjectURL(blob); a.click();
+      showToast('Export CSV ✅ ('+visitors.length+' lignes)');
+    };
+  };
+
+  window.exportJournalPDF = function(){
+    if(!db || !db.objectStoreNames.contains('visitors')){ showToast('Base de données non disponible','error'); return; }
+    var tx = db.transaction(['visitors'],'readonly');
+    tx.objectStore('visitors').getAll().onsuccess = function(e){
+      var visitors = e.target.result;
+      var from = (document.getElementById('journal-date-from')||{}).value||'';
+      var to   = (document.getElementById('journal-date-to')||{}).value||'';
+      if(from) visitors = visitors.filter(function(v){ return (v.visitDate||'')>=from; });
+      if(to)   visitors = visitors.filter(function(v){ return (v.visitDate||'')<=to; });
+      visitors.sort(function(a,b){ return (b.visitDate||'').localeCompare(a.visitDate||''); });
+
+      var periodLabel = from||to ? (from||'début')+' → '+(to||'fin') : 'Tous les enregistrements';
+      var rows = visitors.map(function(v){
+        var dur  = calcDuration(v.entry,v.exit)||'—';
+        var date = v.visitDate ? new Date(v.visitDate+'T00:00:00').toLocaleDateString('fr-FR') : '—';
+        return '<tr>'
+          +'<td>'+escapeHTML(date)+'</td>'
+          +'<td style="color:#0a7a1e;font-weight:700;font-family:monospace;">'+escapeHTML(v.entry||'—')+'</td>'
+          +'<td style="color:#c00;font-weight:700;font-family:monospace;">'+escapeHTML(v.exit||'—')+'</td>'
+          +'<td style="font-weight:600;">'+escapeHTML(dur)+'</td>'
+          +'<td><strong>'+escapeHTML((v.lastname||'').toUpperCase())+' '+escapeHTML(v.firstname||'')+'</strong></td>'
+          +'<td>'+escapeHTML(v.company||'—')+'</td>'
+          +'<td>'+escapeHTML(v.dept||'—')+'</td>'
+          +'<td>'+escapeHTML(v.hostOrg||'—')+'</td>'
+        +'</tr>';
+      }).join('');
+
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Journal des visites</title>'
+        +'<style>body{font-family:Arial,sans-serif;font-size:10px;color:#1a1a1a;margin:20px;}'
+        +'h1{font-size:15px;color:#e65100;margin-bottom:2px;}p.sub{font-size:9px;color:#666;margin-bottom:14px;}'
+        +'table{width:100%;border-collapse:collapse;}th{background:#e65100;color:white;padding:6px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:0.05em;}'
+        +'td{padding:5px 8px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#fff7f0;}'
+        +'</style></head><body>'
+        +'<h1>📋 Journal des visites</h1>'
+        +'<p class="sub">Période : '+escapeHTML(periodLabel)+' &nbsp;|&nbsp; '+visitors.length+' visite(s) &nbsp;|&nbsp; Généré le '+new Date().toLocaleDateString('fr-FR')+'</p>'
+        +'<table><thead><tr><th>Date</th><th>Entrée</th><th>Sortie</th><th>Durée</th><th>Visiteur</th><th>Société</th><th>Département</th><th>Hôte</th></tr></thead>'
+        +'<tbody>'+rows+'</tbody></table></body></html>';
+
+      var win = window.open('','_blank','width=950,height=650');
+      if(!win){ showToast('Autorisez les popups pour exporter en PDF','error'); return; }
+      win.document.write(html);
+      win.document.close();
+      setTimeout(function(){ win.print(); },400);
+    };
+  };
+
+  // ====================================================================
+  //  Patch refreshAll pour inclure visiteurs
+  // ====================================================================
+  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+})();
+</script>
+</body>
+</html>
