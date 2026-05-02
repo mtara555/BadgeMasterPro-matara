@@ -1513,6 +1513,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   }
   function compressLogo(dataUrl){ return compressImage(dataUrl,150,150,0.8); }
 
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   // ---- DB ----
   function initDB(){
     var req = indexedDB.open('MtarabetBadgeMasterV5', 2); // v2 : ajout store visiteurs sans perte de données
@@ -2973,6 +2984,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // ⚡ Bolt: Debounce performance-heavy event handlers to improve UI responsiveness
+  window.updateBadgePreview = debounce(window.updateBadgePreview, 250);
+  window.loadAllBadges = debounce(window.loadAllBadges, 250);
+  window.loadAllVisitors = debounce(window.loadAllVisitors, 250);
+  window.loadJournal = debounce(window.loadJournal, 250);
+  window.updateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+
+  window.applyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.applyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.applyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
