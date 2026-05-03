@@ -1566,7 +1566,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   }
 
-  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
   function updateStats(){
     if(!db) return;
     var tx=db.transaction(['events','badges','imports'],'readonly');
