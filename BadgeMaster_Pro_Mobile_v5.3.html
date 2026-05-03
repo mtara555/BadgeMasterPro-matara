@@ -1486,6 +1486,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var customBadgeWidthMm = 85, customBadgeHeightMm = 54;
 
   // ---- Helpers ----
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
   function showToast(msg, type='success'){
@@ -2973,6 +2984,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // ---- Performance Optimizations: Debounce frequent UI updates and search filters ----
+  window.updateBadgePreview = debounce(updateBadgePreview, 250);
+  window.loadAllBadges = debounce(loadAllBadges, 250);
+  window.loadAllVisitors = debounce(loadAllVisitors, 250);
+  window.loadJournal = debounce(loadJournal, 250);
+  window.updateVisitorPreview = debounce(updateVisitorPreview, 250);
+  window.applyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.applyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.applyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
