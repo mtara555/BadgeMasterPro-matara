@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a237e">
+<link rel="manifest" href="manifest.json">
 <title>BadgeMaster Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -1011,6 +1012,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             <div id="import-result" style="display:none;"></div>
           </div>
         </div>
+        <div class="card" id="import-history-card">
+          <div class="card-header"><h3>🕒 Historique des imports</h3></div>
+          <div class="card-body" id="import-history-list" style="padding:0;">
+            <!-- Rempli par loadImportsHistory -->
+          </div>
+        </div>
       </div>
 
       <!-- TOUS LES BADGES -->
@@ -1452,6 +1459,38 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   </div>
 </div>
 
+<!-- Modal Prévisualisation Import -->
+<div class="modal-overlay" id="import-preview-modal">
+  <div class="modal-box" style="max-width:800px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h3>📊 Prévisualisation de l'import</h3>
+      <span class="modal-close" onclick="closeModal('import-preview-modal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div id="import-preview-info" style="margin-bottom:15px; font-size:0.9rem; color:var(--c-text-sub);"></div>
+      <div style="overflow-x:auto; background:var(--c-surface2); border-radius:8px; border:1px solid var(--c-border);">
+        <table class="journal-table" id="import-preview-table">
+          <thead>
+            <tr>
+              <th>Organisation</th>
+              <th>Nom & Prénom</th>
+              <th>Fonction</th>
+              <th>ID/Matricule</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="import-preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('import-preview-modal')">Annuler</button>
+      <button class="btn btn-success" onclick="confirmImport()">✅ Confirmer l'import</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Impression Visiteurs -->
 <div class="modal-overlay" id="visitor-print-modal">
   <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;border-radius:var(--radius-lg)!important;">
@@ -1484,6 +1523,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = '';
   var cameraStream = null, cameraFacingMode = 'user', cameraTarget = 'badge';
   var customBadgeWidthMm = 85, customBadgeHeightMm = 54;
+  var tempImportData = null;
 
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
@@ -1632,6 +1672,37 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events'],'readwrite');
     tx.objectStore('events').add(evt).onsuccess=function(){ showToast('Événement créé ✅'); closeModal('event-modal'); ['event-name','event-location','event-date','event-org','event-desc'].forEach(id=>document.getElementById(id).value=''); refreshAll(); };
   }
+  function loadImportsHistory(){
+    if(!db) return;
+    var tx = db.transaction(['imports', 'events'], 'readonly');
+    tx.objectStore('imports').getAll().onsuccess = function(e){
+      var imports = e.target.result;
+      tx.objectStore('events').getAll().onsuccess = function(ev){
+        var evtMap = {}; ev.target.result.forEach(evt => evtMap[evt.id] = evt.name);
+        renderImportsHistory(imports, evtMap);
+      };
+    };
+  }
+  function renderImportsHistory(imports, evtMap){
+    var cont = document.getElementById('import-history-list');
+    if(!imports.length){
+      cont.innerHTML = '<div class="empty-state">Aucun historique d\'import</div>';
+      return;
+    }
+    imports.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    var html = '<table class="journal-table"><thead><tr><th>Date</th><th>Fichier</th><th>Événement</th><th>Badges</th></tr></thead><tbody>';
+    html += imports.map(imp => {
+      var date = new Date(imp.createdAt).toLocaleString('fr-FR');
+      return `<tr>
+        <td style="font-family:var(--font-mono); font-size:0.75rem;">${date}</td>
+        <td><strong>${escapeHTML(imp.fileName)}</strong></td>
+        <td>${escapeHTML(evtMap[imp.eventId] || 'Événement inconnu')}</td>
+        <td><span class="chip chip-green">${imp.totalRows}</span></td>
+      </tr>`;
+    }).join('') + '</tbody></table>';
+    cont.innerHTML = html;
+  }
+
   function loadEvents(){
     if(!db) return;
     var tx=db.transaction(['events','badges'],'readonly');
@@ -1657,7 +1728,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     events.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
     var html=events.map(ev=>{
       var cnt=counts[ev.id]||0;
-      return '<div class="event-card"><div class="event-icon">🎪</div><div class="event-info"><div class="event-name">'+escapeHTML(ev.name)+'</div><div class="event-meta">'+escapeHTML(ev.location||'—')+' · '+escapeHTML(ev.org||'—')+'</div><div style="margin-top:8px;"><span class="chip chip-green">'+cnt+' badges</span></div></div><div class="event-actions"><button class="btn btn-info btn-sm btn-icon" onclick="createBadgeForEvent('+ev.id+')" title="Créer badge">✏️</button><button class="btn btn-accent btn-sm btn-icon" onclick="importForEvent('+ev.id+')" title="Importer">📊</button><button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('+ev.id+')" title="Modifier">⚙️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('+ev.id+')" title="Supprimer">🗑️</button></div></div>';
+      return '<div class="event-card"><div class="event-icon">🎪</div><div class="event-info"><div class="event-name">'+escapeHTML(ev.name)+'</div><div class="event-meta">'+escapeHTML(ev.location||'—')+' · '+escapeHTML(ev.org||'—')+'</div><div style="margin-top:8px;"><span class="chip chip-green">'+cnt+' badges</span></div></div><div class="event-actions"><button class="btn btn-info btn-sm btn-icon" onclick="createBadgeForEvent('+ev.id+')" title="Créer badge" aria-label="Créer badge pour cet événement">✏️</button><button class="btn btn-accent btn-sm btn-icon" onclick="importForEvent('+ev.id+')" title="Importer" aria-label="Importer des participants pour cet événement">📊</button><button class="btn btn-ghost btn-sm btn-icon" onclick="editEvent('+ev.id+')" title="Modifier" aria-label="Modifier l\'événement">⚙️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteEvent('+ev.id+')" title="Supprimer" aria-label="Supprimer l\'événement">🗑️</button></div></div>';
     }).join('');
     container.innerHTML=html;
     dash.innerHTML=events.slice(0,3).map(ev=>'<div class="event-card"><div class="event-icon">🎪</div><div class="event-info"><div class="event-name">'+escapeHTML(ev.name)+'</div><div class="event-meta">'+escapeHTML(ev.org||'—')+'</div></div></div>').join('');
@@ -1936,7 +2007,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       cont.innerHTML='<div class="empty-state"><div class="empty-icon">🏷</div><div>Aucun badge trouvé</div></div>';
       return;
     }
-    cont.innerHTML=badges.map(b=>'<div class="badge-list-item '+(selectedBadges.has(b.id)?'selected':'')+'"><input type="checkbox" '+(selectedBadges.has(b.id)?'checked':'')+' onchange="toggleSelect('+b.id+')"><img src="'+(b.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'65\'%3E%3Crect fill=\'%23263756\' width=\'50\' height=\'65\'/%3E%3Ctext x=\'25\' y=\'36\' text-anchor=\'middle\' fill=\'%234f74ff\' font-size=\'8\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"><div class="info"><div class="name">'+escapeHTML(b.name)+'</div><div class="meta">'+escapeHTML(b.role)+' · '+escapeHTML(b.org)+(b.eventId?' · 🎪 '+escapeHTML(evtMap[b.eventId]||''):'')+'</div></div><div class="actions"><button class="btn btn-info btn-sm btn-icon" onclick="editBadge('+b.id+')">✏️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteBadge('+b.id+')">🗑️</button></div></div>').join('');
+    cont.innerHTML=badges.map(b=>'<div class="badge-list-item '+(selectedBadges.has(b.id)?'selected':'')+'"><input type="checkbox" '+(selectedBadges.has(b.id)?'checked':'')+' onchange="toggleSelect('+b.id+')"><img src="'+(b.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'65\'%3E%3Crect fill=\'%23263756\' width=\'50\' height=\'65\'/%3E%3Ctext x=\'25\' y=\'36\' text-anchor=\'middle\' fill=\'%234f74ff\' font-size=\'8\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"><div class="info"><div class="name">'+escapeHTML(b.name)+'</div><div class="meta">'+escapeHTML(b.role)+' · '+escapeHTML(b.org)+(b.eventId?' · 🎪 '+escapeHTML(evtMap[b.eventId]||''):'')+'</div></div><div class="actions"><button class="btn btn-info btn-sm btn-icon" onclick="editBadge('+b.id+')" aria-label="Modifier le badge">✏️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteBadge('+b.id+')" aria-label="Supprimer le badge">🗑️</button></div></div>').join('');
   }
   window.toggleSelect=function(id){ if(selectedBadges.has(id)) selectedBadges.delete(id); else selectedBadges.add(id); loadAllBadges(); };
   window.selectAllBadges=function(){
@@ -1959,49 +2030,93 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var f=e.target.files[0]; if(!f) return;
     var eventId=parseInt(document.getElementById('import-event').value);
     if(!eventId){ showToast('Sélectionnez un événement','error'); return; }
-    var prog=document.getElementById('import-progress');
-    var fill=document.getElementById('import-progress-fill');
-    var txt=document.getElementById('import-progress-text');
-    prog.style.display='block'; fill.style.width='0%'; txt.textContent='Lecture du fichier...';
+
     var reader=new FileReader();
-    reader.onerror=function(){ showToast('Erreur lecture fichier','error'); prog.style.display='none'; };
+    reader.onerror=function(){ showToast('Erreur lecture fichier','error'); };
     reader.onload=function(ev){
       try {
         var wb=XLSX.read(ev.target.result,{type:'array'});
         var sheet=wb.Sheets[wb.SheetNames[0]];
         var data=XLSX.utils.sheet_to_json(sheet,{header:1,defval:''});
         var rows=data.slice(1).filter(function(r){ return r&&(r[0]||r[1]||r[2]); });
-        if(!rows.length){ showToast('Aucune ligne valide','error'); prog.style.display='none'; return; }
-        txt.textContent='0 / '+rows.length+' badges...';
-        var txImport=db.transaction(['imports'],'readwrite');
-        txImport.objectStore('imports').add({fileName:f.name,eventId,totalRows:rows.length,createdAt:new Date().toISOString()}).onsuccess=function(evt){
-          var importId=evt.target.result;
-          var txBadges=db.transaction(['badges'],'readwrite');
-          var store=txBadges.objectStore('badges');
-          var imported=0;
-          rows.forEach(function(r,i){
-            var badge={eventId,importId,org:String(r[0]||'').trim(),name:String(r[1]||'').trim(),role:String(r[2]||'').trim(),badgeId:String(r[3]||'AUTO-'+Date.now()+'-'+i).trim(),date:formatExcelDate(r[4]),photo:'',logo:importLogoSrc,format:importFormat,model:importModel,createdAt:new Date().toISOString()};
-            var req=store.add(badge);
-            req.onsuccess=function(){
-              imported++;
-              var pct=Math.round((imported/rows.length)*100);
-              fill.style.width=pct+'%';
-              txt.textContent=imported+' / '+rows.length+' badges...';
-            };
-          });
-          txBadges.oncomplete=function(){
-            prog.style.display='none';
-            document.getElementById('import-result').style.display='block';
-            document.getElementById('import-result').innerHTML='<div style="background:var(--c-accent-dim);border:1px solid rgba(0,212,170,0.3);border-radius:8px;padding:15px;color:var(--c-accent);margin-top:12px;">✅ <strong>'+imported+' badges importés</strong> depuis '+escapeHTML(f.name)+'</div>';
-            showToast(imported+' badges importés ✅');
-            refreshAll();
-            document.getElementById('excel-input').value='';
-          };
-          txBadges.onerror=function(ev){ prog.style.display='none'; showToast('Erreur import: '+(ev.target.error||'inconnue'),'error'); };
-        };
-      } catch(err){ prog.style.display='none'; showToast('Erreur Excel: '+err.message,'error'); }
+        if(!rows.length){ showToast('Aucune ligne valide','error'); return; }
+
+        tempImportData = { fileName: f.name, eventId: eventId, rows: rows };
+
+        // Afficher la prévisualisation
+        var previewBody = document.getElementById('import-preview-body');
+        previewBody.innerHTML = rows.slice(0, 50).map(r => `<tr>
+          <td>${escapeHTML(String(r[0]||''))}</td>
+          <td>${escapeHTML(String(r[1]||''))}</td>
+          <td>${escapeHTML(String(r[2]||''))}</td>
+          <td>${escapeHTML(String(r[3]||''))}</td>
+          <td>${escapeHTML(formatExcelDate(r[4]))}</td>
+        </tr>`).join('');
+
+        if (rows.length > 50) {
+          previewBody.innerHTML += `<tr><td colspan="5" style="text-align:center; color:var(--c-text-muted);">... et ${rows.length - 50} autres lignes</td></tr>`;
+        }
+
+        document.getElementById('import-preview-info').textContent = `${rows.length} participants trouvés dans "${f.name}".`;
+        document.getElementById('import-preview-modal').classList.add('show');
+
+      } catch(err){ showToast('Erreur Excel: '+err.message,'error'); }
     };
     reader.readAsArrayBuffer(f);
+  };
+
+  window.confirmImport = function() {
+    if (!tempImportData) return;
+    closeModal('import-preview-modal');
+
+    var { fileName, eventId, rows } = tempImportData;
+    var prog=document.getElementById('import-progress');
+    var fill=document.getElementById('import-progress-fill');
+    var txt=document.getElementById('import-progress-text');
+
+    prog.style.display='block'; fill.style.width='0%'; txt.textContent='Importation en cours...';
+
+    var txImport=db.transaction(['imports'],'readwrite');
+    txImport.objectStore('imports').add({fileName, eventId, totalRows:rows.length, createdAt:new Date().toISOString()}).onsuccess=function(evt){
+      var importId=evt.target.result;
+      var txBadges=db.transaction(['badges'],'readwrite');
+      var store=txBadges.objectStore('badges');
+      var imported=0;
+
+      rows.forEach(function(r,i){
+        var badge={
+          eventId,
+          importId,
+          org:String(r[0]||'').trim(),
+          name:String(r[1]||'').trim(),
+          role:String(r[2]||'').trim(),
+          badgeId:String(r[3]||'AUTO-'+Date.now()+'-'+i).trim(),
+          date:formatExcelDate(r[4]),
+          photo:'',
+          logo:importLogoSrc,
+          format:importFormat,
+          model:importModel,
+          createdAt:new Date().toISOString()
+        };
+        store.add(badge).onsuccess = function() {
+          imported++;
+          var pct=Math.round((imported/rows.length)*100);
+          fill.style.width=pct+'%';
+          txt.textContent=imported+' / '+rows.length+' badges...';
+        };
+      });
+
+      txBadges.oncomplete=function(){
+        prog.style.display='none';
+        document.getElementById('import-result').style.display='block';
+        document.getElementById('import-result').innerHTML='<div style="background:var(--c-accent-dim);border:1px solid rgba(0,212,170,0.3);border-radius:8px;padding:15px;color:var(--c-accent);margin-top:12px;">✅ <strong>'+imported+' badges importés</strong> depuis '+escapeHTML(fileName)+'</div>';
+        showToast(imported+' badges importés ✅');
+        tempImportData = null;
+        refreshAll();
+        loadImportsHistory();
+        document.getElementById('excel-input').value='';
+      };
+    };
   };
   function formatExcelDate(v){
     if(!v) return '';
@@ -2009,7 +2124,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     if(typeof v==='number'){ var d=new Date((v-25569)*86400*1000); return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
     return '';
   }
-  function loadImportsHistory(){}
 
   // ---- Print ----
   window.openPrintModal=function(mode){
@@ -2169,6 +2283,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.getElementById('sidebar-date').textContent=dateStr;
 
     initDB();
+
+    // Enregistrement du Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('Service Worker Registered');
+      }).catch(err => {
+        console.log('Service Worker Registration Failed', err);
+      });
+    }
 
     // Init journal date = aujourd'hui
     var todayStr = new Date().toISOString().split('T')[0];
@@ -2518,9 +2641,9 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
           +'<div class="v-meta" style="font-family:var(--font-mono);font-size:0.7rem;">🟢 '+(v.entry||'--:--')+'  🔴 '+(v.exit||'--:--')+'  📅 '+(v.visitDate||'')+'</div>'
         +'</div>'
         +'<div class="v-actions">'
-          +'<button class="btn btn-info btn-sm btn-icon" onclick="editVisitor('+v.id+')" title="Modifier">✏️</button>'
-          +'<button class="btn btn-warning btn-sm btn-icon" onclick="printOneVisitor('+v.id+')" title="Imprimer" style="color:#1a0e00;">🖨️</button>'
-          +'<button class="btn btn-danger btn-sm btn-icon" onclick="deleteVisitor('+v.id+')" title="Supprimer">🗑️</button>'
+          +'<button class="btn btn-info btn-sm btn-icon" onclick="editVisitor('+v.id+')" title="Modifier" aria-label="Modifier le visiteur">✏️</button>'
+          +'<button class="btn btn-warning btn-sm btn-icon" onclick="printOneVisitor('+v.id+')" title="Imprimer" aria-label="Imprimer le badge visiteur" style="color:#1a0e00;">🖨️</button>'
+          +'<button class="btn btn-danger btn-sm btn-icon" onclick="deleteVisitor('+v.id+')" title="Supprimer" aria-label="Supprimer le visiteur">🗑️</button>'
         +'</div>'
       +'</div>';
     }).join('');
@@ -2888,8 +3011,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         +'<td style="color:var(--c-text-sub);">'+escapeHTML(v.dept||'—')+'</td>'
         +'<td style="color:var(--c-text-sub);">'+escapeHTML(v.hostOrg||'—')+'</td>'
         +'<td><div style="display:flex;gap:4px;">'
-          +'<button class="btn btn-info btn-sm btn-icon" onclick="editVisitor('+v.id+')" title="Modifier">✏️</button>'
-          +'<button class="btn btn-warning btn-sm btn-icon" onclick="printOneVisitor('+v.id+')" title="Imprimer" style="color:#1a0e00;">🖨️</button>'
+          +'<button class="btn btn-info btn-sm btn-icon" onclick="editVisitor('+v.id+')" title="Modifier" aria-label="Modifier la visite">✏️</button>'
+          +'<button class="btn btn-warning btn-sm btn-icon" onclick="printOneVisitor('+v.id+')" title="Imprimer" aria-label="Imprimer le badge visiteur" style="color:#1a0e00;">🖨️</button>'
         +'</div></td>'
       +'</tr>';
     }).join('');
