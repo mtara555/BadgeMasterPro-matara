@@ -1,0 +1,3 @@
+## 2024-05-23 - [Optimization of high-frequency events in single-file apps]
+**Learning:** In a single-file application where functions are often wrapped in an IIFE but called from HTML attributes (like `oninput`), debouncing requires careful exposure of the debounced functions to the `window` object. Additionally, debouncing search and live preview (QR code generation) significantly reduces CPU load and IndexedDB congestion.
+**Action:** Always check if core functions are exposed to the `window` object when applying debouncing or other wrappers in single-file architectures to ensure HTML event handlers can still reach them.
