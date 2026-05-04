@@ -1526,6 +1526,20 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var tempImportData = null;
 
   // ---- Helpers ----
+  /**
+   * Debounce utility to optimize high-frequency events (inputs, sliders).
+   */
+  function debounce(func, wait){
+    var timeout;
+    return function(){
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function(){
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
   function showToast(msg, type='success'){
@@ -1596,15 +1610,28 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   }
 
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+  /**
+   * Optimized updateStats: Replaces .getAll() with .count() and cursors
+   * to avoid memory pressure from loading all objects including photos.
+   */
   function updateStats(){
     if(!db) return;
-    var tx=db.transaction(['events','badges','imports'],'readonly');
+    // Safety check: visitors store might not exist on older versions
+    var hasVisitors = db.objectStoreNames.contains('visitors');
+    var stores = ['events', 'badges'];
+    if(hasVisitors) stores.push('visitors');
+
+    var tx = db.transaction(stores, 'readonly');
+
+    // Total Events
     tx.objectStore('events').count().onsuccess=function(e){
       var n=e.target.result;
       document.getElementById('stat-events').textContent=n;
       var bnBadge=document.getElementById('bn-events-count');
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
+
+    // Total Badges
     tx.objectStore('badges').count().onsuccess=function(e){
       var n=e.target.result;
       document.getElementById('stat-badges').textContent=n;
@@ -1612,12 +1639,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var bnBadge=document.getElementById('bn-badges-count');
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
-    tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
-    // Visiteurs stat sur dashboard
-    if(db.objectStoreNames.contains('visitors')){
-      var tx2=db.transaction(['visitors'],'readonly');
-      tx2.objectStore('visitors').count().onsuccess=function(e){
+
+    // Badges with Photo (using cursor to avoid loading all objects)
+    var photoCount = 0;
+    tx.objectStore('badges').openCursor().onsuccess = function(e){
+      var cursor = e.target.result;
+      if(cursor){
+        if(cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent = photoCount;
+      }
+    };
+
+    // Visitors stats for dashboard
+    if(hasVisitors){
+      tx.objectStore('visitors').count().onsuccess=function(e){
         var n=e.target.result;
         var el=document.getElementById('stat-visitors'); if(el) el.textContent=n;
         var vc=document.getElementById('visitors-count'); if(vc) vc.textContent=n;
@@ -1703,19 +1740,47 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     cont.innerHTML = html;
   }
 
+  /**
+   * Optimized loadEvents: Uses an index key cursor to count badges per event,
+   * avoiding loading full badge objects (and their photo strings) into memory.
+   */
   function loadEvents(){
     if(!db) return;
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
-      };
+      var counts={};
+      var badgeStore = tx.objectStore('badges');
+
+      // Safety check: only use index if it exists, otherwise fallback to getAll().
+      // This handles cases where the user's database is partially upgraded or an older version.
+      if(badgeStore.indexNames.contains('eventId')){
+        var index = badgeStore.index('eventId');
+        index.openKeyCursor().onsuccess = function(ev){
+          var cursor = ev.target.result;
+          if(cursor){
+            var eId = cursor.key;
+            counts[eId] = (counts[eId]||0) + 1;
+            cursor.continue();
+          } else {
+            finishLoadEvents(events, counts);
+          }
+        };
+      } else {
+        // Fallback for older schemas without the index
+        badgeStore.getAll().onsuccess = function(ev){
+          ev.target.result.forEach(b => { if(b.eventId) counts[b.eventId] = (counts[b.eventId]||0) + 1; });
+          finishLoadEvents(events, counts);
+        };
+      }
     };
+  }
+
+  function finishLoadEvents(events, counts){
+    renderEvents(events, counts);
+    populateEventSelectors(events);
+    document.getElementById('events-count').textContent = events.length;
+    document.getElementById('total-events').textContent = events.length + ' événement(s)';
   }
   function renderEvents(events, counts){
     var container=document.getElementById('events-list');
@@ -2649,18 +2714,40 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     }).join('');
   }
 
+  /**
+   * Optimized updateVisitorStats: Replaces .getAll() with .count() and cursors
+   * to avoid memory pressure from loading all visitor objects (and their photo strings).
+   */
   function updateVisitorStats(){
     if(!db) return;
     if(!db.objectStoreNames.contains('visitors')) return;
     var tx = db.transaction(['visitors'],'readonly');
-    tx.objectStore('visitors').getAll().onsuccess = function(e){
-      var all   = e.target.result;
-      var today = new Date().toISOString().split('T')[0];
-      var t = document.getElementById('vstat-total');   if(t) t.textContent = all.length;
-      var d = document.getElementById('vstat-today');   if(d) d.textContent = all.filter(function(v){ return v.visitDate===today; }).length;
-      var p = document.getElementById('vstat-photos');  if(p) p.textContent = all.filter(function(v){ return v.photo; }).length;
-      var vc = document.getElementById('visitors-count'); if(vc) vc.textContent = all.length;
-      var sv = document.getElementById('stat-visitors'); if(sv) sv.textContent = all.length;
+    var store = tx.objectStore('visitors');
+
+    // Total Visitors
+    store.count().onsuccess = function(e){
+      var n = e.target.result;
+      var t = document.getElementById('vstat-total');   if(t) t.textContent = n;
+      var vc = document.getElementById('visitors-count'); if(vc) vc.textContent = n;
+      var sv = document.getElementById('stat-visitors'); if(sv) sv.textContent = n;
+    };
+
+    // Stats requiring filtering (Today and With Photo)
+    var today = new Date().toISOString().split('T')[0];
+    var todayCount = 0;
+    var photoCount = 0;
+
+    store.openCursor().onsuccess = function(e){
+      var cursor = e.target.result;
+      if(cursor){
+        var v = cursor.value;
+        if(v.visitDate === today) todayCount++;
+        if(v.photo) photoCount++;
+        cursor.continue();
+      } else {
+        var d = document.getElementById('vstat-today');  if(d) d.textContent = todayCount;
+        var p = document.getElementById('vstat-photos'); if(p) p.textContent = photoCount;
+      }
     };
   }
 
@@ -3096,6 +3183,19 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  /**
+   * Apply debouncing to high-frequency UI functions to improve responsiveness.
+   * Text inputs/searches get 250ms, while sizing sliders get 100ms for smoother live feel.
+   */
+  window.updateBadgePreview = debounce(window.updateBadgePreview, 250);
+  window.loadAllBadges = debounce(window.loadAllBadges, 250);
+  window.loadAllVisitors = debounce(window.loadAllVisitors, 250);
+  window.loadJournal = debounce(window.loadJournal, 250);
+  window.updateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+  window.applyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.applyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.applyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
