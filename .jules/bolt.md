@@ -1,0 +1,3 @@
+## 2026-05-05 - [Optimized IndexedDB and Added Debouncing]
+**Learning:** Using `getAll()` on IndexedDB stores containing large objects (like base64 photos) causes significant memory pressure and lag. Replacing them with `openCursor` (for filtering/counting) or `openKeyCursor` (for index-only counting) drastically reduces peak memory usage. Additionally, high-frequency `oninput` events for live previews can overwhelm the UI thread if not debounced.
+**Action:** Always prefer `openKeyCursor` when only keys/counts from an index are needed, and use `debounce` for UI events that trigger heavy computations or DB access.
