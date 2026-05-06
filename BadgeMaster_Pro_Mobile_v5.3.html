@@ -1537,6 +1537,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     setTimeout(function(){ if(t.parentNode) t.remove(); }, 3200);
   }
 
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   function compressImage(dataUrl, maxW=400, maxH=520, quality=0.75){
     return new Promise(function(resolve){
       var img = new Image();
@@ -1613,7 +1624,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+    // Bolt: Use cursor to count badges with photos to avoid loading all objects (with large base64 strings) into memory
+    var photoCount = 0;
+    tx.objectStore('badges').openCursor().onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) {
+        if (cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent = photoCount;
+      }
+    };
     // Visiteurs stat sur dashboard
     if(db.objectStoreNames.contains('visitors')){
       var tx2=db.transaction(['visitors'],'readonly');
@@ -1708,12 +1729,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      // Bolt: Use key cursor on eventId index to count badges per event without loading full objects
+      var counts = {};
+      var badgeStore = tx.objectStore('badges');
+      var index = badgeStore.index('eventId');
+      index.openKeyCursor().onsuccess = function(ev) {
+        var cursor = ev.target.result;
+        if (cursor) {
+          var eventId = cursor.key;
+          if (eventId) counts[eventId] = (counts[eventId] || 0) + 1;
+          cursor.continue();
+        } else {
+          renderEvents(events, counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent = events.length;
+          document.getElementById('total-events').textContent = events.length + ' événement(s)';
+        }
       };
     };
   }
@@ -2653,14 +2684,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     if(!db) return;
     if(!db.objectStoreNames.contains('visitors')) return;
     var tx = db.transaction(['visitors'],'readonly');
-    tx.objectStore('visitors').getAll().onsuccess = function(e){
-      var all   = e.target.result;
-      var today = new Date().toISOString().split('T')[0];
-      var t = document.getElementById('vstat-total');   if(t) t.textContent = all.length;
-      var d = document.getElementById('vstat-today');   if(d) d.textContent = all.filter(function(v){ return v.visitDate===today; }).length;
-      var p = document.getElementById('vstat-photos');  if(p) p.textContent = all.filter(function(v){ return v.photo; }).length;
-      var vc = document.getElementById('visitors-count'); if(vc) vc.textContent = all.length;
-      var sv = document.getElementById('stat-visitors'); if(sv) sv.textContent = all.length;
+    // Bolt: Use cursor to count visitors to avoid memory pressure from large base64 photo strings
+    var total = 0, todayCount = 0, photoCount = 0;
+    var today = new Date().toISOString().split('T')[0];
+    tx.objectStore('visitors').openCursor().onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) {
+        total++;
+        if (cursor.value.visitDate === today) todayCount++;
+        if (cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        var t = document.getElementById('vstat-total');   if(t) t.textContent = total;
+        var d = document.getElementById('vstat-today');   if(d) d.textContent = todayCount;
+        var p = document.getElementById('vstat-photos');  if(p) p.textContent = photoCount;
+        var vc = document.getElementById('visitors-count'); if(vc) vc.textContent = total;
+        var sv = document.getElementById('stat-visitors'); if(sv) sv.textContent = total;
+      }
     };
   }
 
@@ -3096,6 +3136,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // Bolt: Debounce performance-heavy UI updates to keep the main thread responsive
+  window.updateBadgePreview = debounce(window.updateBadgePreview, 250);
+  window.loadAllBadges = debounce(window.loadAllBadges, 250);
+  window.loadAllVisitors = debounce(window.loadAllVisitors, 250);
+  window.loadJournal = debounce(window.loadJournal, 250);
+  window.updateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+  window.applyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.applyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.applyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
