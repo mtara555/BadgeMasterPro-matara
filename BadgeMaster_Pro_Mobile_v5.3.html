@@ -1528,6 +1528,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
+  /**
+   * Debounce utility to limit the rate of function execution.
+   */
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        func.apply(context, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
     var t = document.createElement('div');
@@ -3096,6 +3112,19 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // ⚡ Bolt: Debounce high-frequency event handlers to improve responsiveness.
+  // 250ms for text inputs (balances real-time feel and performance).
+  window.updateBadgePreview = debounce(window.updateBadgePreview, 250);
+  window.loadAllBadges = debounce(window.loadAllBadges, 250);
+  window.loadAllVisitors = debounce(window.loadAllVisitors, 250);
+  window.loadJournal = debounce(window.loadJournal, 250);
+  window.updateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+
+  // 100ms for sizing sliders (smoother interaction).
+  window.applyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.applyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.applyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
