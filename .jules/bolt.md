@@ -1,0 +1,3 @@
+## 2025-05-16 - Scoping in Single-File IIFE Applications
+**Learning:** In applications where the entire logic is wrapped in an IIFE, local function declarations take precedence over global `window` object assignments of the same name within the closure. Attempting to debounce by only reassigning `window.functionName` will NOT optimize internal calls within the IIFE, as they will continue to use the local, non-debounced reference.
+**Action:** Always wrap the local function references directly within the IIFE and then (if necessary) expose them to the `window` object. This ensures consistent debouncing across both internal script calls and external HTML event handlers.
