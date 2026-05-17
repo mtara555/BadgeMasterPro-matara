@@ -1528,6 +1528,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
     var t = document.createElement('div');
@@ -3096,6 +3107,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // ⚡ Bolt: Apply debouncing to performance-heavy UI updates and searches
+  window.updateBadgePreview = debounce(window.updateBadgePreview, 250);
+  window.loadAllBadges = debounce(window.loadAllBadges, 250);
+  window.loadAllVisitors = debounce(window.loadAllVisitors, 250);
+  window.loadJournal = debounce(window.loadJournal, 250);
+  window.updateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+  window.applyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.applyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.applyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
