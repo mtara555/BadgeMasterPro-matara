@@ -1528,6 +1528,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
+  function debounce(func, wait){
+    var timeout;
+    return function(){
+      var context=this, args=arguments;
+      clearTimeout(timeout);
+      timeout=setTimeout(function(){ func.apply(context, args); }, wait);
+    };
+  }
+
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
     var t = document.createElement('div');
@@ -1986,11 +1995,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- All Badges ----
   function loadAllBadges(){
     if(!db) return;
+    var filter=document.getElementById('filter-event').value;
     var tx=db.transaction(['badges','events'],'readonly');
-    tx.objectStore('badges').getAll().onsuccess=function(e){
+    var store=tx.objectStore('badges');
+    // Bolt: Use eventId index if filter is present to avoid full scan, if it exists
+    var useIndex = filter && store.indexNames.contains('eventId');
+    var req=useIndex ? store.index('eventId').getAll(parseInt(filter)) : store.getAll();
+
+    req.onsuccess=function(e){
       var badges=e.target.result;
-      var filter=document.getElementById('filter-event').value;
-      if(filter) badges=badges.filter(b=>b.eventId===parseInt(filter));
+      // If we didn't use the index, we must filter manually
+      if(filter && !useIndex) badges=badges.filter(b=>b.eventId===parseInt(filter));
       var search=document.getElementById('search-badges').value.toLowerCase();
       if(search) badges=badges.filter(b=>(b.name||'').toLowerCase().includes(search)||(b.org||'').toLowerCase().includes(search)||(b.badgeId||'').toLowerCase().includes(search));
       document.getElementById('all-badges-count').textContent=badges.length;
@@ -3096,6 +3111,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // ---- Bolt: Debounce UI updates for performance ----
+  // We debounce the local variables so that both internal calls and window assignments are optimized.
+  updateBadgePreview = debounce(updateBadgePreview, 250);
+  loadAllBadges      = debounce(loadAllBadges,      250);
+  loadJournal        = debounce(loadJournal,        250);
+  loadAllVisitors    = debounce(loadAllVisitors,    250);
+
+  // For functions that were defined directly on window, we re-assign them.
+  window.updateBadgePreview   = updateBadgePreview;
+  window.loadAllBadges        = loadAllBadges;
+  window.loadJournal          = loadJournal;
+  window.loadAllVisitors      = loadAllVisitors;
+  window.updateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+  window.applyBadgeSizes      = debounce(window.applyBadgeSizes,      100);
+  window.applyVisitorSizes    = debounce(window.applyVisitorSizes,    100);
+  window.applyCustomSize      = debounce(window.applyCustomSize,      100);
 
 })();
 </script>

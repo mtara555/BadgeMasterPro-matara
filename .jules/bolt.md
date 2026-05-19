@@ -1,0 +1,3 @@
+## 2024-05-19 - [Debouncing and IndexedDB Indexing]
+**Learning:** In a single-file application where logic is wrapped in an IIFE, debouncing functions exposed on 'window' is insufficient if those functions are also called internally via local bindings. Additionally, using IndexedDB indexes without guarding for their existence (via store.indexNames.contains) can cause runtime crashes on clients with older database schemas.
+**Action:** Always debounce local function variables before assigning them to 'window' to capture all call sites. Always verify the existence of IndexedDB indexes before use, providing a fallback to manual filtering if necessary.
