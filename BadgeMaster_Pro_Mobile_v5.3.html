@@ -1528,6 +1528,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
     var t = document.createElement('div');
@@ -1817,6 +1828,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var qrText=buildQRText(org,name,role,id,date);
     setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20);
   }
+  updateBadgePreview = debounce(updateBadgePreview, 250);
   window.updateBadgePreview=updateBadgePreview;
 
   window.selectModel=function(model, btn){
@@ -1858,7 +1870,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var fmtLabels={cr80:'CR80',cr79:'CR79',cr100:'CR100',custom85x90:'8.5×9cm',custom:'Personnalisé'};
     document.getElementById('format-display').textContent=(fmtLabels[fmt]||fmt)+' · '+(currentModel==='with-photo'?'Avec Photo':'Sans Photo');
   };
-  window.applyCustomSize=function(){
+  window.applyCustomSize=debounce(function(){
     var w=parseFloat(document.getElementById('custom-width-mm').value)||85;
     var h=parseFloat(document.getElementById('custom-height-mm').value)||54;
     // Conversion mm -> px (96dpi : 1mm = 3.7795px)
@@ -1872,7 +1884,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     customBadgeHeightMm=h;
     var disp=document.getElementById('custom-size-display');
     if(disp) disp.textContent=w+' × '+h+' mm';
-  };
+  }, 100);
   window.selectImportModel=function(m,btn){ importModel=m; document.querySelectorAll('#import-model-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
   window.selectImportFormat=function(f,btn){ importFormat=f; document.querySelectorAll('#import-format-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
 
@@ -2220,7 +2232,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       addPage(0);
     },400);
   };
-  window.applyBadgeSizes=function(){
+  window.applyBadgeSizes=debounce(function(){
     var ids=['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'];
     var lbls=['lbl-font-name','lbl-font-role','lbl-font-org','lbl-font-detail','lbl-photo-w','lbl-photo-h','lbl-qr-size','lbl-font-banner'];
     var vals=ids.reduce((o,id)=>{ o[id]=document.getElementById(id).value; return o; },{});
@@ -2232,7 +2244,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.querySelectorAll('#print-content .photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
     document.querySelectorAll('#print-content .qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
     document.querySelectorAll('#print-content .badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
-  };
+  }, 100);
   window.resetBadgeSizes=function(){
     ['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'].forEach((id,i)=>document.getElementById(id).value=[14,10,11,8,100,130,65,6][i]);
     applyBadgeSizes();
@@ -2314,6 +2326,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.closeModal=closeModal;
   window.openEventModal=openEventModal;
   window.saveEvent=saveEvent;
+  loadAllBadges = debounce(loadAllBadges, 250);
   window.loadAllBadges=loadAllBadges;
   window.loadImportsHistory=loadImportsHistory;
 
@@ -2393,13 +2406,13 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
 
   // ---- Live Preview ----
-  window.updateVisitorPreview = function(){
+  window.updateVisitorPreview = debounce(function(){
     var org = document.getElementById('visitor-host-org').value || 'ORGANISATION';
     var orgEl = document.getElementById('vb-preview-org');
     if(orgEl){ orgEl.textContent = org.toUpperCase(); orgEl.style.fontSize = vbSizes.org+'px'; }
     renderVBBody();
     updateVisitorQR();
-  };
+  }, 250);
 
   function updateVisitorQR(){
     var last   = document.getElementById('visitor-lastname').value  || '';
@@ -2421,7 +2434,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   }
 
   // ---- Tailles ----
-  window.applyVisitorSizes = function(){
+  window.applyVisitorSizes = debounce(function(){
     vbSizes.name    = +document.getElementById('vb-sl-name').value;
     vbSizes.company = +document.getElementById('vb-sl-company').value;
     vbSizes.dept    = +document.getElementById('vb-sl-dept').value;
@@ -2439,7 +2452,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.getElementById('vb-lbl-qr').textContent      = vbSizes.qr+'px';
     renderVBBody();
     updateVisitorQR();
-  };
+  }, 100);
   window.resetVisitorSizes = function(){
     vbSizes = { name:14, company:10, dept:9, org:12, pw:76, ph:96, qr:46 };
     document.getElementById('vb-sl-name').value    = 14;
@@ -2616,6 +2629,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
     tx.onerror = function(e){ console.warn('loadAllVisitors error:',e.target.error); };
   }
+  loadAllVisitors = debounce(loadAllVisitors, 250);
   window.loadAllVisitors = loadAllVisitors;
 
   function renderVisitors(visitors){
@@ -2981,6 +2995,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       renderJournal(visitors);
     };
   }
+  loadJournal = debounce(loadJournal, 250);
   window.loadJournal = loadJournal;
 
   function renderJournal(visitors){
