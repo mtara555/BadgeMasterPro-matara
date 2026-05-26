@@ -1527,6 +1527,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+  function debounce(fn, delay){
+    var timer = null;
+    return function(){
+      var context = this, args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function(){ fn.apply(context, args); }, delay);
+    };
+  }
 
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
@@ -1817,6 +1825,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var qrText=buildQRText(org,name,role,id,date);
     setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20);
   }
+  updateBadgePreview = debounce(updateBadgePreview, 250);
   window.updateBadgePreview=updateBadgePreview;
 
   window.selectModel=function(model, btn){
@@ -2314,6 +2323,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.closeModal=closeModal;
   window.openEventModal=openEventModal;
   window.saveEvent=saveEvent;
+  loadAllBadges = debounce(loadAllBadges, 250);
   window.loadAllBadges=loadAllBadges;
   window.loadImportsHistory=loadImportsHistory;
 
@@ -2616,6 +2626,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
     tx.onerror = function(e){ console.warn('loadAllVisitors error:',e.target.error); };
   }
+  loadAllVisitors = debounce(loadAllVisitors, 250);
   window.loadAllVisitors = loadAllVisitors;
 
   function renderVisitors(visitors){
@@ -2981,6 +2992,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       renderJournal(visitors);
     };
   }
+  loadJournal = debounce(loadJournal, 250);
   window.loadJournal = loadJournal;
 
   function renderJournal(visitors){
