@@ -1703,17 +1703,31 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     cont.innerHTML = html;
   }
 
+  /**
+   * Optimized loadEvents:
+   * Counts badges per event using a KeyCursor on the 'eventId' index.
+   * This avoids loading full badge objects (which may contain large base64 photos) into memory.
+   */
   function loadEvents(){
     if(!db) return;
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      var counts={};
+      var store=tx.objectStore('badges');
+      var index=store.index('eventId');
+      index.openKeyCursor().onsuccess=function(ev){
+        var cursor=ev.target.result;
+        if(cursor){
+          var eid=cursor.key;
+          if(eid) counts[eid]=(counts[eid]||0)+1;
+          cursor.continue();
+        } else {
+          renderEvents(events,counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent=events.length;
+          document.getElementById('total-events').textContent=events.length+' événement(s)';
+        }
       };
     };
   }
