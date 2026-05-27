@@ -1,0 +1,3 @@
+## 2025-05-14 - [IndexedDB Memory Bottleneck with Large Records]
+**Learning:** Using `objectStore.getAll()` on collections with large records (e.g., badges containing base64-encoded photos) causes significant memory pressure and slow execution times because IndexedDB must deserialize and transfer the full objects into memory.
+**Action:** Use `index.openKeyCursor()` or `index.getAllKeys()` when only specific properties (like foreign keys) are needed for counting, grouping, or filtering. This avoids loading the heavy record values and drastically improves performance (e.g., 90% reduction in execution time).
