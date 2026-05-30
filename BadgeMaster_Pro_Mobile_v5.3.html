@@ -1708,13 +1708,36 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+      var counts={};
+      var store=tx.objectStore('badges');
+      // BOLT: Use openKeyCursor on index to avoid loading large base64 photos into memory (Speed is a feature)
+      if(store.indexNames.contains('eventId')){
+        store.index('eventId').openKeyCursor().onsuccess=function(ev){
+          var cursor=ev.target.result;
+          if(cursor){
+            if(cursor.key) counts[cursor.key]=(counts[cursor.key]||0)+1;
+            cursor.continue();
+          } else {
+            finalize();
+          }
+        };
+      } else {
+        store.openCursor().onsuccess=function(ev){
+          var cursor=ev.target.result;
+          if(cursor){
+            var b=cursor.value; if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1;
+            cursor.continue();
+          } else {
+            finalize();
+          }
+        };
+      }
+      function finalize(){
         renderEvents(events,counts);
         populateEventSelectors(events);
         document.getElementById('events-count').textContent=events.length;
         document.getElementById('total-events').textContent=events.length+' événement(s)';
-      };
+      }
     };
   }
   function renderEvents(events, counts){
@@ -2012,7 +2035,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.toggleSelect=function(id){ if(selectedBadges.has(id)) selectedBadges.delete(id); else selectedBadges.add(id); loadAllBadges(); };
   window.selectAllBadges=function(){
     var tx=db.transaction(['badges'],'readonly');
-    tx.objectStore('badges').getAll().onsuccess=function(e){ e.target.result.forEach(b=>selectedBadges.add(b.id)); loadAllBadges(); };
+    // BOLT: Use getAllKeys to avoid loading full objects with photos just to get IDs (Speed is a feature)
+    tx.objectStore('badges').getAllKeys().onsuccess=function(e){
+      e.target.result.forEach(id=>selectedBadges.add(id));
+      loadAllBadges();
+    };
   };
   window.deleteSelectedBadges=function(){
     if(!selectedBadges.size) return;
