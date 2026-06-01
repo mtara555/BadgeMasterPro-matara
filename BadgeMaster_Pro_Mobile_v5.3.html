@@ -1613,7 +1613,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+    // Optimized: Use cursor to count photos instead of getAll() which loads large base64 data
+    var photoCount=0;
+    tx.objectStore('badges').openCursor().onsuccess=function(e){
+      var cursor=e.target.result;
+      if(cursor){
+        if(cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent=photoCount;
+      }
+    };
     // Visiteurs stat sur dashboard
     if(db.objectStoreNames.contains('visitors')){
       var tx2=db.transaction(['visitors'],'readonly');
@@ -1708,12 +1718,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      // Optimized: Use openKeyCursor on eventId index to count badges per event without loading large photo data
+      var counts={};
+      var store=tx.objectStore('badges');
+      var index=store.index('eventId');
+      index.openKeyCursor().onsuccess=function(ev){
+        var cursor=ev.target.result;
+        if(cursor){
+          var eid=cursor.key;
+          if(eid) counts[eid]=(counts[eid]||0)+1;
+          cursor.continue();
+        } else {
+          renderEvents(events,counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent=events.length;
+          document.getElementById('total-events').textContent=events.length+' événement(s)';
+        }
       };
     };
   }
