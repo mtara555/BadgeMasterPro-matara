@@ -855,14 +855,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                       <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Largeur (mm)</label>
                       <input type="number" id="custom-width-mm" min="20" max="300" value="85" placeholder="85"
                         style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:8px 10px;font-family:var(--font);font-size:0.9rem;outline:none;width:100%;"
-                        oninput="applyCustomSize()">
+                        oninput="debouncedApplyCustomSize()">
                     </div>
                     <div style="font-size:1.2rem;color:var(--c-text-muted);padding-top:18px;">×</div>
                     <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:80px;">
                       <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Hauteur (mm)</label>
                       <input type="number" id="custom-height-mm" min="20" max="300" value="54" placeholder="54"
                         style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:8px 10px;font-family:var(--font);font-size:0.9rem;outline:none;width:100%;"
-                        oninput="applyCustomSize()">
+                        oninput="debouncedApplyCustomSize()">
                     </div>
                     <div style="display:flex;flex-direction:column;gap:4px;align-items:center;padding-top:18px;">
                       <span id="custom-size-display" style="font-size:0.78rem;color:var(--c-accent);font-family:var(--font-mono);font-weight:700;white-space:nowrap;">85 × 54 mm</span>
@@ -881,23 +881,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               <div class="form-grid">
                 <div class="form-group">
                   <label>🏢 Organisation</label>
-                  <input type="text" id="badge-org" placeholder="Nom de l'organisation" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-org" placeholder="Nom de l'organisation" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>👤 Nom & Prénom</label>
-                  <input type="text" id="badge-name" placeholder="Prénom NOM" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-name" placeholder="Prénom NOM" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>💼 Fonction</label>
-                  <input type="text" id="badge-role" placeholder="Poste / Rôle" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-role" placeholder="Poste / Rôle" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>🔖 ID / Matricule</label>
-                  <input type="text" id="badge-id" placeholder="ID-001" oninput="updateBadgePreview()">
+                  <input type="text" id="badge-id" placeholder="ID-001" oninput="debouncedUpdateBadgePreview()">
                 </div>
                 <div class="form-group">
                   <label>📅 Expiration</label>
-                  <input type="date" id="badge-date" oninput="updateBadgePreview()">
+                  <input type="date" id="badge-date" oninput="debouncedUpdateBadgePreview()">
                 </div>
               </div>
               <div class="form-group" id="photo-input-group">
@@ -1031,7 +1031,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="loadAllBadges()">
+              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="debouncedLoadAllBadges()">
               <select id="filter-event" onchange="loadAllBadges()" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;font-family:var(--font);font-size:0.85rem;outline:none;"></select>
             </div>
           </div>
@@ -1080,7 +1080,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="loadAllVisitors()">
+              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="debouncedLoadAllVisitors()">
               <button class="btn btn-ghost btn-sm" onclick="selectAllVisitors()">☑ Tout</button>
               <button class="btn btn-info btn-sm" onclick="printSelectedVisitors()">🖨️ Imprimer</button>
               <button class="btn btn-danger btn-sm" onclick="deleteSelectedVisitors()">🗑️</button>
@@ -1146,7 +1146,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <input type="date" id="journal-date-to" class="journal-date-input" onchange="loadJournal()">
               </div>
             </div>
-            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="loadJournal()" style="width:100%;">
+            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="debouncedLoadJournal()" style="width:100%;">
           </div>
         </div>
 
@@ -1290,14 +1290,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="size-panel">
           <h4>🎛️ Ajuster les tailles</h4>
           <div class="size-sliders">
-            <div class="size-slider-row"><label>Nom <span id="lbl-font-name">14px</span></label><input type="range" id="sl-font-name" min="8" max="28" value="14" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Fonction <span id="lbl-font-role">10px</span></label><input type="range" id="sl-font-role" min="6" max="20" value="10" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Organisation <span id="lbl-font-org">11px</span></label><input type="range" id="sl-font-org" min="6" max="22" value="11" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Détails <span id="lbl-font-detail">8px</span></label><input type="range" id="sl-font-detail" min="5" max="14" value="8" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Photo L <span id="lbl-photo-w">100px</span></label><input type="range" id="sl-photo-w" min="40" max="160" value="100" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Photo H <span id="lbl-photo-h">130px</span></label><input type="range" id="sl-photo-h" min="40" max="200" value="130" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>QR Code <span id="lbl-qr-size">65px</span></label><input type="range" id="sl-qr-size" min="30" max="100" value="65" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Bannière <span id="lbl-font-banner">6px</span></label><input type="range" id="sl-font-banner" min="4" max="14" value="6" oninput="applyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Nom <span id="lbl-font-name">14px</span></label><input type="range" id="sl-font-name" min="8" max="28" value="14" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Fonction <span id="lbl-font-role">10px</span></label><input type="range" id="sl-font-role" min="6" max="20" value="10" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Organisation <span id="lbl-font-org">11px</span></label><input type="range" id="sl-font-org" min="6" max="22" value="11" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Détails <span id="lbl-font-detail">8px</span></label><input type="range" id="sl-font-detail" min="5" max="14" value="8" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Photo L <span id="lbl-photo-w">100px</span></label><input type="range" id="sl-photo-w" min="40" max="160" value="100" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Photo H <span id="lbl-photo-h">130px</span></label><input type="range" id="sl-photo-h" min="40" max="200" value="130" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>QR Code <span id="lbl-qr-size">65px</span></label><input type="range" id="sl-qr-size" min="30" max="100" value="65" oninput="debouncedApplyBadgeSizes()"></div>
+          <div class="size-slider-row"><label>Bannière <span id="lbl-font-banner">6px</span></label><input type="range" id="sl-font-banner" min="4" max="14" value="6" oninput="debouncedApplyBadgeSizes()"></div>
           </div>
           <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="resetBadgeSizes()">↺ Réinitialiser</button>
         </div>
@@ -1326,7 +1326,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="form-grid">
         <div class="form-group">
           <label>🏢 Organisation hôte</label>
-          <input type="text" id="visitor-host-org" placeholder="Votre société" oninput="updateVisitorPreview()">
+          <input type="text" id="visitor-host-org" placeholder="Votre société" oninput="debouncedUpdateVisitorPreview()">
         </div>
         <div class="form-group">
           <label>🏢 Logo hôte</label>
@@ -1344,27 +1344,27 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="form-grid">
           <div class="form-group" style="margin-bottom:10px;">
             <label>Nom *</label>
-            <input type="text" id="visitor-lastname" placeholder="NOM" oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-lastname" placeholder="NOM" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:10px;">
             <label>Prénom *</label>
-            <input type="text" id="visitor-firstname" placeholder="Prénom" oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-firstname" placeholder="Prénom" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:10px;">
             <label>🏭 Société visiteur</label>
-            <input type="text" id="visitor-company" placeholder="Société d'origine" oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-company" placeholder="Société d'origine" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:10px;">
             <label>🏛️ Département visité</label>
-            <input type="text" id="visitor-dept" placeholder="Ex: RH, IT, Direction..." oninput="updateVisitorPreview()">
+            <input type="text" id="visitor-dept" placeholder="Ex: RH, IT, Direction..." oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>🟢 Heure d'entrée</label>
-            <input type="time" id="visitor-entry" oninput="updateVisitorPreview()">
+            <input type="time" id="visitor-entry" oninput="debouncedUpdateVisitorPreview()">
           </div>
           <div class="form-group" style="margin-bottom:0;">
             <label>🔴 Heure de sortie</label>
-            <input type="time" id="visitor-exit" oninput="updateVisitorPreview()">
+            <input type="time" id="visitor-exit" oninput="debouncedUpdateVisitorPreview()">
           </div>
         </div>
       </div>
@@ -1399,31 +1399,31 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="size-sliders">
           <div class="size-slider-row">
             <label>Nom <span id="vb-lbl-name">14px</span></label>
-            <input type="range" id="vb-sl-name" min="8" max="22" value="14" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-name" min="8" max="22" value="14" oninput="debouncedApplyVisitorSizes()">
           </div>
           <div class="size-slider-row">
             <label>Société <span id="vb-lbl-company">10px</span></label>
-            <input type="range" id="vb-sl-company" min="6" max="16" value="10" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-company" min="6" max="16" value="10" oninput="debouncedApplyVisitorSizes()">
           </div>
           <div class="size-slider-row">
             <label>Département <span id="vb-lbl-dept">9px</span></label>
-            <input type="range" id="vb-sl-dept" min="6" max="14" value="9" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-dept" min="6" max="14" value="9" oninput="debouncedApplyVisitorSizes()">
           </div>
           <div class="size-slider-row">
             <label>Organisation <span id="vb-lbl-org">12px</span></label>
-            <input type="range" id="vb-sl-org" min="7" max="18" value="12" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-org" min="7" max="18" value="12" oninput="debouncedApplyVisitorSizes()">
           </div>
           <div class="size-slider-row" id="vb-photo-w-row">
             <label>Photo L <span id="vb-lbl-pw">76px</span></label>
-            <input type="range" id="vb-sl-pw" min="40" max="120" value="76" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-pw" min="40" max="120" value="76" oninput="debouncedApplyVisitorSizes()">
           </div>
           <div class="size-slider-row" id="vb-photo-h-row">
             <label>Photo H <span id="vb-lbl-ph">96px</span></label>
-            <input type="range" id="vb-sl-ph" min="40" max="150" value="96" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-ph" min="40" max="150" value="96" oninput="debouncedApplyVisitorSizes()">
           </div>
           <div class="size-slider-row">
             <label>QR Code <span id="vb-lbl-qr">46px</span></label>
-            <input type="range" id="vb-sl-qr" min="28" max="75" value="46" oninput="applyVisitorSizes()">
+            <input type="range" id="vb-sl-qr" min="28" max="75" value="46" oninput="debouncedApplyVisitorSizes()">
           </div>
         </div>
         <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="resetVisitorSizes()">↺ Réinitialiser</button>
@@ -1527,6 +1527,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  /**
+   * Debounce utility to limit high-frequency function calls.
+   * @param {Function} func - The function to debounce.
+   * @param {number} wait - The delay in milliseconds.
+   * @returns {Function}
+   */
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
 
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
@@ -3096,6 +3113,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // Expose debounced versions of high-frequency input handlers for better performance
+  window.debouncedUpdateBadgePreview = debounce(window.updateBadgePreview, 250);
+  window.debouncedLoadAllBadges = debounce(window.loadAllBadges, 250);
+  window.debouncedLoadAllVisitors = debounce(window.loadAllVisitors, 250);
+  window.debouncedLoadJournal = debounce(window.loadJournal, 250);
+  window.debouncedUpdateVisitorPreview = debounce(window.updateVisitorPreview, 250);
+  window.debouncedApplyBadgeSizes = debounce(window.applyBadgeSizes, 100);
+  window.debouncedApplyVisitorSizes = debounce(window.applyVisitorSizes, 100);
+  window.debouncedApplyCustomSize = debounce(window.applyCustomSize, 100);
 
 })();
 </script>
