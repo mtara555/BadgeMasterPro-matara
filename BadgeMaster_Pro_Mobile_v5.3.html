@@ -1708,12 +1708,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      var counts={};
+      var badgesStore=tx.objectStore('badges');
+
+      // Optimization: use openKeyCursor on eventId index to count badges without loading full objects (Speed is a feature)
+      var index=badgesStore.index('eventId');
+      index.openKeyCursor().onsuccess=function(ev){
+        var cursor=ev.target.result;
+        if(cursor){
+          var eid=cursor.key;
+          if(eid) counts[eid]=(counts[eid]||0)+1;
+          cursor.continue();
+        } else {
+          renderEvents(events,counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent=events.length;
+          document.getElementById('total-events').textContent=events.length+' événement(s)';
+        }
       };
     };
   }
@@ -3096,7 +3107,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
-
 })();
 </script>
 </body>
