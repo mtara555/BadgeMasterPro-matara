@@ -1,0 +1,3 @@
+## 2026-04-24 - [Debounce performance-heavy oninput handlers]
+**Learning:** In a single-file application where functions are wrapped in an IIFE but called from HTML attributes (e.g., `oninput`), debounced versions must be explicitly exposed to the `window` object to remain accessible. Performance-heavy operations like QR code generation (which uses the `QRCode` library) and `IndexedDB` searches can cause significant lag on low-end devices if triggered on every keystroke.
+**Action:** Always identify operations that involve DOM-to-Image conversion, QR generation, or database scans and apply debouncing to their `oninput` triggers.
