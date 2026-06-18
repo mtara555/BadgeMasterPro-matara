@@ -1613,7 +1613,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+    // Optimisation : Utiliser un curseur pour compter les photos sans charger tous les objets en mémoire
+    var photoCount = 0;
+    tx.objectStore('badges').openCursor().onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) {
+        if (cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent = photoCount;
+      }
+    };
     // Visiteurs stat sur dashboard
     if(db.objectStoreNames.contains('visitors')){
       var tx2=db.transaction(['visitors'],'readonly');
@@ -1708,13 +1718,34 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+      var counts={};
+      var store=tx.objectStore('badges');
+      // Optimisation : Utiliser un curseur sur les clés de l'index pour éviter de charger les photos lourdes
+      var index=store.indexNames.contains('eventId') ? store.index('eventId') : null;
+      if(!index){
+        // Fallback si l'index n'existe pas encore (sécurité)
+        store.getAll().onsuccess=function(ev){
+          ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+          finish();
+        };
+      } else {
+        index.openKeyCursor().onsuccess=function(ev){
+          var cursor=ev.target.result;
+          if(cursor){
+            var eid=cursor.key;
+            if(eid) counts[eid]=(counts[eid]||0)+1;
+            cursor.continue();
+          } else {
+            finish();
+          }
+        };
+      }
+      function finish(){
         renderEvents(events,counts);
         populateEventSelectors(events);
         document.getElementById('events-count').textContent=events.length;
         document.getElementById('total-events').textContent=events.length+' événement(s)';
-      };
+      }
     };
   }
   function renderEvents(events, counts){
@@ -1986,13 +2017,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- All Badges ----
   function loadAllBadges(){
     if(!db) return;
+    var filter=document.getElementById('filter-event').value;
+    var search=document.getElementById('search-badges').value.toLowerCase();
     var tx=db.transaction(['badges','events'],'readonly');
-    tx.objectStore('badges').getAll().onsuccess=function(e){
+    var store=tx.objectStore('badges');
+    var req;
+
+    // Optimisation : Utiliser l'index si un filtre par événement est présent
+    if(filter && store.indexNames.contains('eventId')){
+      req=store.index('eventId').getAll(parseInt(filter));
+    } else {
+      req=store.getAll();
+    }
+
+    req.onsuccess=function(e){
       var badges=e.target.result;
-      var filter=document.getElementById('filter-event').value;
-      if(filter) badges=badges.filter(b=>b.eventId===parseInt(filter));
-      var search=document.getElementById('search-badges').value.toLowerCase();
       if(search) badges=badges.filter(b=>(b.name||'').toLowerCase().includes(search)||(b.org||'').toLowerCase().includes(search)||(b.badgeId||'').toLowerCase().includes(search));
+
       document.getElementById('all-badges-count').textContent=badges.length;
       document.getElementById('badges-count').textContent=badges.length;
       tx.objectStore('events').getAll().onsuccess=function(ev){
