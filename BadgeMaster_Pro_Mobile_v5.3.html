@@ -1031,7 +1031,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="loadAllBadges()">
+              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="debouncedLoadAllBadges()">
               <select id="filter-event" onchange="loadAllBadges()" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;font-family:var(--font);font-size:0.85rem;outline:none;"></select>
             </div>
           </div>
@@ -1528,6 +1528,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
+
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
     var t = document.createElement('div');
@@ -1613,7 +1624,19 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+
+    // Optimisation : Utiliser un curseur pour compter les photos sans charger tous les objets en mémoire
+    var photoCount = 0;
+    tx.objectStore('badges').openCursor().onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) {
+        if (cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent = photoCount;
+      }
+    };
+
     // Visiteurs stat sur dashboard
     if(db.objectStoreNames.contains('visitors')){
       var tx2=db.transaction(['visitors'],'readonly');
@@ -1708,12 +1731,21 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      var counts={};
+      // Optimisation : Utiliser openKeyCursor sur l'index eventId pour compter les badges par événement
+      // sans charger les données des badges (photos, etc.)
+      tx.objectStore('badges').index('eventId').openKeyCursor().onsuccess = function(ev) {
+        var cursor = ev.target.result;
+        if (cursor) {
+          var eventId = cursor.key;
+          counts[eventId] = (counts[eventId] || 0) + 1;
+          cursor.continue();
+        } else {
+          renderEvents(events,counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent=events.length;
+          document.getElementById('total-events').textContent=events.length+' événement(s)';
+        }
       };
     };
   }
@@ -1987,10 +2019,19 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   function loadAllBadges(){
     if(!db) return;
     var tx=db.transaction(['badges','events'],'readonly');
-    tx.objectStore('badges').getAll().onsuccess=function(e){
+    var store=tx.objectStore('badges');
+    var filter=document.getElementById('filter-event').value;
+    var request;
+
+    // Optimisation : Utiliser l'index eventId si un filtre est présent
+    if(filter){
+      request = store.index('eventId').getAll(parseInt(filter));
+    } else {
+      request = store.getAll();
+    }
+
+    request.onsuccess=function(e){
       var badges=e.target.result;
-      var filter=document.getElementById('filter-event').value;
-      if(filter) badges=badges.filter(b=>b.eventId===parseInt(filter));
       var search=document.getElementById('search-badges').value.toLowerCase();
       if(search) badges=badges.filter(b=>(b.name||'').toLowerCase().includes(search)||(b.org||'').toLowerCase().includes(search)||(b.badgeId||'').toLowerCase().includes(search));
       document.getElementById('all-badges-count').textContent=badges.length;
@@ -2314,7 +2355,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.closeModal=closeModal;
   window.openEventModal=openEventModal;
   window.saveEvent=saveEvent;
+  var debouncedLoadAllBadges = debounce(loadAllBadges, 300);
   window.loadAllBadges=loadAllBadges;
+  window.debouncedLoadAllBadges=debouncedLoadAllBadges;
+  window.loadEvents=loadEvents;
+  window.updateStats=updateStats;
   window.loadImportsHistory=loadImportsHistory;
 
   // ====================================================================
