@@ -1,0 +1,3 @@
+## 2024-06-19 - [IndexedDB Blob Performance]
+**Learning:** Using `getAll()` on an IndexedDB object store that contains large base64-encoded photos causes significant performance degradation and memory pressure. This is because `getAll()` must manifest all objects (including their heavy payloads) into memory before any filtering can happen in JavaScript.
+**Action:** Use `openKeyCursor()` on indexes when only keys or counts are needed, or `openCursor()` to process records one-by-one, allowing the garbage collector to work more effectively. Always use IndexedDB indexes (`IDBIndex.getAll(key)`) for filtering instead of fetching all records and filtering in JS.
