@@ -1,0 +1,3 @@
+## 2025-05-14 - IndexedDB Key Cursor Optimization for Heavy Objects
+**Learning:** Using `getAll()` on an IndexedDB object store that contains large properties (like base64-encoded photos) causes significant performance degradation because the entire object must be deserialized and loaded into memory, even if only a single property (like a foreign key) is needed.
+**Action:** Use `openKeyCursor()` or `getAllKeys()` on an index when you only need to iterate over or count records based on an indexed field. This avoids loading the heavy object payloads and can result in 20-30x speed improvements for metadata-only operations.

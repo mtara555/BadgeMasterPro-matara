@@ -1703,19 +1703,45 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     cont.innerHTML = html;
   }
 
+  /**
+   * Optimized loadEvents: uses openKeyCursor on the 'eventId' index of the 'badges' store
+   * to count badges per event without loading the full badge objects (which contain large photos).
+   * This significantly reduces memory usage and improves speed when the database contains many badges.
+   */
   function loadEvents(){
     if(!db) return;
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
-      };
+      var counts={};
+      var badgeStore=tx.objectStore('badges');
+
+      // Use index if available for better performance
+      if(badgeStore.indexNames.contains('eventId')){
+        badgeStore.index('eventId').openKeyCursor().onsuccess=function(ev){
+          var cursor=ev.target.result;
+          if(cursor){
+            var eid=cursor.key;
+            if(eid) counts[eid]=(counts[eid]||0)+1;
+            cursor.continue();
+          } else {
+            finalizeLoadEvents(events, counts);
+          }
+        };
+      } else {
+        // Fallback if index is missing (should not happen in v2+)
+        badgeStore.getAll().onsuccess=function(ev){
+          ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+          finalizeLoadEvents(events, counts);
+        };
+      }
     };
+  }
+  function finalizeLoadEvents(events, counts){
+    renderEvents(events,counts);
+    populateEventSelectors(events);
+    document.getElementById('events-count').textContent=events.length;
+    document.getElementById('total-events').textContent=events.length+' événement(s)';
   }
   function renderEvents(events, counts){
     var container=document.getElementById('events-list');
