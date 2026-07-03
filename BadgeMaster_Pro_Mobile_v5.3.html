@@ -1031,7 +1031,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="loadAllBadges()">
+              <input type="text" class="search-box" id="search-badges" placeholder="🔍 Rechercher..." oninput="debouncedLoadAllBadges()">
               <select id="filter-event" onchange="loadAllBadges()" style="background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;font-family:var(--font);font-size:0.85rem;outline:none;"></select>
             </div>
           </div>
@@ -1080,7 +1080,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body" style="padding:14px 16px;">
             <div class="toolbar">
-              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="loadAllVisitors()">
+              <input type="text" class="search-box" id="search-visitors" placeholder="🔍 Rechercher visiteur..." oninput="debouncedLoadAllVisitors()">
               <button class="btn btn-ghost btn-sm" onclick="selectAllVisitors()">☑ Tout</button>
               <button class="btn btn-info btn-sm" onclick="printSelectedVisitors()">🖨️ Imprimer</button>
               <button class="btn btn-danger btn-sm" onclick="deleteSelectedVisitors()">🗑️</button>
@@ -1146,7 +1146,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <input type="date" id="journal-date-to" class="journal-date-input" onchange="loadJournal()">
               </div>
             </div>
-            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="loadJournal()" style="width:100%;">
+            <input type="text" class="search-box" id="search-journal" placeholder="🔍 Rechercher par nom, société, département, hôte..." oninput="debouncedLoadJournal()" style="width:100%;">
           </div>
         </div>
 
@@ -1527,6 +1527,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  function debounce(func, wait) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        func.apply(context, args);
+      }, wait);
+    };
+  }
 
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
@@ -3096,6 +3107,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   //  Patch refreshAll pour inclure visiteurs
   // ====================================================================
   function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+
+  // Debounced search functions
+  window.debouncedLoadAllBadges = debounce(loadAllBadges, 300);
+  window.debouncedLoadAllVisitors = debounce(loadAllVisitors, 300);
+  window.debouncedLoadJournal = debounce(loadJournal, 300);
 
 })();
 </script>
