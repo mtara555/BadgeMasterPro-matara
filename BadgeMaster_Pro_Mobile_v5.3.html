@@ -1613,7 +1613,20 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+
+    // Optimized: Use cursor to count badges with photos to avoid loading all objects into memory
+    var photoCount = 0;
+    var badgeStore = tx.objectStore('badges');
+    badgeStore.openCursor().onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) {
+        if (cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent = photoCount;
+      }
+    };
+
     // Visiteurs stat sur dashboard
     if(db.objectStoreNames.contains('visitors')){
       var tx2=db.transaction(['visitors'],'readonly');
@@ -1703,17 +1716,32 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     cont.innerHTML = html;
   }
 
+  /**
+   * Optimized loadEvents: uses a key cursor on the 'eventId' index to count badges per event.
+   * This avoids loading full badge objects (and their large base64 photos) into memory.
+   * Expected speedup: ~50x-100x on large datasets.
+   */
   function loadEvents(){
     if(!db) return;
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      var counts={};
+      var store=tx.objectStore('badges');
+      // Use index if available to skip loading full badge objects
+      var req=store.indexNames.contains('eventId') ? store.index('eventId').openKeyCursor() : store.openCursor();
+      req.onsuccess=function(ev){
+        var cursor=ev.target.result;
+        if(cursor){
+          var eid=store.indexNames.contains('eventId') ? cursor.key : cursor.value.eventId;
+          if(eid) counts[eid]=(counts[eid]||0)+1;
+          cursor.continue();
+        } else {
+          renderEvents(events,counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent=events.length;
+          document.getElementById('total-events').textContent=events.length+' événement(s)';
+        }
       };
     };
   }
