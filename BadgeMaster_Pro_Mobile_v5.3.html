@@ -1613,7 +1613,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
-    tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
+    // Optimisation Bolt: use cursor to count badges with photos without loading all objects into memory
+    var photoCount = 0;
+    tx.objectStore('badges').openCursor().onsuccess = function(e) {
+      var cursor = e.target.result;
+      if (cursor) {
+        if (cursor.value.photo) photoCount++;
+        cursor.continue();
+      } else {
+        document.getElementById('stat-photos').textContent = photoCount;
+      }
+    };
     // Visiteurs stat sur dashboard
     if(db.objectStoreNames.contains('visitors')){
       var tx2=db.transaction(['visitors'],'readonly');
@@ -1708,12 +1718,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
-        renderEvents(events,counts);
-        populateEventSelectors(events);
-        document.getElementById('events-count').textContent=events.length;
-        document.getElementById('total-events').textContent=events.length+' événement(s)';
+      var counts={};
+      var bStore = tx.objectStore('badges');
+      // Optimisation Bolt: use openKeyCursor on eventId index to avoid loading full badge objects (with photos)
+      var bReq = (bStore.indexNames.contains('eventId')) ? bStore.index('eventId').openKeyCursor() : bStore.openCursor();
+      bReq.onsuccess = function(ev){
+        var cursor = ev.target.result;
+        if (cursor) {
+          var eid = bStore.indexNames.contains('eventId') ? cursor.key : cursor.value.eventId;
+          if (eid) counts[eid] = (counts[eid]||0) + 1;
+          cursor.continue();
+        } else {
+          renderEvents(events,counts);
+          populateEventSelectors(events);
+          document.getElementById('events-count').textContent=events.length;
+          document.getElementById('total-events').textContent=events.length+' événement(s)';
+        }
       };
     };
   }
@@ -1987,10 +2007,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   function loadAllBadges(){
     if(!db) return;
     var tx=db.transaction(['badges','events'],'readonly');
-    tx.objectStore('badges').getAll().onsuccess=function(e){
+    var store=tx.objectStore('badges');
+    var filter=document.getElementById('filter-event').value;
+    // Optimisation Bolt: use eventId index if filter is active to load fewer records
+    var bReq = (filter && store.indexNames.contains('eventId')) ? store.index('eventId').getAll(parseInt(filter)) : store.getAll();
+
+    bReq.onsuccess=function(e){
       var badges=e.target.result;
-      var filter=document.getElementById('filter-event').value;
-      if(filter) badges=badges.filter(b=>b.eventId===parseInt(filter));
+      if(filter && !store.indexNames.contains('eventId')) badges=badges.filter(b=>b.eventId===parseInt(filter));
       var search=document.getElementById('search-badges').value.toLowerCase();
       if(search) badges=badges.filter(b=>(b.name||'').toLowerCase().includes(search)||(b.org||'').toLowerCase().includes(search)||(b.badgeId||'').toLowerCase().includes(search));
       document.getElementById('all-badges-count').textContent=badges.length;
@@ -2012,7 +2036,13 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.toggleSelect=function(id){ if(selectedBadges.has(id)) selectedBadges.delete(id); else selectedBadges.add(id); loadAllBadges(); };
   window.selectAllBadges=function(){
     var tx=db.transaction(['badges'],'readonly');
-    tx.objectStore('badges').getAll().onsuccess=function(e){ e.target.result.forEach(b=>selectedBadges.add(b.id)); loadAllBadges(); };
+    var store = tx.objectStore('badges');
+    // Optimisation Bolt: use getAllKeys() to avoid loading full object payloads
+    var req = store.getAllKeys ? store.getAllKeys() : store.getAll();
+    req.onsuccess=function(e){
+      e.target.result.forEach(k => selectedBadges.add(typeof k === 'object' ? k.id : k));
+      loadAllBadges();
+    };
   };
   window.deleteSelectedBadges=function(){
     if(!selectedBadges.size) return;
