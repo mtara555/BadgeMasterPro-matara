@@ -1708,13 +1708,34 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['events','badges'],'readonly');
     tx.objectStore('events').getAll().onsuccess=function(e){
       var events=e.target.result;
-      tx.objectStore('badges').getAll().onsuccess=function(ev){
-        var counts={}; ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+      var bStore = tx.objectStore('badges');
+      var counts = {};
+      var onBadgesReady = function(){
         renderEvents(events,counts);
         populateEventSelectors(events);
         document.getElementById('events-count').textContent=events.length;
         document.getElementById('total-events').textContent=events.length+' événement(s)';
       };
+
+      if(bStore.indexNames.contains('eventId')){
+        var cursorReq = bStore.index('eventId').openKeyCursor();
+        cursorReq.onsuccess = function(ev){
+          var cursor = ev.target.result;
+          if(cursor){
+            var eid = cursor.key;
+            counts[eid] = (counts[eid] || 0) + 1;
+            cursor.continue();
+          } else {
+            onBadgesReady();
+          }
+        };
+      } else {
+        // Fallback robustesse si index absent
+        bStore.getAll().onsuccess = function(ev){
+          ev.target.result.forEach(b=>{ if(b.eventId) counts[b.eventId]=(counts[b.eventId]||0)+1; });
+          onBadgesReady();
+        };
+      }
     };
   }
   function renderEvents(events, counts){
