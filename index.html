@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a237e">
 <link rel="manifest" href="manifest.json">
-<title>BadgeMaster Pro</title>
+<title>BadgeMaster Pro — Gestion professionnelle de badges</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -518,11 +518,92 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 /* ============================================================
    EMPTY STATE
    ============================================================ */
-.empty-state {
-  text-align: center; padding: 48px 20px; color: var(--c-text-muted);
-  font-size: 0.9rem;
+
+/* ============================================================
+   CONFIRM MODAL (professional)
+   ============================================================ */
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px; animation: fadeIn 0.2s ease;
 }
-.empty-state .empty-icon { font-size: 2.8rem; margin-bottom: 12px; opacity: 0.5; }
+.confirm-overlay.show { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.confirm-box {
+  background: var(--c-surface); border: 1px solid var(--c-border2);
+  border-radius: var(--radius-lg); padding: 28px 24px 20px;
+  max-width: 400px; width: 100%;
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn 0.22s cubic-bezier(0.34,1.4,0.64,1);
+}
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+.confirm-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin: 0 auto 16px;
+}
+.confirm-icon.danger { background: rgba(255,77,106,0.15); }
+.confirm-icon.warning { background: rgba(255,179,71,0.15); }
+.confirm-icon.info { background: var(--c-primary-dim); }
+.confirm-title {
+  font-size: 1.15rem; font-weight: 800; text-align: center;
+  margin-bottom: 8px; letter-spacing: -0.02em;
+}
+.confirm-message {
+  font-size: 0.9rem; color: var(--c-text-sub); text-align: center;
+  line-height: 1.55; margin-bottom: 24px;
+}
+.confirm-actions {
+  display: flex; gap: 10px; justify-content: center;
+}
+.confirm-actions .btn { min-width: 120px; justify-content: center; }
+
+/* ============================================================
+   SKELETON LOADERS
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, var(--c-surface2) 25%, rgba(255,255,255,0.06) 50%, var(--c-surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-card {
+  height: 72px; margin-bottom: 10px; border-radius: var(--radius);
+}
+.skeleton-stat {
+  height: 90px; border-radius: var(--radius);
+}
+
+/* ============================================================
+   EMPTY STATE (enhanced)
+   ============================================================ */
+.empty-state {
+  text-align: center; padding: 56px 24px; color: var(--c-text-muted);
+  font-size: 0.9rem;
+  background: var(--c-surface);
+  border: 1.5px dashed var(--c-border2);
+  border-radius: var(--radius-lg);
+  margin: 8px 0;
+}
+.empty-state .empty-icon {
+  font-size: 3rem; margin-bottom: 14px; opacity: 0.55;
+  filter: grayscale(0.2);
+}
+.empty-state .empty-title {
+  font-size: 1.05rem; font-weight: 700; color: var(--c-text-sub);
+  margin-bottom: 6px;
+}
+.empty-state .empty-desc {
+  font-size: 0.85rem; color: var(--c-text-muted);
+  max-width: 280px; margin: 0 auto 16px; line-height: 1.5;
+}
+
+
 
 /* ============================================================
    CHIPS / TAGS
@@ -677,6 +758,20 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
+<!-- Confirm Modal (professional) -->
+<div class="confirm-overlay" id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon danger" id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Confirmation</div>
+    <div class="confirm-message" id="confirm-message">Êtes-vous sûr ?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="confirm-cancel">Annuler</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- Camera Modal -->
 <div class="camera-modal" id="camera-modal">
   <video id="camera-video" autoplay playsinline></video>
@@ -700,7 +795,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="sidebar-logo">🏷</div>
       <div>
         <div class="sidebar-title">BadgeMaster</div>
-        <div class="sidebar-version">Pro Edition v5</div>
+        <div class="sidebar-version">Pro Edition v6.1</div>
       </div>
     </div>
 
@@ -721,6 +816,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="nav-item" onclick="exportAllData()"><span class="nav-icon">💾</span> Exporter données</div>
       <div class="nav-item" onclick="document.getElementById('data-import-input').click()"><span class="nav-icon">📥</span> Importer données</div>
       <div class="nav-item" onclick="clearAllData()"><span class="nav-icon">🗑️</span> Tout effacer</div>
+      <div class="nav-item" onclick="showPage('settings',this)"><span class="nav-icon">⚙️</span> Paramètres</div>
     </div>
 
     <div class="sidebar-footer">
@@ -1171,8 +1267,98 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             </table>
             <div id="journal-empty" class="empty-state" style="display:none;">
               <div class="empty-icon">📋</div>
-              <div>Aucun enregistrement pour cette période</div>
-              <button class="btn btn-warning btn-sm" style="margin-top:12px;color:#1a0e00;" onclick="showPage('visitors')">+ Enregistrer un visiteur</button>
+              <div class="empty-title">Aucun enregistrement</div>
+              <div class="empty-desc">Aucun visiteur pour cette période. Enregistrez une visite pour commencer.</div>
+              <button class="btn btn-warning btn-sm" style="color:#1a0e00;" onclick="showPage('visitors')">+ Enregistrer un visiteur</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ========== SETTINGS ========== -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">⚙️ Paramètres</div>
+            <div class="page-subtitle">Configuration professionnelle de BadgeMaster Pro</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><span>🏢 Organisation</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Nom de l'organisation</label>
+              <input type="text" class="form-input" id="settings-org-name" placeholder="Ex: Société XYZ, Conférence 2026…" oninput="markSettingsDirty()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Logo (affiché sur les badges)</label>
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                <div class="logo-preview" id="settings-logo-preview" style="width:72px;height:72px;border-radius:12px;background:var(--c-surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1.5px solid var(--c-border);">
+                  <span style="font-size:0.75rem;color:var(--c-text-muted);">Logo</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <button class="btn btn-ghost btn-sm" onclick="document.getElementById('settings-logo-input').click()">📷 Choisir un logo</button>
+                  <button class="btn btn-ghost btn-sm" onclick="clearSettingsLogo()">🗑️ Supprimer</button>
+                  <input type="file" id="settings-logo-input" accept="image/*" style="display:none" onchange="handleSettingsLogo(event)">
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()" id="btn-save-settings">💾 Enregistrer les paramètres</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><span>💾 Données &amp; Sauvegarde</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+            <p style="font-size:0.85rem;color:var(--c-text-sub);line-height:1.5;">Les données sont stockées localement dans votre navigateur (IndexedDB). Exportez régulièrement une sauvegarde.</p>
+            <div class="btn-group" style="flex-wrap:wrap;">
+              <button class="btn btn-accent btn-sm" onclick="exportAllData()">💾 Exporter toutes les données (JSON)</button>
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('data-import-input').click()">📥 Restaurer une sauvegarde</button>
+              <button class="btn btn-danger btn-sm" onclick="clearAllData()">🗑️ Effacer toutes les données</button>
+            </div>
+            <div id="settings-db-info" style="font-size:0.8rem;color:var(--c-text-muted);font-family:var(--font-mono);margin-top:4px;"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><span>🖨️ Impression</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Qualité d'impression par défaut</label>
+              <select id="settings-print-quality" class="form-input" onchange="markSettingsDirty()">
+                <option value="high">Haute qualité (recommandé)</option>
+                <option value="medium">Qualité moyenne (plus rapide)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Badges par page (impression A4)</label>
+              <select id="settings-badges-per-page" class="form-input" onchange="markSettingsDirty()">
+                <option value="2">2 badges / page</option>
+                <option value="4">4 badges / page</option>
+                <option value="6">6 badges / page</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span>ℹ️ À propos</span></div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+              <div class="sidebar-logo" style="width:48px;height:48px;font-size:1.4rem;">🏷</div>
+              <div>
+                <div style="font-weight:800;font-size:1.1rem;">BadgeMaster Pro</div>
+                <div style="font-size:0.8rem;color:var(--c-text-muted);font-family:var(--font-mono);">Version 6.1 Professional</div>
+              </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--c-text-sub);line-height:1.6;margin-bottom:12px;">
+              Application professionnelle de création et gestion de badges d'identification.
+              Fonctionne entièrement hors-ligne après le premier chargement. Idéale pour conférences, salons, accueils d'entreprise et événements.
+            </p>
+            <div style="font-size:0.75rem;color:var(--c-text-muted);">
+              Technologies : IndexedDB · QRCode.js · html2canvas · jsPDF · SheetJS · PWA
             </div>
           </div>
         </div>
@@ -1528,6 +1714,57 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   // ---- Helpers ----
   function escapeHTML(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
+
+  // ---- Professional Confirm Dialog ----
+  var _confirmResolve = null;
+  window.showConfirm = function(opts){
+    opts = opts || {};
+    var title = opts.title || 'Confirmation';
+    var message = opts.message || 'Êtes-vous sûr de vouloir continuer ?';
+    var okText = opts.okText || 'Confirmer';
+    var cancelText = opts.cancelText || 'Annuler';
+    var type = opts.type || 'danger'; // danger | warning | info
+    var icon = opts.icon || (type==='danger' ? '🗑️' : type==='warning' ? '⚠️' : 'ℹ️');
+
+    var modal = document.getElementById('confirm-modal');
+    var iconEl = document.getElementById('confirm-icon');
+    var titleEl = document.getElementById('confirm-title');
+    var msgEl = document.getElementById('confirm-message');
+    var okBtn = document.getElementById('confirm-ok');
+    var cancelBtn = document.getElementById('confirm-cancel');
+
+    iconEl.className = 'confirm-icon ' + type;
+    iconEl.textContent = icon;
+    titleEl.textContent = title;
+    msgEl.textContent = message;
+    okBtn.textContent = okText;
+    cancelBtn.textContent = cancelText;
+    okBtn.className = 'btn ' + (type==='danger' ? 'btn-danger' : type==='warning' ? 'btn-warning' : 'btn-primary');
+
+    modal.classList.add('show');
+
+    return new Promise(function(resolve){
+      _confirmResolve = resolve;
+      function cleanup(result){
+        modal.classList.remove('show');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        modal.onclick = null;
+        if(_confirmResolve){ _confirmResolve(result); _confirmResolve = null; }
+      }
+      okBtn.onclick = function(){ cleanup(true); };
+      cancelBtn.onclick = function(){ cleanup(false); };
+      modal.onclick = function(e){ if(e.target === modal) cleanup(false); };
+      // Escape key
+      var onKey = function(e){
+        if(e.key === 'Escape'){ document.removeEventListener('keydown', onKey); cleanup(false); }
+        if(e.key === 'Enter'){ document.removeEventListener('keydown', onKey); cleanup(true); }
+      };
+      document.addEventListener('keydown', onKey);
+    });
+  };
+
+
   function showToast(msg, type='success'){
     var container = document.getElementById('toast-container');
     var t = document.createElement('div');
@@ -1555,7 +1792,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- DB ----
   function initDB(){
-    var req = indexedDB.open('MtarabetBadgeMasterV5', 2); // v2 : ajout store visiteurs sans perte de données
+    var req = indexedDB.open('MtarabetBadgeMasterV5', 3); // v3 : store settings
     req.onerror = function(e){
       showToast('Erreur DB : ' + (e.target.error ? e.target.error.message : 'inconnue') + ' — Rechargez la page (F5).', 'error');
     };
@@ -1564,6 +1801,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
     req.onsuccess = function(e){
       db = e.target.result;
+      loadSettings();
       db.onerror = function(ev){ console.error('DB error:', ev.target.error); };
       refreshAll();
       loadAllVisitors && loadAllVisitors();
@@ -1590,6 +1828,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(oldVersion < 2){
         if(!d.objectStoreNames.contains('visitors')){
           d.createObjectStore('visitors', {keyPath:'id', autoIncrement:true});
+        }
+      }
+      // --- Migration v2 → v3 : store settings ---
+      if(oldVersion < 3){
+        if(!d.objectStoreNames.contains('settings')){
+          d.createObjectStore('settings', {keyPath:'key'});
         }
       }
     };
@@ -1637,6 +1881,20 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     if(pageId==='import-excel') loadImportsHistory();
     if(pageId==='visitors'){ loadAllVisitors && loadAllVisitors(); updateVisitorStats && updateVisitorStats(); }
     if(pageId==='journal'){ loadJournal && loadJournal(); }
+    if(pageId==='settings'){ loadSettings(); updateDbInfo(); }
+    if(pageId==='create-badge'){
+      // Pré-remplir org/logo si formulaire vide (nouveau badge)
+      if(!currentBadgeEditId && !document.getElementById('badge-name').value){
+        var defOrg = (typeof appSettings !== 'undefined' && appSettings.orgName) ? appSettings.orgName : '';
+        if(defOrg && !document.getElementById('badge-org').value) document.getElementById('badge-org').value = defOrg;
+        if(typeof appSettings !== 'undefined' && appSettings.logo && !currentLogoSrc){
+          currentLogoSrc = appSettings.logo;
+          document.getElementById('logo-preview').innerHTML='<img src="'+appSettings.logo+'">';
+          document.getElementById('ribbon-logo').innerHTML='<img src="'+appSettings.logo+'">';
+        }
+        updateBadgePreview();
+      }
+    }
     if(window.innerWidth<=768) closeSidebar();
   }
   window.showPage=showPage;
@@ -1686,7 +1944,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   function renderImportsHistory(imports, evtMap){
     var cont = document.getElementById('import-history-list');
     if(!imports.length){
-      cont.innerHTML = '<div class="empty-state">Aucun historique d\'import</div>';
+      cont.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Aucun import</div><div class="empty-desc">Importez un fichier Excel pour créer des badges en masse.</div></div>';
       return;
     }
     imports.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -1721,7 +1979,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var container=document.getElementById('events-list');
     var dash=document.getElementById('dashboard-events');
     if(!events.length){
-      var empty='<div class="empty-state"><div class="empty-icon">🎪</div><div>Aucun événement</div><button class="btn btn-accent btn-sm" style="margin-top:12px;" onclick="openEventModal()">+ Créer le premier</button></div>';
+      var empty='<div class="empty-state"><div class="empty-icon">🎪</div><div class="empty-title">Aucun événement</div><div class="empty-desc">Créez votre premier événement pour commencer à générer des badges.</div><button class="btn btn-accent btn-sm" onclick="openEventModal()">+ Créer le premier événement</button></div>';
       container.innerHTML=dash.innerHTML=empty;
       return;
     }
@@ -1770,8 +2028,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       tx.objectStore('events').put(ev).onsuccess=function(){ showToast('Modifié ✅'); closeModal('edit-event-modal'); refreshAll(); };
     };
   };
-  window.deleteEvent=function(id){
-    if(!confirm('Supprimer cet événement et tous ses badges ?')) return;
+  window.deleteEvent=async function(id){
+    var ok = await showConfirm({
+      title: 'Supprimer l\'événement ?',
+      message: 'Tous les badges associés à cet événement seront également supprimés. Cette action est irréversible.',
+      okText: 'Supprimer',
+      type: 'danger',
+      icon: '🎪'
+    });
+    if(!ok) return;
     var tx=db.transaction(['badges','imports'],'readwrite');
     var badgeReq=tx.objectStore('badges').index('eventId').openCursor(IDBKeyRange.only(id));
     badgeReq.onsuccess=function(e){ var c=e.target.result; if(c){ c.delete(); c.continue(); } };
@@ -1943,9 +2208,18 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
   window.resetBadgeForm=function(){
     currentBadgeEditId=null; currentLogoSrc=''; currentPhotoSrc='';
-    ['badge-org','badge-name','badge-role','badge-id','badge-date'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('logo-preview').innerHTML='<span>Logo</span>';
-    document.getElementById('ribbon-logo').innerHTML='<span class="badge-logo-placeholder">🏢</span>';
+    ['badge-name','badge-role','badge-id','badge-date'].forEach(id=>document.getElementById(id).value='');
+    // Appliquer les paramètres organisation par défaut
+    var defaultOrg = (typeof appSettings !== 'undefined' && appSettings.orgName) ? appSettings.orgName : '';
+    document.getElementById('badge-org').value = defaultOrg;
+    if(typeof appSettings !== 'undefined' && appSettings.logo){
+      currentLogoSrc = appSettings.logo;
+      document.getElementById('logo-preview').innerHTML='<img src="'+appSettings.logo+'">';
+      document.getElementById('ribbon-logo').innerHTML='<img src="'+appSettings.logo+'">';
+    } else {
+      document.getElementById('logo-preview').innerHTML='<span>Logo</span>';
+      document.getElementById('ribbon-logo').innerHTML='<span class="badge-logo-placeholder">🏢</span>';
+    }
     // Masquer le panneau dimensions personnalisées
     var cp=document.getElementById('custom-size-inputs');
     if(cp) cp.style.display='none';
@@ -2004,7 +2278,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   function renderAllBadges(badges, evtMap){
     var cont=document.getElementById('all-badges-list');
     if(!badges.length){
-      cont.innerHTML='<div class="empty-state"><div class="empty-icon">🏷</div><div>Aucun badge trouvé</div></div>';
+      cont.innerHTML='<div class="empty-state"><div class="empty-icon">🏷</div><div class="empty-title">Aucun badge trouvé</div><div class="empty-desc">Créez un badge manuellement ou importez un fichier Excel.</div><div class="btn-group" style="justify-content:center;"><button class="btn btn-primary btn-sm" onclick="showPage(\'create-badge\')">+ Nouveau badge</button><button class="btn btn-ghost btn-sm" onclick="showPage(\'import-excel\')">📊 Import Excel</button></div></div>';
       return;
     }
     cont.innerHTML=badges.map(b=>'<div class="badge-list-item '+(selectedBadges.has(b.id)?'selected':'')+'"><input type="checkbox" '+(selectedBadges.has(b.id)?'checked':'')+' onchange="toggleSelect('+b.id+')"><img src="'+(b.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'65\'%3E%3Crect fill=\'%23263756\' width=\'50\' height=\'65\'/%3E%3Ctext x=\'25\' y=\'36\' text-anchor=\'middle\' fill=\'%234f74ff\' font-size=\'8\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"><div class="info"><div class="name">'+escapeHTML(b.name)+'</div><div class="meta">'+escapeHTML(b.role)+' · '+escapeHTML(b.org)+(b.eventId?' · 🎪 '+escapeHTML(evtMap[b.eventId]||''):'')+'</div></div><div class="actions"><button class="btn btn-info btn-sm btn-icon" onclick="editBadge('+b.id+')" aria-label="Modifier le badge">✏️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteBadge('+b.id+')" aria-label="Supprimer le badge">🗑️</button></div></div>').join('');
@@ -2014,15 +2288,29 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var tx=db.transaction(['badges'],'readonly');
     tx.objectStore('badges').getAll().onsuccess=function(e){ e.target.result.forEach(b=>selectedBadges.add(b.id)); loadAllBadges(); };
   };
-  window.deleteSelectedBadges=function(){
+  window.deleteSelectedBadges=async function(){
     if(!selectedBadges.size) return;
-    if(!confirm('Supprimer '+selectedBadges.size+' badge(s) ?')) return;
+    var ok = await showConfirm({
+      title: 'Supprimer les badges ?',
+      message: 'Vous allez supprimer '+selectedBadges.size+' badge(s). Cette action est irréversible.',
+      okText: 'Supprimer',
+      type: 'danger',
+      icon: '🏷'
+    });
+    if(!ok) return;
     var tx=db.transaction(['badges'],'readwrite');
     selectedBadges.forEach(id=>tx.objectStore('badges').delete(id));
     tx.oncomplete=function(){ selectedBadges.clear(); refreshAll(); showToast('Badges supprimés'); };
   };
-  window.deleteBadge=function(id){
-    if(confirm('Supprimer ce badge ?')){ db.transaction(['badges'],'readwrite').objectStore('badges').delete(id); setTimeout(refreshAll,100); showToast('Supprimé'); }
+  window.deleteBadge=async function(id){
+    var ok = await showConfirm({
+      title: 'Supprimer ce badge ?',
+      message: 'Le badge sera définitivement supprimé. Cette action est irréversible.',
+      okText: 'Supprimer',
+      type: 'danger',
+      icon: '🏷'
+    });
+    if(ok){ db.transaction(['badges'],'readwrite').objectStore('badges').delete(id); setTimeout(refreshAll,100); showToast('Badge supprimé'); }
   };
 
   // ---- Import Excel ----
@@ -2266,8 +2554,112 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
     r.readAsText(f);
   };
-  window.clearAllData=function(){
-    if(confirm('Effacer TOUTES les données ? Cette action est irréversible.')){
+
+  // ---- Settings ----
+  var settingsDirty = false;
+  var appSettings = { orgName: '', logo: null, printQuality: 'high', badgesPerPage: '2' };
+
+  function markSettingsDirty(){ settingsDirty = true; }
+
+  function loadSettings(){
+    if(!db || !db.objectStoreNames.contains('settings')) return;
+    var tx = db.transaction(['settings'], 'readonly');
+    tx.objectStore('settings').get('app').onsuccess = function(e){
+      var s = e.target.result;
+      if(s && s.value){
+        appSettings = Object.assign(appSettings, s.value);
+      }
+      var nameEl = document.getElementById('settings-org-name');
+      if(nameEl) nameEl.value = appSettings.orgName || '';
+      var qEl = document.getElementById('settings-print-quality');
+      if(qEl) qEl.value = appSettings.printQuality || 'high';
+      var pEl = document.getElementById('settings-badges-per-page');
+      if(pEl) pEl.value = appSettings.badgesPerPage || '2';
+      updateSettingsLogoPreview();
+      settingsDirty = false;
+    };
+  }
+
+  function updateSettingsLogoPreview(){
+    var prev = document.getElementById('settings-logo-preview');
+    if(!prev) return;
+    if(appSettings.logo){
+      prev.innerHTML = '<img src="'+appSettings.logo+'" style="width:100%;height:100%;object-fit:contain;">';
+    } else {
+      prev.innerHTML = '<span style="font-size:0.75rem;color:var(--c-text-muted);">Logo</span>';
+    }
+  }
+
+  window.handleSettingsLogo = function(ev){
+    var file = ev.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      compressLogo(e.target.result).then(function(dataUrl){
+        appSettings.logo = dataUrl;
+        updateSettingsLogoPreview();
+        markSettingsDirty();
+        showToast('Logo chargé — cliquez Enregistrer');
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.clearSettingsLogo = function(){
+    appSettings.logo = null;
+    updateSettingsLogoPreview();
+    markSettingsDirty();
+  };
+
+  window.saveSettings = function(){
+    if(!db){ showToast('Base de données non disponible','error'); return; }
+    if(!db.objectStoreNames.contains('settings')){
+      showToast('Store settings manquant — rechargez la page (F5)','error'); return;
+    }
+    var nameEl = document.getElementById('settings-org-name');
+    var qEl = document.getElementById('settings-print-quality');
+    var pEl = document.getElementById('settings-badges-per-page');
+    appSettings.orgName = (nameEl && nameEl.value) ? nameEl.value.trim() : '';
+    appSettings.printQuality = (qEl && qEl.value) || 'high';
+    appSettings.badgesPerPage = (pEl && pEl.value) || '2';
+    var tx = db.transaction(['settings'], 'readwrite');
+    tx.objectStore('settings').put({ key: 'app', value: appSettings });
+    tx.oncomplete = function(){
+      settingsDirty = false;
+      showToast('Paramètres enregistrés ✅');
+    };
+    tx.onerror = function(){ showToast('Erreur sauvegarde paramètres','error'); };
+  };
+
+  function updateDbInfo(){
+    var el = document.getElementById('settings-db-info');
+    if(!el || !db) return;
+    var counts = {};
+    var stores = ['events','badges','visitors','imports'];
+    var remaining = stores.length;
+    stores.forEach(function(store){
+      if(!db.objectStoreNames.contains(store)){ counts[store]=0; remaining--; if(!remaining) render(); return; }
+      db.transaction([store],'readonly').objectStore(store).count().onsuccess = function(e){
+        counts[store] = e.target.result;
+        remaining--;
+        if(!remaining) render();
+      };
+    });
+    function render(){
+      el.textContent = 'Événements: '+(counts.events||0)+' · Badges: '+(counts.badges||0)+' · Visiteurs: '+(counts.visitors||0)+' · Imports: '+(counts.imports||0);
+    }
+  }
+
+
+  window.clearAllData=async function(){
+    var ok = await showConfirm({
+      title: 'Effacer toutes les données ?',
+      message: 'Tous les événements, badges, visiteurs et imports seront définitivement supprimés. Exportez une sauvegarde avant si nécessaire.',
+      okText: 'Tout effacer',
+      type: 'danger',
+      icon: '💥'
+    });
+    if(ok){
       var tx=db.transaction(['events','badges','imports','visitors'],'readwrite');
       tx.objectStore('events').clear(); tx.objectStore('badges').clear();
       tx.objectStore('imports').clear(); tx.objectStore('visitors').clear();
@@ -2622,8 +3014,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var cont = document.getElementById('visitors-list');
     if(!cont) return;
     if(!visitors || !visitors.length){
-      cont.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div><div>Aucun visiteur enregistré</div>'
-        +'<button class="btn btn-warning btn-sm" style="margin-top:12px;color:#1a0e00;" onclick="openVisitorModal()">+ Enregistrer le premier visiteur</button></div>';
+      cont.innerHTML = '<div class="empty-state"><div class="empty-icon">🪪</div><div class="empty-title">Aucun visiteur enregistré</div><div class="empty-desc">Enregistrez les entrées et sorties de vos visiteurs pour le suivi et l\'impression de badges.</div><button class="btn btn-warning btn-sm" style="color:#1a0e00;" onclick="openVisitorModal()">+ Enregistrer le premier visiteur</button></div>';
       return;
     }
     cont.innerHTML = visitors.map(function(v){
@@ -2679,13 +3070,27 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
   window.deleteSelectedVisitors = function(){
     if(!selectedVisitors.size) return;
-    if(!confirm('Supprimer '+selectedVisitors.size+' visiteur(s) ?')) return;
+    var ok = await showConfirm({
+      title: 'Supprimer les visiteurs ?',
+      message: 'Vous allez supprimer '+selectedVisitors.size+' enregistrement(s). Cette action est irréversible.',
+      okText: 'Supprimer',
+      type: 'danger',
+      icon: '🪪'
+    });
+    if(!ok) return;
     var tx = db.transaction(['visitors'],'readwrite');
     selectedVisitors.forEach(function(id){ tx.objectStore('visitors').delete(id); });
     tx.oncomplete = function(){ selectedVisitors.clear(); loadAllVisitors(); updateVisitorStats(); showToast('Visiteurs supprimés'); };
   };
   window.deleteVisitor = function(id){
-    if(!confirm('Supprimer ce visiteur ?')) return;
+    var ok = await showConfirm({
+      title: 'Supprimer ce visiteur ?',
+      message: 'L\'enregistrement de visite sera définitivement supprimé.',
+      okText: 'Supprimer',
+      type: 'danger',
+      icon: '🪪'
+    });
+    if(!ok) return;
     var tx = db.transaction(['visitors'],'readwrite');
     tx.objectStore('visitors').delete(id).onsuccess = function(){ loadAllVisitors(); updateVisitorStats(); showToast('Supprimé'); };
   };
