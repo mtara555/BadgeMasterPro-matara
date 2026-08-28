@@ -270,4 +270,4 @@ L'application est entièrement responsive et optimisée pour les appareils mobil
 
 ---
 
-*Documentation générée automatiquement à partir du code source de `BadgeMaster_Pro_Mobile_v5_3.html`*
+
