@@ -1871,10 +1871,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Navigation ----
   function showPage(pageId, navItem){
+    var pageEl = document.getElementById('page-'+pageId);
+    if(!pageEl){ console.error('Page introuvable:', pageId); return; }
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page-'+pageId).classList.add('active');
+    pageEl.classList.add('active');
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     if(navItem) navItem.classList.add('active');
+    // Sync bottom nav
+    document.querySelectorAll('.bottom-nav-item').forEach(function(item){
+      item.classList.remove('active');
+    });
     if(pageId==='dashboard'){ updateStats(); loadEvents(); updateVisitorStats && updateVisitorStats(); }
     if(pageId==='events') loadEvents();
     if(pageId==='all-badges') loadAllBadges();
@@ -3068,7 +3074,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       loadAllVisitors();
     };
   };
-  window.deleteSelectedVisitors = function(){
+  window.deleteSelectedVisitors = async function(){
     if(!selectedVisitors.size) return;
     var ok = await showConfirm({
       title: 'Supprimer les visiteurs ?',
@@ -3082,7 +3088,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     selectedVisitors.forEach(function(id){ tx.objectStore('visitors').delete(id); });
     tx.oncomplete = function(){ selectedVisitors.clear(); loadAllVisitors(); updateVisitorStats(); showToast('Visiteurs supprimés'); };
   };
-  window.deleteVisitor = function(id){
+  window.deleteVisitor = async function(id){
     var ok = await showConfirm({
       title: 'Supprimer ce visiteur ?',
       message: 'L\'enregistrement de visite sera définitivement supprimé.',
