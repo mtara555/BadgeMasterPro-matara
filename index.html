@@ -296,6 +296,23 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-cr100 { width: 392px !important; height: 592px !important; }
 .badge-custom85x90 { width: 321px !important; height: 340px !important; }
 .badge-custom { width: var(--custom-badge-w, 342px) !important; height: var(--custom-badge-h, 216px) !important; }
+/* Badge compact : largeur 70-80 mm, hauteur 25-35 mm (ajustables) */
+.badge-compact { width: var(--compact-badge-w, 284px) !important; height: var(--compact-badge-h, 113px) !important; border-radius: 8px; }
+.badge-compact .badge-top-banner { display: none !important; }
+.badge-compact .badge-ribbon-content { padding: 3px 8px; gap: 6px; }
+.badge-compact .badge-logo { width: 18px; height: 18px; border-width: 1px; box-shadow: none; }
+.badge-compact .badge-logo-placeholder { font-size: 0.6rem; }
+.badge-compact .badge-org-name { font-size: 0.62rem; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-compact .badge-body-with-photo, .badge-compact .badge-body-no-photo { padding: 5px 8px; gap: 8px; height: calc(100% - 24px); align-items: center; box-sizing: border-box; }
+.badge-compact .badge-body-no-photo { flex-direction: row; justify-content: flex-start; text-align: left; }
+.badge-compact .photo-area { width: auto; height: 100%; aspect-ratio: 3 / 4; border-width: 1.5px; border-radius: 4px; box-shadow: none; }
+.badge-compact .info-area { min-width: 0; flex: 1; padding-right: 44px; }
+.badge-compact .info-name { font-size: 0.8rem; margin-bottom: 2px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-compact .info-sub { font-size: 0.62rem; margin-bottom: 3px; padding-left: 5px; border-left-width: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-compact .info-detail { font-size: 0.52rem; padding: 2px 5px; line-height: 1.3; border-radius: 4px; }
+.badge-compact .qr-area { width: 38px; height: 38px; bottom: 5px; right: 6px; padding: 2px; border-width: 1px; border-radius: 4px; box-sizing: border-box; }
+.badge-compact .qr-area canvas, .badge-compact .qr-area img { width: 100% !important; height: 100% !important; display: block; }
+.badge-compact .qr-message { font-size: 0.4rem; }
 .badge-template {
   background: white; border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.35); position: relative;
@@ -942,6 +959,25 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                   <div class="option-btn" onclick="selectFormat('cr100',this)">📄 CR100</div>
                   <div class="option-btn" onclick="selectFormat('custom85x90',this)">🪪 8.5×9</div>
                   <div class="option-btn" onclick="selectFormat('custom',this)">✏️ Perso.</div>
+                  <div class="option-btn" onclick="selectFormat('compact',this)">🏷️ Compact</div>
+                </div>
+                <!-- Badge compact : 70-80 x 25-35 mm -->
+                <div id="compact-size-inputs" style="display:none;margin-top:10px;background:var(--c-surface2);border:1.5px solid var(--c-primary);border-radius:var(--radius-sm);padding:12px 14px;">
+                  <div style="font-size:0.75rem;font-weight:700;color:var(--c-primary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">🏷️ Badge compact — dimensions ajustables</div>
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;width:86px;flex-shrink:0;">Largeur (mm)</label>
+                      <input type="range" id="compact-width-range" min="70" max="80" step="0.5" value="75" style="flex:1;" oninput="applyCompactSize('wr')">
+                      <input type="number" id="compact-width-mm" min="70" max="80" step="0.5" value="75" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:6px 8px;font-family:var(--font);font-size:0.85rem;outline:none;width:70px;" oninput="applyCompactSize('wn')" onchange="applyCompactSize('wn',true)">
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;width:86px;flex-shrink:0;">Hauteur (mm)</label>
+                      <input type="range" id="compact-height-range" min="25" max="35" step="0.5" value="30" style="flex:1;" oninput="applyCompactSize('hr')">
+                      <input type="number" id="compact-height-mm" min="25" max="35" step="0.5" value="30" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:6px 8px;font-family:var(--font);font-size:0.85rem;outline:none;width:70px;" oninput="applyCompactSize('hn')" onchange="applyCompactSize('hn',true)">
+                    </div>
+                    <div style="text-align:center;"><span id="compact-size-display" style="font-size:0.85rem;color:var(--c-accent);font-family:var(--font-mono);font-weight:700;">75 × 30 mm</span></div>
+                  </div>
+                  <div style="margin-top:8px;font-size:0.7rem;color:var(--c-text-muted);">Plages autorisées : largeur 70–80 mm · hauteur 25–35 mm</div>
                 </div>
                 <!-- Dimensions personnalisées -->
                 <div id="custom-size-inputs" style="display:none;margin-top:10px;background:var(--c-surface2);border:1.5px solid var(--c-primary);border-radius:var(--radius-sm);padding:12px 14px;">
@@ -1083,6 +1119,13 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                   <div class="option-btn" onclick="selectImportFormat('cr79',this)">CR79</div>
                   <div class="option-btn" onclick="selectImportFormat('cr100',this)">CR100</div>
                   <div class="option-btn" onclick="selectImportFormat('custom85x90',this)">8.5×9</div>
+                  <div class="option-btn" onclick="selectImportFormat('compact',this)">🏷️ Compact</div>
+                </div>
+                <div id="import-compact-inputs" style="display:none;margin-top:10px;gap:10px;align-items:center;flex-wrap:wrap;">
+                  <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Larg. (70–80 mm)</label>
+                  <input type="number" id="import-compact-w" min="70" max="80" step="0.5" value="75" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:6px 8px;width:70px;">
+                  <label style="font-size:0.72rem;color:var(--c-text-muted);font-weight:600;">Haut. (25–35 mm)</label>
+                  <input type="number" id="import-compact-h" min="25" max="35" step="0.5" value="30" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:6px;color:var(--c-text);padding:6px 8px;width:70px;">
                 </div>
               </div>
             </div>
@@ -1709,6 +1752,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = '';
   var cameraStream = null, cameraFacingMode = 'user', cameraTarget = 'badge';
   var customBadgeWidthMm = 85, customBadgeHeightMm = 54;
+  // Badge compact : largeur 70-80 mm, hauteur 25-35 mm
+  var COMPACT_LIMITS = { wMin:70, wMax:80, hMin:25, hMax:35 };
+  var compactWidthMm = 75, compactHeightMm = 30;
+  function clampMm(v,min,max,def){ v=parseFloat(v); if(isNaN(v)) v=def; v=Math.min(max,Math.max(min,v)); return Math.round(v*10)/10; }
   var tempImportData = null;
 
   // ---- Helpers ----
@@ -2116,7 +2163,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.querySelectorAll('#format-group .option-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     var badge=document.getElementById('badge-preview');
-    badge.classList.remove('badge-cr80','badge-cr79','badge-cr100','badge-custom85x90','badge-custom');
+    badge.classList.remove('badge-cr80','badge-cr79','badge-cr100','badge-custom85x90','badge-custom','badge-compact');
     badge.classList.add('badge-'+fmt);
     // Afficher/masquer le panneau dimensions personnalisées
     var customPanel=document.getElementById('custom-size-inputs');
@@ -2126,8 +2173,36 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     } else {
       customPanel.style.display='none';
     }
-    var fmtLabels={cr80:'CR80',cr79:'CR79',cr100:'CR100',custom85x90:'8.5×9cm',custom:'Personnalisé'};
+    var compactPanel=document.getElementById('compact-size-inputs');
+    if(compactPanel) compactPanel.style.display=(fmt==='compact')?'block':'none';
+    if(fmt==='compact') applyCompactSize('init');
+    var fmtLabels={cr80:'CR80',cr79:'CR79',cr100:'CR100',custom85x90:'8.5×9cm',custom:'Personnalisé',compact:'Compact '+compactWidthMm+'×'+compactHeightMm+' mm'};
     document.getElementById('format-display').textContent=(fmtLabels[fmt]||fmt)+' · '+(currentModel==='with-photo'?'Avec Photo':'Sans Photo');
+  };
+  window.applyCompactSize=function(src,final){
+    var L=COMPACT_LIMITS, $=function(id){ return document.getElementById(id); };
+    var w=compactWidthMm, h=compactHeightMm;
+    if(src==='wr') w=parseFloat($('compact-width-range').value);
+    else if(src==='hr') h=parseFloat($('compact-height-range').value);
+    else if(src==='wn' || src==='hn'){
+      var isW=(src==='wn'), v=parseFloat($(isW?'compact-width-mm':'compact-height-mm').value);
+      var mn=isW?L.wMin:L.hMin, mx=isW?L.wMax:L.hMax;
+      if(isNaN(v)){ if(!final) return; v=isW?compactWidthMm:compactHeightMm; }
+      if(v<mn||v>mx){ if(!final) return; }   // pendant la saisie, on attend une valeur valide
+      if(isW) w=v; else h=v;
+    }
+    w=clampMm(w,L.wMin,L.wMax,75); h=clampMm(h,L.hMin,L.hMax,30);
+    compactWidthMm=w; compactHeightMm=h;
+    $('compact-width-range').value=w; $('compact-height-range').value=h;
+    if(src!=='wn' || final) $('compact-width-mm').value=w;
+    if(src!=='hn' || final) $('compact-height-mm').value=h;
+    var MM_TO_PX=3.7795;
+    document.documentElement.style.setProperty('--compact-badge-w', Math.round(w*MM_TO_PX)+'px');
+    document.documentElement.style.setProperty('--compact-badge-h', Math.round(h*MM_TO_PX)+'px');
+    var d=$('compact-size-display'); if(d) d.textContent=w+' × '+h+' mm';
+    if(currentFormat==='compact'){
+      var fd=$('format-display'); if(fd) fd.textContent='Compact '+w+'×'+h+' mm · '+(currentModel==='with-photo'?'Avec Photo':'Sans Photo');
+    }
   };
   window.applyCustomSize=function(){
     var w=parseFloat(document.getElementById('custom-width-mm').value)||85;
@@ -2145,7 +2220,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     if(disp) disp.textContent=w+' × '+h+' mm';
   };
   window.selectImportModel=function(m,btn){ importModel=m; document.querySelectorAll('#import-model-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
-  window.selectImportFormat=function(f,btn){ importFormat=f; document.querySelectorAll('#import-format-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+  window.selectImportFormat=function(f,btn){ importFormat=f; document.querySelectorAll('#import-format-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); var ic=document.getElementById('import-compact-inputs'); if(ic) ic.style.display=(f==='compact')?'flex':'none'; };
 
   // ---- Camera ----
   window.openCamera=function(target){
@@ -2204,8 +2279,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       date:document.getElementById('badge-date').value,
       photo:currentPhotoSrc, logo:currentLogoSrc,
       format:currentFormat, model:currentModel,
-      customW:currentFormat==='custom'?customBadgeWidthMm:null,
-      customH:currentFormat==='custom'?customBadgeHeightMm:null,
+      customW:currentFormat==='custom'?customBadgeWidthMm:(currentFormat==='compact'?compactWidthMm:null),
+      customH:currentFormat==='custom'?customBadgeHeightMm:(currentFormat==='compact'?compactHeightMm:null),
       createdAt:new Date().toISOString()
     };
     var tx=db.transaction(['badges'],'readwrite');
@@ -2251,6 +2326,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       document.getElementById('badge-id').value=b.badgeId||'';
       document.getElementById('badge-date').value=b.date||'';
       selectModel(b.model||'with-photo',document.querySelector('#model-group .option-btn[onclick*="'+( b.model||'with-photo' )+'"]')||document.querySelector('#model-group .option-btn:first-child'));
+      if(b.format==='compact' && b.customW && b.customH){ compactWidthMm=clampMm(b.customW,COMPACT_LIMITS.wMin,COMPACT_LIMITS.wMax,75); compactHeightMm=clampMm(b.customH,COMPACT_LIMITS.hMin,COMPACT_LIMITS.hMax,30); }
       selectFormat(b.format||'cr80',document.querySelector('#format-group .option-btn[onclick*="'+(b.format||'cr80')+'"]')||document.querySelector('#format-group .option-btn:first-child'));
       setTimeout(function(){
         currentPhotoSrc=b.photo||'';
@@ -2389,6 +2465,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
           photo:'',
           logo:importLogoSrc,
           format:importFormat,
+          customW:importFormat==='compact'?clampMm(document.getElementById('import-compact-w').value,COMPACT_LIMITS.wMin,COMPACT_LIMITS.wMax,75):null,
+          customH:importFormat==='compact'?clampMm(document.getElementById('import-compact-h').value,COMPACT_LIMITS.hMin,COMPACT_LIMITS.hMax,30):null,
           model:importModel,
           createdAt:new Date().toISOString()
         };
@@ -2471,7 +2549,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var fmt='badge-'+(badge.format||'cr80');
     // Pour le format custom, on applique les dimensions via style inline
     var customStyle='';
-    if(badge.format==='custom' && badge.customW && badge.customH){
+    if((badge.format==='custom' || badge.format==='compact') && badge.customW && badge.customH){
       var MM_TO_PX=3.7795;
       customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
     }
@@ -2519,12 +2597,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var lbls=['lbl-font-name','lbl-font-role','lbl-font-org','lbl-font-detail','lbl-photo-w','lbl-photo-h','lbl-qr-size','lbl-font-banner'];
     var vals=ids.reduce((o,id)=>{ o[id]=document.getElementById(id).value; return o; },{});
     ids.forEach((id,i)=>{ document.getElementById(lbls[i]).textContent=vals[id]+'px'; });
-    document.querySelectorAll('#print-content .info-name').forEach(el=>el.style.fontSize=vals['sl-font-name']+'px');
-    document.querySelectorAll('#print-content .info-sub').forEach(el=>el.style.fontSize=vals['sl-font-role']+'px');
-    document.querySelectorAll('#print-content .badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
-    document.querySelectorAll('#print-content .info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
-    document.querySelectorAll('#print-content .photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
-    document.querySelectorAll('#print-content .qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
+    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .info-name').forEach(el=>el.style.fontSize=vals['sl-font-name']+'px');
+    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .info-sub').forEach(el=>el.style.fontSize=vals['sl-font-role']+'px');
+    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
+    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
+    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
+    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
     document.querySelectorAll('#print-content .badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
   };
   window.resetBadgeSizes=function(){

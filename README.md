@@ -19,6 +19,11 @@ Fonctionne entièrement dans le navigateur (PWA), sans serveur. Idéale pour :
 - ✅ **Store settings** (IndexedDB v3) pour persistance des préférences
 - ✅ Interface et versioning professionnel
 
+## Nouveauté : badge compact
+
+- Format **🏷️ Compact** : largeur ajustable de **70 à 80 mm**, hauteur ajustable de **25 à 35 mm** (curseurs + saisie, valeurs bornées).
+- Disponible à la création, à l'import Excel, à l'édition et à l'impression A4 / PDF.
+
 ## Fonctionnalités
 
 | Module | Description |
