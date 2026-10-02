@@ -2520,6 +2520,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         }
         page.appendChild(grid); content.appendChild(page);
       }
+      if(badgeSizesTouched) applyBadgeSizes();
       setTimeout(function(){
         for(var i=0;i<badges.length;i++){
           var qrDiv=document.getElementById('pqr-'+i); if(!qrDiv) continue;
@@ -2592,18 +2593,40 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       addPage(0);
     },400);
   };
+  var badgeSizesTouched=false;
   window.applyBadgeSizes=function(){
+    badgeSizesTouched=true;
     var ids=['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'];
     var lbls=['lbl-font-name','lbl-font-role','lbl-font-org','lbl-font-detail','lbl-photo-w','lbl-photo-h','lbl-qr-size','lbl-font-banner'];
     var vals=ids.reduce((o,id)=>{ o[id]=document.getElementById(id).value; return o; },{});
     ids.forEach((id,i)=>{ document.getElementById(lbls[i]).textContent=vals[id]+'px'; });
-    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .info-name').forEach(el=>el.style.fontSize=vals['sl-font-name']+'px');
-    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .info-sub').forEach(el=>el.style.fontSize=vals['sl-font-role']+'px');
-    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
-    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
-    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
-    document.querySelectorAll('#print-content .badge-template:not(.badge-compact) .qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
-    document.querySelectorAll('#print-content .badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
+    // --- Badges standards : valeurs en px appliquées directement ---
+    var std='#print-content .badge-template:not(.badge-compact) ';
+    document.querySelectorAll(std+'.info-name').forEach(el=>el.style.fontSize=vals['sl-font-name']+'px');
+    document.querySelectorAll(std+'.info-sub').forEach(el=>el.style.fontSize=vals['sl-font-role']+'px');
+    document.querySelectorAll(std+'.badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
+    document.querySelectorAll(std+'.info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
+    document.querySelectorAll(std+'.photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
+    document.querySelectorAll(std+'.qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
+    document.querySelectorAll(std+'.badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
+    // --- Badges compacts : mêmes curseurs, appliqués comme un facteur (valeur / défaut) sur la base compacte ---
+    var D={name:14,role:10,org:11,detail:8,pw:100,ph:130,qr:65};
+    var k=function(id,d){ return parseFloat(vals[id])/d; };
+    var cp='#print-content .badge-compact ';
+    document.querySelectorAll(cp+'.info-name').forEach(el=>el.style.fontSize=(12.8*k('sl-font-name',D.name)).toFixed(1)+'px');
+    document.querySelectorAll(cp+'.info-sub').forEach(el=>el.style.fontSize=(10*k('sl-font-role',D.role)).toFixed(1)+'px');
+    document.querySelectorAll(cp+'.badge-org-name').forEach(el=>el.style.fontSize=(10*k('sl-font-org',D.org)).toFixed(1)+'px');
+    document.querySelectorAll(cp+'.info-detail').forEach(el=>el.style.fontSize=(8.3*k('sl-font-detail',D.detail)).toFixed(1)+'px');
+    document.querySelectorAll(cp+'.photo-area').forEach(el=>{
+      el.style.width='auto';
+      el.style.height=Math.min(100,100*k('sl-photo-h',D.ph)).toFixed(1)+'%';
+      el.style.aspectRatio=vals['sl-photo-w']+' / '+vals['sl-photo-h'];
+    });
+    document.querySelectorAll(cp+'.qr-area').forEach(el=>{
+      var q=Math.round(38*k('sl-qr-size',D.qr));
+      el.style.width=q+'px'; el.style.height=q+'px';
+      var ia=el.closest('.badge-compact').querySelector('.info-area'); if(ia) ia.style.paddingRight=(q+6)+'px';
+    });
   };
   window.resetBadgeSizes=function(){
     ['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'].forEach((id,i)=>document.getElementById(id).value=[14,10,11,8,100,130,65,6][i]);
