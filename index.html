@@ -776,6 +776,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     print-color-adjust: exact !important;
   }
 }
+
+  /* --- options ajoutées --- */
+  .badge-logo.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 8px !important; }
+  .badge-logo.no-frame img { object-fit: contain !important; padding: 2px; }
+  .brand-logo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
+  .brand-logo-area.no-frame img { object-fit: contain !important; padding: 0 !important; }
+  .photo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
+  .photo-area.no-frame img { object-fit: contain !important; }
+  .info-detail .expire-line.hidden { display:none !important; }
+  .toggle-row { display:flex; gap:14px; flex-wrap:wrap; margin:8px 0 4px; }
+  .toggle-item { display:flex; align-items:center; gap:7px; background: var(--c-surface2); border:1px solid var(--c-border); border-radius:20px; padding:6px 12px; cursor:pointer; user-select:none; transition:all 0.2s; }
+  .toggle-item:hover { border-color: var(--c-primary); }
+  .toggle-item.active { background: var(--c-primary-dim); border-color: var(--c-primary); color: var(--c-primary); }
+  .toggle-item input { display:none; }
+  .toggle-item .check { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--c-border2); display:flex; align-items:center; justify-content:center; font-size:0.7rem; background: var(--c-surface); }
+  .toggle-item.active .check { background: var(--c-primary); border-color: var(--c-primary); color:white; }
+
 </style>
 </head>
 <body>
@@ -1013,10 +1030,18 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               </div>
               <div class="form-group">
                 <label>🏢 Logo</label>
-                <div class="logo-upload-zone" onclick="document.getElementById('logo-input').click()">
-                  <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
-                  <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+                <div style="display:flex; gap:10px; align-items:flex-start;">
+                  <div class="logo-upload-zone" onclick="document.getElementById('logo-input').click()" style="flex:1;">
+                    <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
+                    <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+                  </div>
+                  <label class="toggle-item" id="toggle-logo-frame" onclick="toggleLogoFrame()" style="margin-top:8px;">
+                    <input type="checkbox" id="logo-no-frame-check">
+                    <div class="check">✓</div>
+                    <span style="font-size:0.75rem; font-weight:600;">Sans cadrage</span>
+                  </label>
                 </div>
+                <div style="font-size:0.7rem;color:var(--c-text-muted);margin-top:6px;">Sans cadrage = logo complet sans rognage (object-fit: contain)</div>
               </div>
               <div class="form-grid">
                 <div class="form-group">
@@ -1037,8 +1062,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 </div>
                 <div class="form-group">
                   <label>📅 Expiration</label>
-                  <input type="date" id="badge-date" oninput="updateBadgePreview()">
-                </div>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="date" id="badge-date" oninput="updateBadgePreview()" style="flex:1;">
+                    <label class="toggle-item active" id="toggle-expire" onclick="toggleExpire()" style="margin:0; white-space:nowrap;">
+                      <input type="checkbox" id="show-expire-check" checked>
+                      <div class="check">✓</div>
+                      <span style="font-size:0.78rem; font-weight:600;">Afficher Exp.</span>
+                    </label>
+                  </div>
+              </div>
               </div>
               <div class="form-group" id="photo-input-group">
                 <label>📷 Photo</label>
@@ -1069,6 +1101,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                       <div style="display:flex; flex-direction:column; gap:6px;">
                         <button class="btn btn-warning btn-sm" onclick="document.getElementById('brand-logo-file').click()">📂 Choisir logo</button>
                         <button class="btn btn-ghost btn-sm" onclick="clearBrandLogo()">🗑️ Effacer</button>
+                        <label class="toggle-item" id="toggle-brand-frame" onclick="toggleBrandFrame()" style="margin-top:2px;">
+                          <input type="checkbox" id="brand-no-frame-check">
+                          <div class="check">✓</div>
+                          <span style="font-size:0.7rem;font-weight:600;">Sans cadrage</span>
+                        </label>
                       </div>
                       <input type="file" id="brand-logo-file" accept="image/*" style="display:none" onchange="handleBrandLogoUpload(event)">
                     </div>
@@ -2640,17 +2677,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
     }
     var logo=badge.logo?'<div class="badge-logo"><img src="'+badge.logo+'"></div>':'<div class="badge-logo"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
-    var detailHtml = '<div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+(badge.brandName?' <br><strong style="color:#b77900;">MARQUE:</strong> '+escapeHTML(badge.brandName):'')+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div>';
-    var body='';
-    if(badge.model==='with-photo'){
-      body='<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div>'+detailHtml+'</div></div>';
-    } else if(badge.model==='brand-vendor'){
-      var brandImg = badge.brandLogo ? '<img src="'+badge.brandLogo+'" style="width:100%;height:100%;object-fit:contain;padding:6px;">' : '<span class="brand-logo-placeholder">🏷️</span>';
-      body='<div class="badge-body-brand"><div class="brand-logo-area">'+brandImg+'</div><div class="info-area"><div class="brand-tag">★ Vendeur Marque '+(badge.brandName?escapeHTML(badge.brandName):'')+' ★</div><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div>'+detailHtml+'</div></div>';
-    } else {
-      body='<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div>'+detailHtml+'</div></div>';
-    }
-    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">'+(badge.model==='brand-vendor'?'★ VENDEUR DE MARQUE ★':'À VOTRE SERVICE')+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+    var body=badge.model==='with-photo'?
+      '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>':
+      '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>';
+    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">À VOTRE SERVICE</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
   }
   window.exportBadgesPDF=function(){
     var {jsPDF}=window.jspdf;
@@ -3682,7 +3712,24 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         +'h1{font-size:15px;color:#e65100;margin-bottom:2px;}p.sub{font-size:9px;color:#666;margin-bottom:14px;}'
         +'table{width:100%;border-collapse:collapse;}th{background:#e65100;color:white;padding:6px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:0.05em;}'
         +'td{padding:5px 8px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#fff7f0;}'
-        +'</style></head><body>'
+        +'
+  /* --- options ajoutées --- */
+  .badge-logo.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 8px !important; }
+  .badge-logo.no-frame img { object-fit: contain !important; padding: 2px; }
+  .brand-logo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
+  .brand-logo-area.no-frame img { object-fit: contain !important; padding: 0 !important; }
+  .photo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
+  .photo-area.no-frame img { object-fit: contain !important; }
+  .info-detail .expire-line.hidden { display:none !important; }
+  .toggle-row { display:flex; gap:14px; flex-wrap:wrap; margin:8px 0 4px; }
+  .toggle-item { display:flex; align-items:center; gap:7px; background: var(--c-surface2); border:1px solid var(--c-border); border-radius:20px; padding:6px 12px; cursor:pointer; user-select:none; transition:all 0.2s; }
+  .toggle-item:hover { border-color: var(--c-primary); }
+  .toggle-item.active { background: var(--c-primary-dim); border-color: var(--c-primary); color: var(--c-primary); }
+  .toggle-item input { display:none; }
+  .toggle-item .check { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--c-border2); display:flex; align-items:center; justify-content:center; font-size:0.7rem; background: var(--c-surface); }
+  .toggle-item.active .check { background: var(--c-primary); border-color: var(--c-primary); color:white; }
+
+</style></head><body>'
         +'<h1>📋 Journal des visites</h1>'
         +'<p class="sub">Période : '+escapeHTML(periodLabel)+' &nbsp;|&nbsp; '+visitors.length+' visite(s) &nbsp;|&nbsp; Généré le '+new Date().toLocaleDateString('fr-FR')+'</p>'
         +'<table><thead><tr><th>Date</th><th>Entrée</th><th>Sortie</th><th>Durée</th><th>Visiteur</th><th>Société</th><th>Département</th><th>Hôte</th></tr></thead>'
