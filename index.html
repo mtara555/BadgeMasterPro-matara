@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a237e">
 <link rel="manifest" href="manifest.json">
-<title>BadgeMaster Pro v6.2 — Vendeur Marque + Options</title>
+<title>BadgeMaster Pro v6.3 — Vendeur Marque</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -340,14 +340,25 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-org-name { font-size: 1.1rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); line-height: 1.2; }
 .badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
 .badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
-  .badge-body-brand { display: flex; padding: 14px 16px; height: calc(100% - 87px); gap: 14px; align-items: center; }
-  .brand-logo-area { width: 110px; height: 110px; background: #fff; border: 2.5px solid #0d47a1; border-radius: 12px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 12px rgba(13,71,161,0.18); display:flex; align-items:center; justify-content:center; }
-  .brand-logo-area img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+  /* ===== VENDEUR DE MARQUE : rendu identique à la maquette, SANS cadre extérieur ===== */
+  .badge-template.badge-brand-model { border: none !important; box-shadow: none !important; outline: none !important; }
+  .badge-body-brand { display: flex; padding: 6px 14px; height: calc(100% - 87px); gap: 12px; align-items: center; box-sizing: border-box; overflow: hidden; }
+  .brand-logo-area { width: 100px; height: 100px; background: #fff; border: 3px solid #0d47a1; border-radius: 14px; overflow: hidden; flex-shrink: 0; display:flex; align-items:center; justify-content:center; box-sizing: border-box; }
+  .brand-logo-area img { width: 100%; height: 100%; object-fit: contain; padding: 4px; box-sizing: border-box; }
   .brand-logo-placeholder { font-size: 2rem; color: #0d47a1; opacity: 0.35; }
-  .info-area .brand-tag { display:inline-block; background: linear-gradient(135deg,#ffd600,#ffea00); color:#1a237e; font-size:0.58rem; font-weight:900; letter-spacing:1px; padding:3px 8px; border-radius:20px; margin-bottom:6px; text-transform:uppercase; border:1px solid rgba(0,0,0,0.08); }
+  .badge-body-brand .info-area { min-width: 0; flex: 1; }
+  .info-area .brand-tag { display:inline-block; max-width:100%; background: linear-gradient(135deg,#ffd600,#ffea00); color:#1a237e; font-size:0.52rem; font-weight:900; letter-spacing:1.2px; padding:3px 10px; border-radius:20px; margin-bottom:4px; text-transform:uppercase; border:1px solid rgba(0,0,0,0.08); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; box-sizing:border-box; line-height:1.2; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .badge-body-brand .info-name { font-size: 1.05rem; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge-body-brand .info-sub { font-size: 0.8rem; margin-bottom: 4px; line-height: 1.2; }
+  .badge-body-brand .info-detail { font-size: 0.68rem; line-height: 1.35; padding: 4px 9px; }
+  .badge-body-brand .info-detail .lbl-brand { color:#b8860b; font-weight:700; }
+  .badge-body-brand .info-detail strong { color:#666; }
+  .badge-brand-model .badge-org-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1rem; }
+  .badge-brand-model .badge-ribbon-content { padding: 10px 16px; }
+  .badge-body-brand .qr-area, .badge-brand-model .qr-area { border: 3px solid #e0e0e0; border-radius: 12px; box-shadow: none; }
   .badge-compact .badge-body-brand { padding: 5px 8px; gap: 8px; height: calc(100% - 24px); }
   .badge-compact .brand-logo-area { width: auto; height: 100%; aspect-ratio: 1 / 1; border-width: 1.5px; border-radius: 6px; }
-  .badge-compact .brand-tag { font-size:0.45rem; padding:2px 5px; margin-bottom:2px; }
+  .badge-compact .brand-tag { font-size:0.45rem; padding:2px 6px; margin-bottom:2px; letter-spacing:0.5px; }
 .photo-area { width: 100px; height: 130px; background: linear-gradient(135deg,#e3f2fd,#bbdefb); border: 3px solid #0d47a1; border-radius: 8px; overflow: hidden; flex-shrink: 0; box-shadow: 0 3px 10px rgba(13,71,161,0.2); }
 .preview-img { width: 100%; height: 100%; object-fit: cover; }
 .info-name { font-size: 1.4rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; margin-bottom: 5px; line-height: 1.2; }
@@ -771,7 +782,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   .modal-box *, .a4-page, .a4-page * { visibility: visible; }
   .a4-page { position: absolute; left: 0; top: 0; width: 210mm; margin: 0; box-shadow: none; }
   .no-print { display: none !important; }
-  .badge-ribbon, .badge-top-banner, .badge-template, .photo-area {
+  .badge-ribbon, .badge-top-banner, .badge-template, .photo-area, .brand-tag, .brand-logo-area {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -2161,6 +2172,27 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     return 'ORG:'+org+'|NOM:'+name+'|ROLE:'+role+'|ID:'+id+'|EXP:'+date;
   }
 
+
+  // ---- Vendeur de marque : corps du badge (aperçu + impression) ----
+  function brandBodyInner(brandLogo, brandName, name, role, id, date, live){
+    var logo = brandLogo ? '<img src="'+brandLogo+'">' : '<span class="brand-logo-placeholder">🏷️</span>';
+    var bn = brandName||'';
+    return '<div class="brand-logo-area"'+(live?' id="brand-preview-area"':'')+'>'+logo+'</div>'+
+      '<div class="info-area">'+
+        '<div class="brand-tag"'+(live?' id="preview-brand-tag"':'')+'>★ Vendeur Marque '+escapeHTML(bn)+' ★</div>'+
+        '<div class="info-name"'+(live?' id="preview-name"':'')+'>'+escapeHTML(name)+'</div>'+
+        '<div class="info-sub"'+(live?' id="preview-role"':'')+'>'+escapeHTML(role)+'</div>'+
+        '<div class="info-detail"><strong>ID:</strong> <span'+(live?' id="preview-badge-id"':'')+'>'+escapeHTML(id)+'</span><br>'+
+        '<strong class="lbl-brand">MARQUE:</strong> <span'+(live?' id="preview-brand-name"':'')+'>'+(escapeHTML(bn)||'—')+'</span><br>'+
+        '<strong>Expire:</strong> <span'+(live?' id="preview-date"':'')+'>'+escapeHTML(date)+'</span></div>'+
+      '</div>';
+  }
+  function setBrandMode(on){
+    var b=document.getElementById('badge-preview'); if(!b) return;
+    b.classList.toggle('badge-brand-model', !!on);
+    var tb=b.querySelector('.badge-top-banner'); if(tb) tb.textContent = on ? 'VENDEUR DE MARQUE' : 'À VOTRE SERVICE';
+  }
+
   function updateBadgePreview(){
     var org=document.getElementById('badge-org').value||'ORGANISATION';
     var name=document.getElementById('badge-name').value||'NOM PRÉNOM';
@@ -2175,11 +2207,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var pbid=document.getElementById('preview-badge-id'); if(pbid) pbid.textContent=id;
     var pd=document.getElementById('preview-date'); if(pd) pd.textContent=date;
     var pbName=document.getElementById('preview-brand-name'); if(pbName) pbName.textContent=brandName||'—';
+    var pbTag=document.getElementById('preview-brand-tag'); if(pbTag) pbTag.textContent='★ Vendeur Marque '+brandName+' ★';
     // update brand logo in preview if in brand mode
     if(currentModel==='brand-vendor'){
       var area=document.getElementById('brand-preview-area');
       if(area){
-        if(currentBrandLogoSrc){ area.innerHTML='<img src="'+currentBrandLogoSrc+'" style="width:100%;height:100%;object-fit:contain;padding:6px;">'; }
+        if(currentBrandLogoSrc){ area.innerHTML='<img src="'+currentBrandLogoSrc+'">'; }
         else { area.innerHTML='<span class="brand-logo-placeholder">🏷️</span>'; }
       }
       var smallPrev=document.getElementById('brand-logo-preview');
@@ -2206,9 +2239,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(photoGroup) photoGroup.style.display='block';
       if(brandGroup) brandGroup.style.display='none';
     } else if(model==='brand-vendor'){
-      var bLogoInner = brandImg ? '<img src="'+brandImg+'" style="width:100%;height:100%;object-fit:contain;padding:6px;">' : '<span class="brand-logo-placeholder">🏷️</span>';
       body.className='badge-body-brand';
-      body.innerHTML='<div class="brand-logo-area" id="brand-preview-area">'+bLogoInner+'</div><div class="info-area"><div class="brand-tag">★ Vendeur de Marque ★</div><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>Marque:</strong> <span id="preview-brand-name">'+(brandName||"—")+'</span><br><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
+      body.innerHTML=brandBodyInner(brandImg, (document.getElementById('badge-brand-name')||{}).value||'', 'NOM PRÉNOM', 'Fonction', '---', '--/--/----', true);
       if(photoGroup) photoGroup.style.display='none';
       if(brandGroup) brandGroup.style.display='block';
     } else {
@@ -2217,6 +2249,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(photoGroup) photoGroup.style.display='none';
       if(brandGroup) brandGroup.style.display='none';
     }
+    setBrandMode(model==='brand-vendor');
     updateBadgePreview();
   };
 
@@ -2556,6 +2589,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
           customW:importFormat==='compact'?clampMm(document.getElementById('import-compact-w').value,COMPACT_LIMITS.wMin,COMPACT_LIMITS.wMax,75):null,
           customH:importFormat==='compact'?clampMm(document.getElementById('import-compact-h').value,COMPACT_LIMITS.hMin,COMPACT_LIMITS.hMax,30):null,
           model:importModel,
+          brandLogo:importModel==='brand-vendor'?importBrandLogoSrc:'',
+          brandName:importModel==='brand-vendor'?(String(r[5]||'').trim()||(document.getElementById('import-brand-name')||{}).value||'').trim():'',
           createdAt:new Date().toISOString()
         };
         store.add(badge).onsuccess = function() {
@@ -2643,10 +2678,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
     }
     var logo=badge.logo?'<div class="badge-logo"><img src="'+badge.logo+'"></div>':'<div class="badge-logo"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
-    var body=badge.model==='with-photo'?
+    var isBrand=badge.model==='brand-vendor';
+    var body=isBrand ? '<div class="badge-body-brand">'+brandBodyInner(badge.brandLogo||'', badge.brandName||'', badge.name, badge.role, badge.badgeId, badge.date||'N/A', false)+'</div>' : badge.model==='with-photo'?
       '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>':
       '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>';
-    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">À VOTRE SERVICE</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+    return '<div class="badge-template '+fmt+(isBrand?' badge-brand-model':'')+'"'+(customStyle||'')+'><div class="badge-top-banner">'+(isBrand?'VENDEUR DE MARQUE':'À VOTRE SERVICE')+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
   }
   window.exportBadgesPDF=function(){
     var {jsPDF}=window.jspdf;
@@ -2695,6 +2731,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.querySelectorAll(std+'.badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
     document.querySelectorAll(std+'.info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
     document.querySelectorAll(std+'.photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
+    document.querySelectorAll(std+'.brand-logo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-w']+'px'; });
     document.querySelectorAll(std+'.qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
     document.querySelectorAll(std+'.badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
     // --- Badges compacts : mêmes curseurs, appliqués comme un facteur (valeur / défaut) sur la base compacte ---
