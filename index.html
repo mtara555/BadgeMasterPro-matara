@@ -777,6 +777,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 /* ============================================================
    PRINT
    ============================================================ */
+
+/* ===== CADRE DE COUPE : trait fin à la dimension exacte de chaque badge (impression / PDF) ===== */
+#print-content.cut-frame .badge-template { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
+#print-content.cut-frame .badge-template::after {
+  content: ''; position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+  border: 1px solid #333; box-sizing: border-box; pointer-events: none; z-index: 50;
+}
+@media print {
+  #print-content.cut-frame .badge-template::after { border-width: 0.3mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 @media print {
   body * { visibility: hidden; }
   .modal-box *, .a4-page, .a4-page * { visibility: visible; }
@@ -1563,6 +1573,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             </select>
           </div>
           <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
+            <input type="checkbox" id="cut-frame-check" checked onchange="document.getElementById('print-content').classList.toggle('cut-frame', this.checked)" style="accent-color:var(--c-primary);">
+            ✂️ Cadre de coupe
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
             <input type="checkbox" id="individual-qr-check" onchange="updatePrintPreview()" style="accent-color:var(--c-primary);">
             QR individuel
           </label>
@@ -1585,7 +1599,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
           <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="resetBadgeSizes()">↺ Réinitialiser</button>
         </div>
       </div>
-      <div id="print-content"></div>
+      <div id="print-content" class="cut-frame"></div>
     </div>
   </div>
 </div>
