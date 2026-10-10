@@ -957,7 +957,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <div class="option-group" id="model-group">
                   <div class="option-btn active" onclick="selectModel('with-photo',this)"><span class="icon">📷</span>Avec Photo</div>
                   <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
-                  <div class="option-btn" onclick="selectModel('brand-vendor',this)"><span class="icon">🏷️</span>Vendeur Marque</div>
                 </div>
               </div>
               <div class="form-group">
@@ -2641,10 +2640,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
     }
     var logo=badge.logo?'<div class="badge-logo"><img src="'+badge.logo+'"></div>':'<div class="badge-logo"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
-    var body=badge.model==='with-photo'?
-      '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>':
-      '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>';
-    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">À VOTRE SERVICE</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+    var detailHtml = '<div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+(badge.brandName?' <br><strong style="color:#b77900;">MARQUE:</strong> '+escapeHTML(badge.brandName):'')+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div>';
+    var body='';
+    if(badge.model==='with-photo'){
+      body='<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div>'+detailHtml+'</div></div>';
+    } else if(badge.model==='brand-vendor'){
+      var brandImg = badge.brandLogo ? '<img src="'+badge.brandLogo+'" style="width:100%;height:100%;object-fit:contain;padding:6px;">' : '<span class="brand-logo-placeholder">🏷️</span>';
+      body='<div class="badge-body-brand"><div class="brand-logo-area">'+brandImg+'</div><div class="info-area"><div class="brand-tag">★ Vendeur Marque '+(badge.brandName?escapeHTML(badge.brandName):'')+' ★</div><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div>'+detailHtml+'</div></div>';
+    } else {
+      body='<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div>'+detailHtml+'</div></div>';
+    }
+    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">'+(badge.model==='brand-vendor'?'★ VENDEUR DE MARQUE ★':'À VOTRE SERVICE')+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
   }
   window.exportBadgesPDF=function(){
     var {jsPDF}=window.jspdf;
