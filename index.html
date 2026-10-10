@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a237e">
 <link rel="manifest" href="manifest.json">
-<title>BadgeMaster Pro — Gestion professionnelle de badges</title>
+<title>BadgeMaster Pro v6.2 — Vendeur Marque + Options</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -820,7 +820,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="sidebar-logo">🏷</div>
       <div>
         <div class="sidebar-title">BadgeMaster</div>
-        <div class="sidebar-version">Pro Edition v6.1</div>
+        <div class="sidebar-version">Pro Edition v6.2 - Vendeur Marque FIX</div>
       </div>
     </div>
 
@@ -954,8 +954,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               </div>
               <div class="form-group">
                 <label>🎨 Type de badge</label>
-                <div class="option-group" id="model-group">
+                <div class="option-group" id="model-group" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
                   <div class="option-btn active" onclick="selectModel('with-photo',this)"><span class="icon">📷</span>Avec Photo</div>
+                  <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
+                  <div class="option-btn" onclick="selectModel('brand-vendor',this)" style="border-color:#ffb300;color:#ffb300;"><span class="icon">🏷️</span>Vendeur Marque</div>
+                </div>
                   <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
                 </div>
               </div>
