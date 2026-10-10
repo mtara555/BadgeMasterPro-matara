@@ -776,22 +776,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     print-color-adjust: exact !important;
   }
 }
-
-  /* --- options ajoutées --- */
-  .badge-logo.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 8px !important; }
-  .badge-logo.no-frame img { object-fit: contain !important; padding: 2px; }
-  .brand-logo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
-  .brand-logo-area.no-frame img { object-fit: contain !important; }
-  .photo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
-  .photo-area.no-frame img { object-fit: contain !important; }
-  .toggle-row { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0; }
-  .toggle-item { display:flex; align-items:center; gap:7px; background: var(--c-surface2); border:1.5px solid var(--c-border); border-radius:20px; padding:6px 12px; cursor:pointer; user-select:none; transition:all 0.2s; font-size:0.8rem; }
-  .toggle-item:hover { border-color: var(--c-primary); }
-  .toggle-item.active { background: var(--c-primary-dim); border-color: var(--c-primary); color: var(--c-primary); }
-  .toggle-item input { display:none; }
-  .toggle-item .check { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--c-border2); display:flex; align-items:center; justify-content:center; font-size:0.7rem; background: var(--c-surface); }
-  .toggle-item.active .check { background: var(--c-primary); border-color: var(--c-primary); color:white; }
-
 </style>
 </head>
 <body>
@@ -1029,16 +1013,9 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               </div>
               <div class="form-group">
                 <label>🏢 Logo</label>
-                <div style="display:flex; gap:10px; align-items:flex-start;">
-                  <div class="logo-upload-zone" onclick="document.getElementById('logo-input').click()" style="flex:1;">
-                    <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
-                    <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
-                  </div>
-                  <label class="toggle-item" id="toggle-logo-frame" onclick="toggleLogoFrame()">
-                    <input type="checkbox" id="logo-no-frame-check">
-                    <div class="check">✓</div>
-                    <span style="font-weight:600;">Sans cadrage</span>
-                  </label>
+                <div class="logo-upload-zone" onclick="document.getElementById('logo-input').click()">
+                  <div class="logo-preview" id="logo-preview"><span>Logo</span></div>
+                  <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
                 </div>
               </div>
               <div class="form-grid">
@@ -1060,14 +1037,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 </div>
                 <div class="form-group">
                   <label>📅 Expiration</label>
-                  <div style="display:flex; gap:8px; align-items:center;">
-                    <input type="date" id="badge-date" oninput="updateBadgePreview()" style="flex:1;">
-                    <label class="toggle-item active" id="toggle-expire" onclick="toggleExpire()">
-                      <input type="checkbox" id="show-expire-check" checked>
-                      <div class="check">✓</div>
-                      <span style="font-weight:600;">Afficher</span>
-                    </label>
-                  </div>
+                  <input type="date" id="badge-date" oninput="updateBadgePreview()">
                 </div>
               </div>
               <div class="form-group" id="photo-input-group">
@@ -1818,7 +1788,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var currentFormat = 'cr80', currentModel = 'with-photo';
   var importFormat = 'cr80', importModel = 'with-photo';
   var selectedBadges = new Set();
-  var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = ''; var currentBrandLogoSrc = '', importBrandLogoSrc=''; var showExpire = true; var logoNoFrame = false; var brandNoFrame = false; var currentBrandLogoSrc = '', importBrandLogoSrc=''; var showExpire = true; var logoNoFrame = false; var brandNoFrame = false;
+  var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = ''; var currentBrandLogoSrc = '', importBrandLogoSrc='';
   var cameraStream = null, cameraFacingMode = 'user', cameraTarget = 'badge';
   var customBadgeWidthMm = 85, customBadgeHeightMm = 54;
   // Badge compact : largeur 70-80 mm, hauteur 25-35 mm
@@ -2202,81 +2172,45 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var pbid=document.getElementById('preview-badge-id'); if(pbid) pbid.textContent=id;
     var pd=document.getElementById('preview-date'); if(pd) pd.textContent=date;
     var pbName=document.getElementById('preview-brand-name'); if(pbName) pbName.textContent=brandName||'—';
-    // expiration visibility
-    var expLine=document.getElementById('expire-line'); if(expLine){ expLine.style.display = showExpire ? '' : 'none'; }
-    // logo frame
-    var ribbonLogo=document.getElementById('ribbon-logo'); if(ribbonLogo){ if(logoNoFrame) ribbonLogo.classList.add('no-frame'); else ribbonLogo.classList.remove('no-frame'); }
-    // brand preview
+    // update brand logo in preview if in brand mode
     if(currentModel==='brand-vendor'){
       var area=document.getElementById('brand-preview-area');
       if(area){
-        if(brandNoFrame) area.classList.add('no-frame'); else area.classList.remove('no-frame');
-        if(currentBrandLogoSrc){ area.innerHTML='<img src="'+currentBrandLogoSrc+'" style="width:100%;height:100%;object-fit:contain;padding:'+(brandNoFrame?'0':'6px')+';">'; }
+        if(currentBrandLogoSrc){ area.innerHTML='<img src="'+currentBrandLogoSrc+'" style="width:100%;height:100%;object-fit:contain;padding:6px;">'; }
         else { area.innerHTML='<span class="brand-logo-placeholder">🏷️</span>'; }
       }
+      var smallPrev=document.getElementById('brand-logo-preview');
+      if(smallPrev && currentBrandLogoSrc){ smallPrev.innerHTML='<img src="'+currentBrandLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">'; }
     }
-    // photo no-frame
-    var photoArea=document.querySelector('#badge-body .photo-area');
-    if(photoArea){ if(logoNoFrame) photoArea.classList.add('no-frame'); else photoArea.classList.remove('no-frame'); }
     var qrDiv=document.getElementById('preview-qr');
-    if(qrDiv){ qrDiv.innerHTML=''; var qrText='ORG:'+org+'|NOM:'+name+'|ROLE:'+role+'|ID:'+id+'|EXP:'+(showExpire?date:'')+(brandName?'|MARQUE:'+brandName:''); setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },20); }
+    if(qrDiv){ qrDiv.innerHTML=''; var qrText=buildQRText(org,name,role,id,date)+(brandName?'|MARQUE:'+brandName:''); setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20); }
   }
   window.updateBadgePreview=updateBadgePreview;
-  window.toggleExpire=function(){
-    var chk=document.getElementById('show-expire-check');
-    var label=document.getElementById('toggle-expire');
-    if(!chk||!label) return;
-    chk.checked = !chk.checked;
-    showExpire = chk.checked;
-    if(showExpire) label.classList.add('active'); else label.classList.remove('active');
-    updateBadgePreview();
-  };
-  window.toggleLogoFrame=function(){
-    var chk=document.getElementById('logo-no-frame-check');
-    var label=document.getElementById('toggle-logo-frame');
-    if(!chk||!label) return;
-    chk.checked = !chk.checked;
-    logoNoFrame = chk.checked;
-    if(logoNoFrame) label.classList.add('active'); else label.classList.remove('active');
-    updateBadgePreview();
-  };
-  window.toggleBrandFrame=function(){
-    var chk=document.getElementById('brand-no-frame-check');
-    var label=document.getElementById('toggle-brand-frame');
-    if(!chk) { brandNoFrame = !brandNoFrame; updateBadgePreview(); return; }
-    if(!label) return;
-    chk.checked = !chk.checked;
-    brandNoFrame = chk.checked;
-    if(brandNoFrame) label.classList.add('active'); else label.classList.remove('active');
-    updateBadgePreview();
-  };
-
 
   window.selectModel=function(model, btn){
     currentModel=model;
     document.querySelectorAll('#model-group .option-btn').forEach(b=>b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
+    btn.classList.add('active');
     var body=document.getElementById('badge-body');
     var photoGroup=document.getElementById('photo-input-group');
     var brandGroup=document.getElementById('brand-vendor-group');
     var imgSrc=currentPhotoSrc||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='130'%3E%3Crect fill='%23bbdefb' width='100' height='130'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='%230d47a1' font-size='12'%3EPHOTO%3C/text%3E%3C/svg%3E";
     var brandImg=currentBrandLogoSrc||"";
     var brandName=(document.getElementById('badge-brand-name')||{}).value||"MARQUE";
-    var expHtml = showExpire ? '<br><span id="expire-line"><strong>Expire:</strong> <span id="preview-date">--/--/----</span></span>' : '<br><span id="expire-line" style="display:none;"><strong>Expire:</strong> <span id="preview-date">--/--/----</span></span>';
     if(model==='with-photo'){
       body.className='badge-body-with-photo';
-      body.innerHTML='<div class="photo-area '+(logoNoFrame?'no-frame':'')+'"><img id="preview-img" class="preview-img" src="'+imgSrc+'"></div><div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span>'+expHtml+'</div></div>';
+      body.innerHTML='<div class="photo-area"><img id="preview-img" class="preview-img" src="'+imgSrc+'"></div><div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
       if(photoGroup) photoGroup.style.display='block';
       if(brandGroup) brandGroup.style.display='none';
     } else if(model==='brand-vendor'){
-      var bLogoInner = brandImg ? '<img src="'+brandImg+'" style="width:100%;height:100%;object-fit:contain;padding:'+(brandNoFrame?'0':'6px')+';">' : '<span class="brand-logo-placeholder">🏷️</span>';
+      var bLogoInner = brandImg ? '<img src="'+brandImg+'" style="width:100%;height:100%;object-fit:contain;padding:6px;">' : '<span class="brand-logo-placeholder">🏷️</span>';
       body.className='badge-body-brand';
-      body.innerHTML='<div class="brand-logo-area '+(brandNoFrame?'no-frame':'')+'" id="brand-preview-area">'+bLogoInner+'</div><div class="info-area"><div class="brand-tag">★ Vendeur de Marque ★</div><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>Marque:</strong> <span id="preview-brand-name">'+(brandName||"—")+'</span><br><strong>ID:</strong> <span id="preview-badge-id">---</span>'+expHtml+'</div></div>';
+      body.innerHTML='<div class="brand-logo-area" id="brand-preview-area">'+bLogoInner+'</div><div class="info-area"><div class="brand-tag">★ Vendeur de Marque ★</div><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>Marque:</strong> <span id="preview-brand-name">'+(brandName||"—")+'</span><br><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
       if(photoGroup) photoGroup.style.display='none';
       if(brandGroup) brandGroup.style.display='block';
     } else {
       body.className='badge-body-no-photo';
-      body.innerHTML='<div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span>'+expHtml+'</div></div>';
+      body.innerHTML='<div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
       if(photoGroup) photoGroup.style.display='none';
       if(brandGroup) brandGroup.style.display='none';
     }
@@ -2421,9 +2355,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       name, role:document.getElementById('badge-role').value.trim(),
       badgeId:document.getElementById('badge-id').value.trim()||'AUTO-'+Date.now(),
       date:document.getElementById('badge-date').value,
-      showExpire: showExpire,
-      logoNoFrame: logoNoFrame,
-      brandNoFrame: brandNoFrame,
       photo:currentPhotoSrc, logo:currentLogoSrc,
       brandLogo:currentBrandLogoSrc,
       brandName:brandNameEl?brandNameEl.value.trim():'',
@@ -2483,12 +2414,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         currentLogoSrc=b.logo||'';
         if(b.logo){ document.getElementById('logo-preview').innerHTML='<img src="'+b.logo+'">'; document.getElementById('ribbon-logo').innerHTML='<img src="'+b.logo+'">'; }
         currentBrandLogoSrc=b.brandLogo||'';
-        showExpire = (b.showExpire!==false);
-        logoNoFrame = !!b.logoNoFrame;
-        brandNoFrame = !!b.brandNoFrame;
-        var seChk=document.getElementById('show-expire-check'); if(seChk){ seChk.checked=showExpire; var lbl=document.getElementById('toggle-expire'); if(lbl){ if(showExpire) lbl.classList.add('active'); else lbl.classList.remove('active'); } }
-        var lnChk=document.getElementById('logo-no-frame-check'); if(lnChk){ lnChk.checked=logoNoFrame; var lLbl=document.getElementById('toggle-logo-frame'); if(lLbl){ if(logoNoFrame) lLbl.classList.add('active'); else lLbl.classList.remove('active'); } }
-        var bnChk=document.getElementById('brand-no-frame-check'); if(bnChk){ bnChk.checked=brandNoFrame; var bLbl=document.getElementById('toggle-brand-frame'); if(bLbl){ if(brandNoFrame) bLbl.classList.add('active'); else bLbl.classList.remove('active'); } }
         if(b.brandName){ var bne=document.getElementById('badge-brand-name'); if(bne) bne.value=b.brandName; }
         if(b.brandLogo){
           var blp=document.getElementById('brand-logo-preview'); if(blp) blp.innerHTML='<img src="'+b.brandLogo+'" style="width:100%;height:100%;object-fit:contain;">';
@@ -2708,27 +2633,17 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
   function createPrintBadgeHTML(badge, idx, individual){
     var fmt='badge-'+(badge.format||'cr80');
+    // Pour le format custom, on applique les dimensions via style inline
     var customStyle='';
     if((badge.format==='custom' || badge.format==='compact') && badge.customW && badge.customH){
       var MM_TO_PX=3.7795;
       customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
     }
-    var logoNoFrame = badge.logoNoFrame ? ' no-frame' : '';
-    var logo=badge.logo?'<div class="badge-logo'+logoNoFrame+'"><img src="'+badge.logo+'" style="object-fit:'+(badge.logoNoFrame?'contain':'cover')+';"></div>':'<div class="badge-logo'+logoNoFrame+'"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
-    var expLine = (badge.showExpire===false) ? '' : '<br><strong>Expire:</strong> '+(badge.date||'N/A');
-    var banner = badge.model==='brand-vendor' ? '★ VENDEUR DE MARQUE ★' : '★ À VOTRE SERVICE ★';
-    var body='';
-    if(badge.model==='with-photo'){
-      var pNoFrame = badge.logoNoFrame ? ' no-frame' : '';
-      body = '<div class="badge-body-with-photo"><div class="photo-area'+pNoFrame+'"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'" style="object-fit:'+(badge.logoNoFrame?'contain':'cover')+';"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expLine+'</div></div></div>';
-    } else if(badge.model==='brand-vendor'){
-      var bNoFrame = badge.brandNoFrame ? ' no-frame' : '';
-      var brandLogo = badge.brandLogo ? '<div class="brand-logo-area'+bNoFrame+'"><img src="'+badge.brandLogo+'" style="width:100%;height:100%;object-fit:contain;padding:'+(badge.brandNoFrame?'0':'6px')+';"></div>' : '<div class="brand-logo-area'+bNoFrame+'"><span class="brand-logo-placeholder">🏷️</span></div>';
-      body = '<div class="badge-body-brand">'+brandLogo+'<div class="info-area"><div class="brand-tag">★ '+(badge.brandName||'Marque')+' ★</div><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expLine+'</div></div></div>';
-    } else {
-      body = '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expLine+'</div></div></div>';
-    }
-    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">'+banner+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+    var logo=badge.logo?'<div class="badge-logo"><img src="'+badge.logo+'"></div>':'<div class="badge-logo"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
+    var body=badge.model==='with-photo'?
+      '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>':
+      '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>';
+    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">À VOTRE SERVICE</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
   }
   window.exportBadgesPDF=function(){
     var {jsPDF}=window.jspdf;
@@ -3760,23 +3675,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         +'h1{font-size:15px;color:#e65100;margin-bottom:2px;}p.sub{font-size:9px;color:#666;margin-bottom:14px;}'
         +'table{width:100%;border-collapse:collapse;}th{background:#e65100;color:white;padding:6px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:0.05em;}'
         +'td{padding:5px 8px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#fff7f0;}'
-        +'
-  /* --- options ajoutées --- */
-  .badge-logo.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 8px !important; }
-  .badge-logo.no-frame img { object-fit: contain !important; padding: 2px; }
-  .brand-logo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
-  .brand-logo-area.no-frame img { object-fit: contain !important; }
-  .photo-area.no-frame { background: transparent !important; border: none !important; box-shadow: none !important; }
-  .photo-area.no-frame img { object-fit: contain !important; }
-  .toggle-row { display:flex; gap:10px; flex-wrap:wrap; margin:8px 0; }
-  .toggle-item { display:flex; align-items:center; gap:7px; background: var(--c-surface2); border:1.5px solid var(--c-border); border-radius:20px; padding:6px 12px; cursor:pointer; user-select:none; transition:all 0.2s; font-size:0.8rem; }
-  .toggle-item:hover { border-color: var(--c-primary); }
-  .toggle-item.active { background: var(--c-primary-dim); border-color: var(--c-primary); color: var(--c-primary); }
-  .toggle-item input { display:none; }
-  .toggle-item .check { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--c-border2); display:flex; align-items:center; justify-content:center; font-size:0.7rem; background: var(--c-surface); }
-  .toggle-item.active .check { background: var(--c-primary); border-color: var(--c-primary); color:white; }
-
-</style></head><body>'
+        +'</style></head><body>'
         +'<h1>📋 Journal des visites</h1>'
         +'<p class="sub">Période : '+escapeHTML(periodLabel)+' &nbsp;|&nbsp; '+visitors.length+' visite(s) &nbsp;|&nbsp; Généré le '+new Date().toLocaleDateString('fr-FR')+'</p>'
         +'<table><thead><tr><th>Date</th><th>Entrée</th><th>Sortie</th><th>Durée</th><th>Visiteur</th><th>Société</th><th>Département</th><th>Hôte</th></tr></thead>'
