@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a237e">
 <link rel="manifest" href="manifest.json">
-<title>BadgeMaster Pro — Gestion professionnelle de badges</title>
+<title>BadgeMaster Pro v6.3 — Vendeur Marque</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -340,6 +340,25 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-org-name { font-size: 1.1rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); line-height: 1.2; }
 .badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
 .badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
+  /* ===== VENDEUR DE MARQUE : rendu identique à la maquette, SANS cadre extérieur ===== */
+  .badge-template.badge-brand-model { border: none !important; box-shadow: none !important; outline: none !important; }
+  .badge-body-brand { display: flex; padding: 6px 14px; height: calc(100% - 87px); gap: 12px; align-items: center; box-sizing: border-box; overflow: hidden; }
+  .brand-logo-area { width: 100px; height: 100px; background: #fff; border: none; border-radius: 10px; overflow: hidden; flex-shrink: 0; display:flex; align-items:center; justify-content:center; box-sizing: border-box; }
+  .brand-logo-area img { width: 100%; height: 100%; object-fit: contain; padding: 0; box-sizing: border-box; }
+  .brand-logo-placeholder { font-size: 2rem; color: #0d47a1; opacity: 0.35; }
+  .badge-body-brand .info-area { min-width: 0; flex: 1; }
+  .info-area .brand-tag { display:inline-block; max-width:100%; background: linear-gradient(135deg,#ffd600,#ffea00); color:#1a237e; font-size:0.52rem; font-weight:900; letter-spacing:1.2px; padding:3px 10px; border-radius:20px; margin-bottom:4px; text-transform:uppercase; border:1px solid rgba(0,0,0,0.08); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; box-sizing:border-box; line-height:1.2; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .badge-body-brand .info-name { font-size: 0.95rem; line-height: 1.1; margin-bottom: 3px; white-space: normal; overflow-wrap: anywhere; }
+  .badge-body-brand .info-sub { font-size: 0.8rem; margin-bottom: 4px; line-height: 1.2; }
+  .badge-body-brand .info-detail { font-size: 0.68rem; line-height: 1.35; padding: 4px 9px; }
+  .badge-body-brand .info-detail .lbl-brand { color:#b8860b; font-weight:700; }
+  .badge-body-brand .info-detail strong { color:#666; }
+  .badge-brand-model .badge-org-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1rem; }
+  .badge-brand-model .badge-ribbon-content { padding: 10px 16px; }
+  .badge-body-brand .qr-area, .badge-brand-model .qr-area { border: 3px solid #e0e0e0; border-radius: 12px; box-shadow: none; }
+  .badge-compact .badge-body-brand { padding: 5px 8px; gap: 8px; height: calc(100% - 24px); }
+  .badge-compact .brand-logo-area { width: auto; height: 100%; aspect-ratio: 1 / 1; border-radius: 6px; }
+  .badge-compact .brand-tag { font-size:0.45rem; padding:2px 6px; margin-bottom:2px; letter-spacing:0.5px; }
 .photo-area { width: 100px; height: 130px; background: linear-gradient(135deg,#e3f2fd,#bbdefb); border: 3px solid #0d47a1; border-radius: 8px; overflow: hidden; flex-shrink: 0; box-shadow: 0 3px 10px rgba(13,71,161,0.2); }
 .preview-img { width: 100%; height: 100%; object-fit: cover; }
 .info-name { font-size: 1.4rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; margin-bottom: 5px; line-height: 1.2; }
@@ -758,12 +777,22 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 /* ============================================================
    PRINT
    ============================================================ */
+
+/* ===== CADRE DE COUPE : trait fin à la dimension exacte de chaque badge (impression / PDF) ===== */
+#print-content.cut-frame .badge-template { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
+#print-content.cut-frame .badge-template::after {
+  content: ''; position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+  border: 1px solid #333; box-sizing: border-box; pointer-events: none; z-index: 50;
+}
+@media print {
+  #print-content.cut-frame .badge-template::after { border-width: 0.3mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 @media print {
   body * { visibility: hidden; }
   .modal-box *, .a4-page, .a4-page * { visibility: visible; }
   .a4-page { position: absolute; left: 0; top: 0; width: 210mm; margin: 0; box-shadow: none; }
   .no-print { display: none !important; }
-  .badge-ribbon, .badge-top-banner, .badge-template, .photo-area {
+  .badge-ribbon, .badge-top-banner, .badge-template, .photo-area, .brand-tag, .brand-logo-area {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -812,7 +841,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="sidebar-logo">🏷</div>
       <div>
         <div class="sidebar-title">BadgeMaster</div>
-        <div class="sidebar-version">Pro Edition v6.1</div>
+        <div class="sidebar-version">Pro Edition v6.2 - Vendeur Marque FIX</div>
       </div>
     </div>
 
@@ -946,8 +975,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               </div>
               <div class="form-group">
                 <label>🎨 Type de badge</label>
-                <div class="option-group" id="model-group">
+                <div class="option-group" id="model-group" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
                   <div class="option-btn active" onclick="selectModel('with-photo',this)"><span class="icon">📷</span>Avec Photo</div>
+                  <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
+                  <div class="option-btn" onclick="selectModel('brand-vendor',this)" style="border-color:#ffb300;color:#ffb300;"><span class="icon">🏷️</span>Vendeur Marque</div>
+                </div>
                   <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
                 </div>
               </div>
@@ -1030,6 +1062,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <div class="form-group">
                   <label>📅 Expiration</label>
                   <input type="date" id="badge-date" oninput="updateBadgePreview()">
+                  <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="badge-show-date" checked onchange="updateBadgePreview()" style="width:auto;"> Afficher la date d'expiration sur le badge</label>
                 </div>
               </div>
               <div class="form-group" id="photo-input-group">
@@ -1045,6 +1078,28 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                   <img id="photo-preview-thumb" class="photo-preview-thumb">
                   <p class="photo-status" id="photo-status">Aucune photo sélectionnée</p>
                 </div>
+              </div>
+              <!-- VENDEUR DE MARQUE -->
+              <div class="form-group" id="brand-vendor-group" style="display:none; background: rgba(255,214,0,0.06); border:1.5px solid rgba(255,214,0,0.25); border-radius:12px; padding:14px;">
+                <label style="color:#ffb300;">🏷️ VENDEUR DE MARQUE — Logo Marque (remplace la photo)</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                  <div>
+                    <label style="font-size:0.75rem;">Nom de la Marque</label>
+                    <input type="text" id="badge-brand-name" placeholder="Ex: NIKE, ADIDAS, SAMSUNG..." oninput="updateBadgePreview()" style="border-color:#ffb300;">
+                  </div>
+                  <div>
+                    <label style="font-size:0.75rem;">Logo Marque</label>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                      <div id="brand-logo-preview" style="width:52px;height:52px;background:#fff;border-radius:10px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.4rem;opacity:0.3;">🏷️</span></div>
+                      <div style="display:flex; flex-direction:column; gap:6px;">
+                        <button class="btn btn-warning btn-sm" onclick="document.getElementById('brand-logo-file').click()">📂 Choisir logo</button>
+                        <button class="btn btn-ghost btn-sm" onclick="clearBrandLogo()">🗑️ Effacer</button>
+                      </div>
+                      <input type="file" id="brand-logo-file" accept="image/*" style="display:none" onchange="handleBrandLogoUpload(event)">
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size:0.7rem;color:var(--c-text-muted);background:rgba(0,0,0,0.2);padding:8px 10px;border-radius:8px;">💡 Le logo de la marque sera affiché à la place de la photo du vendeur. Idéal pour identifier rapidement le vendeur par sa marque.</div>
               </div>
               <div class="btn-group">
                 <button class="btn btn-success btn-full" onclick="saveBadge()">💾 Sauvegarder</button>
@@ -1104,12 +1159,21 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <input type="file" id="import-logo-input" accept="image/*" style="display:none" onchange="handleImportLogoUpload(event)">
               </div>
             </div>
+            <div class="form-group" id="import-brand-group" style="display:none;">
+              <label>🏷️ Logo Marque par défaut (Vendeur Marque)</label>
+              <div class="logo-upload-zone" onclick="document.getElementById('import-brand-logo-input').click()" style="border-color:#ffb300;">
+                <div class="logo-preview" id="import-brand-logo-preview"><span>Marque</span></div>
+                <input type="file" id="import-brand-logo-input" accept="image/*" style="display:none" onchange="handleImportBrandLogoUpload(event)">
+              </div>
+              <div style="margin-top:8px;"><input type="text" id="import-brand-name" placeholder="Nom marque par défaut (ex: NIKE)" style="width:100%;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);padding:8px 12px;"></div>
+            </div>
             <div class="form-grid">
               <div class="form-group">
                 <label>🎨 Type</label>
                 <div class="option-group" id="import-model-group">
                   <div class="option-btn active" onclick="selectImportModel('with-photo',this)">📷 Avec</div>
                   <div class="option-btn" onclick="selectImportModel('no-photo',this)">📋 Sans</div>
+                  <div class="option-btn" onclick="selectImportModel('brand-vendor',this)">🏷️ Marque</div>
                 </div>
               </div>
               <div class="form-group">
@@ -1509,6 +1573,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             </select>
           </div>
           <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
+            <input type="checkbox" id="cut-frame-check" checked onchange="document.getElementById('print-content').classList.toggle('cut-frame', this.checked)" style="accent-color:var(--c-primary);">
+            ✂️ Cadre de coupe
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;">
             <input type="checkbox" id="individual-qr-check" onchange="updatePrintPreview()" style="accent-color:var(--c-primary);">
             QR individuel
           </label>
@@ -1531,7 +1599,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
           <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="resetBadgeSizes()">↺ Réinitialiser</button>
         </div>
       </div>
-      <div id="print-content"></div>
+      <div id="print-content" class="cut-frame"></div>
     </div>
   </div>
 </div>
@@ -1749,7 +1817,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var currentFormat = 'cr80', currentModel = 'with-photo';
   var importFormat = 'cr80', importModel = 'with-photo';
   var selectedBadges = new Set();
-  var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = '';
+  var currentLogoSrc = '', importLogoSrc = '', currentPhotoSrc = ''; var currentBrandLogoSrc = '', importBrandLogoSrc='';
   var cameraStream = null, cameraFacingMode = 'user', cameraTarget = 'badge';
   var customBadgeWidthMm = 85, customBadgeHeightMm = 54;
   // Badge compact : largeur 70-80 mm, hauteur 25-35 mm
@@ -2106,6 +2174,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ currentLogoSrc=c; document.getElementById('logo-preview').innerHTML='<img src="'+c+'">'; document.getElementById('ribbon-logo').innerHTML='<img src="'+c+'">'; }); };
     r.readAsDataURL(f);
   };
+  window.handleImportBrandLogoUpload=function(e){ var f=e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ importBrandLogoSrc=c; document.getElementById('import-brand-logo-preview').innerHTML='<img src="'+c+'">'; }); }; r.readAsDataURL(f); };
   window.handleImportLogoUpload=function(e){
     var f=e.target.files[0]; if(!f) return;
     var r=new FileReader();
@@ -2118,42 +2187,87 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     return 'ORG:'+org+'|NOM:'+name+'|ROLE:'+role+'|ID:'+id+'|EXP:'+date;
   }
 
+
+  // ---- Vendeur de marque : corps du badge (aperçu + impression) ----
+  function brandBodyInner(brandLogo, brandName, name, role, id, date, live, showDate){
+    var logo = brandLogo ? '<img src="'+brandLogo+'">' : '<span class="brand-logo-placeholder">🏷️</span>';
+    var bn = brandName||'';
+    return '<div class="brand-logo-area"'+(live?' id="brand-preview-area"':'')+'>'+logo+'</div>'+
+      '<div class="info-area">'+
+        '<div class="brand-tag"'+(live?' id="preview-brand-tag"':'')+'>★ Vendeur Marque '+escapeHTML(bn)+' ★</div>'+
+        '<div class="info-name"'+(live?' id="preview-name"':'')+'>'+escapeHTML(name)+'</div>'+
+        '<div class="info-sub"'+(live?' id="preview-role"':'')+'>'+escapeHTML(role)+'</div>'+
+        '<div class="info-detail"><strong>ID:</strong> <span'+(live?' id="preview-badge-id"':'')+'>'+escapeHTML(id)+'</span><br>'+
+        '<strong class="lbl-brand">MARQUE:</strong> <span'+(live?' id="preview-brand-name"':'')+'>'+(escapeHTML(bn)||'—')+'</span>'+
+        (showDate===false?'':'<br><strong>Expire:</strong> <span'+(live?' id="preview-date"':'')+'>'+escapeHTML(date)+'</span>')+'</div>'+
+      '</div>';
+  }
+  function setBrandMode(on){
+    var b=document.getElementById('badge-preview'); if(!b) return;
+    b.classList.toggle('badge-brand-model', !!on);
+    var tb=b.querySelector('.badge-top-banner'); if(tb) tb.textContent = 'À VOTRE SERVICE';
+  }
+
   function updateBadgePreview(){
     var org=document.getElementById('badge-org').value||'ORGANISATION';
     var name=document.getElementById('badge-name').value||'NOM PRÉNOM';
     var role=document.getElementById('badge-role').value||'Fonction';
     var id=document.getElementById('badge-id').value||'---';
     var date=document.getElementById('badge-date').value||'--/--/----';
-    document.getElementById('preview-org').textContent=org;
-    document.getElementById('preview-name').textContent=name;
-    document.getElementById('preview-role').textContent=role;
-    document.getElementById('preview-badge-id').textContent=id;
-    document.getElementById('preview-date').textContent=date;
+    var brandNameEl=document.getElementById('badge-brand-name');
+    var brandName=brandNameEl ? (brandNameEl.value||'') : '';
+    var previewOrg=document.getElementById('preview-org'); if(previewOrg) previewOrg.textContent=org;
+    var pn=document.getElementById('preview-name'); if(pn) pn.textContent=name;
+    var pr=document.getElementById('preview-role'); if(pr) pr.textContent=role;
+    var pbid=document.getElementById('preview-badge-id'); if(pbid) pbid.textContent=id;
+    var pd=document.getElementById('preview-date'); if(pd) pd.textContent=date;
+    var pbName=document.getElementById('preview-brand-name'); if(pbName) pbName.textContent=brandName||'—';
+    var pbTag=document.getElementById('preview-brand-tag'); if(pbTag) pbTag.textContent='★ Vendeur Marque '+brandName+' ★';
+    // update brand logo in preview if in brand mode
+    if(currentModel==='brand-vendor'){
+      var area=document.getElementById('brand-preview-area');
+      if(area){
+        if(currentBrandLogoSrc){ area.innerHTML='<img src="'+currentBrandLogoSrc+'">'; }
+        else { area.innerHTML='<span class="brand-logo-placeholder">🏷️</span>'; }
+      }
+      var smallPrev=document.getElementById('brand-logo-preview');
+      if(smallPrev && currentBrandLogoSrc){ smallPrev.innerHTML='<img src="'+currentBrandLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">'; }
+    }
+    var sd=document.getElementById('badge-show-date'); var showD=sd?sd.checked:true;
+    if(pd){ var st=pd.previousElementSibling, br=st?st.previousElementSibling:null; var disp=showD?'':'none';
+      pd.style.display=disp; if(st) st.style.display=disp; if(br && br.tagName==='BR') br.style.display=disp; }
     var qrDiv=document.getElementById('preview-qr');
-    qrDiv.innerHTML='';
-    // QR encode toutes les 5 informations
-    var qrText=buildQRText(org,name,role,id,date);
-    setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20);
+    if(qrDiv){ qrDiv.innerHTML=''; var qrText=buildQRText(org,name,role,id,date)+(brandName?'|MARQUE:'+brandName:''); setTimeout(function(){ new QRCode(qrDiv,{text:qrText,width:60,height:60,correctLevel:QRCode.CorrectLevel.M}); },20); }
   }
   window.updateBadgePreview=updateBadgePreview;
 
   window.selectModel=function(model, btn){
     currentModel=model;
-    // Ne réinitialiser QUE les boutons du groupe "type" (avec/sans photo)
     document.querySelectorAll('#model-group .option-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     var body=document.getElementById('badge-body');
     var photoGroup=document.getElementById('photo-input-group');
+    var brandGroup=document.getElementById('brand-vendor-group');
     var imgSrc=currentPhotoSrc||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='130'%3E%3Crect fill='%23bbdefb' width='100' height='130'/%3E%3Ctext x='50' y='70' text-anchor='middle' fill='%230d47a1' font-size='12'%3EPHOTO%3C/text%3E%3C/svg%3E";
+    var brandImg=currentBrandLogoSrc||"";
+    var brandName=(document.getElementById('badge-brand-name')||{}).value||"MARQUE";
     if(model==='with-photo'){
       body.className='badge-body-with-photo';
       body.innerHTML='<div class="photo-area"><img id="preview-img" class="preview-img" src="'+imgSrc+'"></div><div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
-      photoGroup.style.display='block';
+      if(photoGroup) photoGroup.style.display='block';
+      if(brandGroup) brandGroup.style.display='none';
+    } else if(model==='brand-vendor'){
+      body.className='badge-body-brand';
+      body.innerHTML=brandBodyInner(brandImg, (document.getElementById('badge-brand-name')||{}).value||'', 'NOM PRÉNOM', 'Fonction', '---', '--/--/----', true);
+      if(photoGroup) photoGroup.style.display='none';
+      if(brandGroup) brandGroup.style.display='block';
     } else {
       body.className='badge-body-no-photo';
       body.innerHTML='<div class="info-area"><div class="info-name" id="preview-name">NOM PRÉNOM</div><div class="info-sub" id="preview-role">Fonction</div><div class="info-detail"><strong>ID:</strong> <span id="preview-badge-id">---</span><br><strong>Expire:</strong> <span id="preview-date">--/--/----</span></div></div>';
-      photoGroup.style.display='none';
+      if(photoGroup) photoGroup.style.display='none';
+      if(brandGroup) brandGroup.style.display='none';
     }
+    setBrandMode(model==='brand-vendor');
     updateBadgePreview();
   };
 
@@ -2176,8 +2290,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var compactPanel=document.getElementById('compact-size-inputs');
     if(compactPanel) compactPanel.style.display=(fmt==='compact')?'block':'none';
     if(fmt==='compact') applyCompactSize('init');
-    var fmtLabels={cr80:'CR80',cr79:'CR79',cr100:'CR100',custom85x90:'8.5×9cm',custom:'Personnalisé',compact:'Compact '+compactWidthMm+'×'+compactHeightMm+' mm'};
-    document.getElementById('format-display').textContent=(fmtLabels[fmt]||fmt)+' · '+(currentModel==='with-photo'?'Avec Photo':'Sans Photo');
+    var fmtLabels={cr80:'CR80',cr79:'CR79',cr100:'CR100',custom85x90:'8.5×9cm',custom:'Personnalisé',compact:'Compact '+compactWidthMm+'×'+compactHeightMm+' mm'}; var modelLabel = currentModel==='brand-vendor' ? 'Vendeur Marque' : (currentModel==='with-photo'?'Avec Photo':'Sans Photo');
+    var ml = currentModel==='brand-vendor' ? 'Vendeur Marque' : (currentModel==='with-photo'?'Avec Photo':'Sans Photo'); document.getElementById('format-display').textContent=(fmtLabels[fmt]||fmt)+' · '+ml;
   };
   window.applyCompactSize=function(src,final){
     var L=COMPACT_LIMITS, $=function(id){ return document.getElementById(id); };
@@ -2219,7 +2333,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var disp=document.getElementById('custom-size-display');
     if(disp) disp.textContent=w+' × '+h+' mm';
   };
-  window.selectImportModel=function(m,btn){ importModel=m; document.querySelectorAll('#import-model-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+  window.selectImportModel=function(m,btn){ importModel=m; document.querySelectorAll('#import-model-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); var ibg=document.getElementById('import-brand-group'); if(ibg) ibg.style.display=(m==='brand-vendor')?'block':'none'; };
   window.selectImportFormat=function(f,btn){ importFormat=f; document.querySelectorAll('#import-format-group .option-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); var ic=document.getElementById('import-compact-inputs'); if(ic) ic.style.display=(f==='compact')?'flex':'none'; };
 
   // ---- Camera ----
@@ -2265,19 +2379,40 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     r.onload=function(ev){ compressImage(ev.target.result,400,520,0.8).then(c=>{ applyPhoto(c); }); };
     r.readAsDataURL(f);
   };
+  window.handleBrandLogoUpload=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ compressImage(ev.target.result,300,300,0.85).then(function(c){
+      currentBrandLogoSrc=c;
+      var prev=document.getElementById('brand-logo-preview'); if(prev) prev.innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;">';
+      updateBadgePreview();
+      showToast('Logo marque chargé ✅');
+    }); };
+    r.readAsDataURL(f);
+  };
+  window.clearBrandLogo=function(){
+    currentBrandLogoSrc='';
+    var prev=document.getElementById('brand-logo-preview'); if(prev) prev.innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
+    updateBadgePreview();
+  };
+
 
   // ---- Save Badge ----
   window.saveBadge=function(){
     if(!db) return;
     var name=document.getElementById('badge-name').value.trim();
     if(!name){ showToast('Nom requis','error'); return; }
+    var brandNameEl=document.getElementById('badge-brand-name');
     var badge={
       eventId:parseInt(document.getElementById('badge-event').value)||null,
       org:document.getElementById('badge-org').value.trim()||'Sans organisation',
       name, role:document.getElementById('badge-role').value.trim(),
       badgeId:document.getElementById('badge-id').value.trim()||'AUTO-'+Date.now(),
       date:document.getElementById('badge-date').value,
+      showDate:document.getElementById('badge-show-date').checked,
       photo:currentPhotoSrc, logo:currentLogoSrc,
+      brandLogo:currentBrandLogoSrc,
+      brandName:brandNameEl?brandNameEl.value.trim():'',
       format:currentFormat, model:currentModel,
       customW:currentFormat==='custom'?customBadgeWidthMm:(currentFormat==='compact'?compactWidthMm:null),
       customH:currentFormat==='custom'?customBadgeHeightMm:(currentFormat==='compact'?compactHeightMm:null),
@@ -2288,8 +2423,9 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     req.onsuccess=function(){ showToast(currentBadgeEditId?'Badge modifié ✅':'Badge créé ✅'); currentBadgeEditId=null; resetBadgeForm(); refreshAll(); };
   };
   window.resetBadgeForm=function(){
-    currentBadgeEditId=null; currentLogoSrc=''; currentPhotoSrc='';
+    currentBadgeEditId=null; currentLogoSrc=''; currentPhotoSrc=''; currentBrandLogoSrc=''; var bn=document.getElementById('badge-brand-name'); if(bn) bn.value=''; var blp=document.getElementById('brand-logo-preview'); if(blp) blp.innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
     ['badge-name','badge-role','badge-id','badge-date'].forEach(id=>document.getElementById(id).value='');
+    var sdr=document.getElementById('badge-show-date'); if(sdr) sdr.checked=true;
     // Appliquer les paramètres organisation par défaut
     var defaultOrg = (typeof appSettings !== 'undefined' && appSettings.orgName) ? appSettings.orgName : '';
     document.getElementById('badge-org').value = defaultOrg;
@@ -2325,6 +2461,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       document.getElementById('badge-role').value=b.role||'';
       document.getElementById('badge-id').value=b.badgeId||'';
       document.getElementById('badge-date').value=b.date||'';
+      document.getElementById('badge-show-date').checked=(b.showDate!==false);
       selectModel(b.model||'with-photo',document.querySelector('#model-group .option-btn[onclick*="'+( b.model||'with-photo' )+'"]')||document.querySelector('#model-group .option-btn:first-child'));
       if(b.format==='compact' && b.customW && b.customH){ compactWidthMm=clampMm(b.customW,COMPACT_LIMITS.wMin,COMPACT_LIMITS.wMax,75); compactHeightMm=clampMm(b.customH,COMPACT_LIMITS.hMin,COMPACT_LIMITS.hMax,30); }
       selectFormat(b.format||'cr80',document.querySelector('#format-group .option-btn[onclick*="'+(b.format||'cr80')+'"]')||document.querySelector('#format-group .option-btn:first-child'));
@@ -2333,6 +2470,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         if(b.photo){ applyPhoto(b.photo); }
         currentLogoSrc=b.logo||'';
         if(b.logo){ document.getElementById('logo-preview').innerHTML='<img src="'+b.logo+'">'; document.getElementById('ribbon-logo').innerHTML='<img src="'+b.logo+'">'; }
+        currentBrandLogoSrc=b.brandLogo||'';
+        if(b.brandName){ var bne=document.getElementById('badge-brand-name'); if(bne) bne.value=b.brandName; }
+        if(b.brandLogo){
+          var blp=document.getElementById('brand-logo-preview'); if(blp) blp.innerHTML='<img src="'+b.brandLogo+'" style="width:100%;height:100%;object-fit:contain;">';
+        }
         updateBadgePreview();
       },50);
       showPage('create-badge');
@@ -2363,7 +2505,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       cont.innerHTML='<div class="empty-state"><div class="empty-icon">🏷</div><div class="empty-title">Aucun badge trouvé</div><div class="empty-desc">Créez un badge manuellement ou importez un fichier Excel.</div><div class="btn-group" style="justify-content:center;"><button class="btn btn-primary btn-sm" onclick="showPage(\'create-badge\')">+ Nouveau badge</button><button class="btn btn-ghost btn-sm" onclick="showPage(\'import-excel\')">📊 Import Excel</button></div></div>';
       return;
     }
-    cont.innerHTML=badges.map(b=>'<div class="badge-list-item '+(selectedBadges.has(b.id)?'selected':'')+'"><input type="checkbox" '+(selectedBadges.has(b.id)?'checked':'')+' onchange="toggleSelect('+b.id+')"><img src="'+(b.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'65\'%3E%3Crect fill=\'%23263756\' width=\'50\' height=\'65\'/%3E%3Ctext x=\'25\' y=\'36\' text-anchor=\'middle\' fill=\'%234f74ff\' font-size=\'8\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"><div class="info"><div class="name">'+escapeHTML(b.name)+'</div><div class="meta">'+escapeHTML(b.role)+' · '+escapeHTML(b.org)+(b.eventId?' · 🎪 '+escapeHTML(evtMap[b.eventId]||''):'')+'</div></div><div class="actions"><button class="btn btn-info btn-sm btn-icon" onclick="editBadge('+b.id+')" aria-label="Modifier le badge">✏️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteBadge('+b.id+')" aria-label="Supprimer le badge">🗑️</button></div></div>').join('');
+    cont.innerHTML=badges.map(b=>{ var thumb = b.model==='brand-vendor' ? (b.brandLogo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'50\'%3E%3Crect fill=\'%23fff8e1\' width=\'50\' height=\'50\'/%3E%3Ctext x=\'25\' y=\'28\' text-anchor=\'middle\' fill=\'%23ffb300\' font-size=\'8\'%3EMARQUE%3C/text%3E%3C/svg%3E') : (b.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'50\' height=\'65\'%3E%3Crect fill=\'%23263756\' width=\'50\' height=\'65\'/%3E%3Ctext x=\'25\' y=\'36\' text-anchor=\'middle\' fill=\'%234f74ff\' font-size=\'8\'%3EPHOTO%3C/text%3E%3C/svg%3E'); var modelTag = b.model==='brand-vendor' ? ' 🏷️ '+(b.brandName||'Vendeur Marque') : ''; return '<div class="badge-list-item '+(selectedBadges.has(b.id)?'selected':'')+'"><input type="checkbox" '+(selectedBadges.has(b.id)?'checked':'')+' onchange="toggleSelect('+b.id+')"><img src="'+thumb+'" style="'+(b.model==='brand-vendor'?'background:white;padding:2px;':'')+'"><div class="info"><div class="name">'+escapeHTML(b.name)+modelTag+'</div><div class="meta">'+escapeHTML(b.role)+' · '+escapeHTML(b.org)+(b.brandName?' · 🏷️ '+escapeHTML(b.brandName):'')+(b.eventId?' · 🎪 '+escapeHTML(evtMap[b.eventId]||''):'')+'</div></div><div class="actions"><button class="btn btn-info btn-sm btn-icon" onclick="editBadge('+b.id+')" aria-label="Modifier le badge">✏️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteBadge('+b.id+')" aria-label="Supprimer le badge">🗑️</button></div></div>'; }).join('');
   }
   window.toggleSelect=function(id){ if(selectedBadges.has(id)) selectedBadges.delete(id); else selectedBadges.add(id); loadAllBadges(); };
   window.selectAllBadges=function(){
@@ -2468,6 +2610,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
           customW:importFormat==='compact'?clampMm(document.getElementById('import-compact-w').value,COMPACT_LIMITS.wMin,COMPACT_LIMITS.wMax,75):null,
           customH:importFormat==='compact'?clampMm(document.getElementById('import-compact-h').value,COMPACT_LIMITS.hMin,COMPACT_LIMITS.hMax,30):null,
           model:importModel,
+          brandLogo:importModel==='brand-vendor'?importBrandLogoSrc:'',
+          brandName:importModel==='brand-vendor'?(String(r[5]||'').trim()||(document.getElementById('import-brand-name')||{}).value||'').trim():'',
           createdAt:new Date().toISOString()
         };
         store.add(badge).onsuccess = function() {
@@ -2555,10 +2699,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       customStyle=' style="width:'+Math.round(badge.customW*MM_TO_PX)+'px!important;height:'+Math.round(badge.customH*MM_TO_PX)+'px!important;"';
     }
     var logo=badge.logo?'<div class="badge-logo"><img src="'+badge.logo+'"></div>':'<div class="badge-logo"><span class="badge-logo-placeholder">'+(badge.org||'?').charAt(0).toUpperCase()+'</span></div>';
-    var body=badge.model==='with-photo'?
-      '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>':
-      '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+'<br><strong>Expire:</strong> '+(badge.date||'N/A')+'</div></div></div>';
-    return '<div class="badge-template '+fmt+'"'+(customStyle||'')+'><div class="badge-top-banner">À VOTRE SERVICE</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+    var isBrand=badge.model==='brand-vendor';
+    var expStr=badge.showDate===false?'':'<br><strong>Expire:</strong> '+(badge.date||'N/A');
+    var body=isBrand ? '<div class="badge-body-brand">'+brandBodyInner(badge.brandLogo||'', badge.brandName||'', badge.name, badge.role, badge.badgeId, badge.date||'N/A', false, badge.showDate)+'</div>' : badge.model==='with-photo'?
+      '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expStr+'</div></div></div>':
+      '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expStr+'</div></div></div>';
+    return '<div class="badge-template '+fmt+(isBrand?' badge-brand-model':'')+'"'+(customStyle||'')+'><div class="badge-top-banner">'+'À VOTRE SERVICE'+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
   }
   window.exportBadgesPDF=function(){
     var {jsPDF}=window.jspdf;
@@ -2607,6 +2753,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.querySelectorAll(std+'.badge-org-name').forEach(el=>el.style.fontSize=vals['sl-font-org']+'px');
     document.querySelectorAll(std+'.info-detail').forEach(el=>el.style.fontSize=vals['sl-font-detail']+'px');
     document.querySelectorAll(std+'.photo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-h']+'px'; });
+    document.querySelectorAll(std+'.brand-logo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-w']+'px'; });
     document.querySelectorAll(std+'.qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
     document.querySelectorAll(std+'.badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
     // --- Badges compacts : mêmes curseurs, appliqués comme un facteur (valeur / défaut) sur la base compacte ---
