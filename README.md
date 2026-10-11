@@ -1,59 +1,62 @@
-# 🥖 BOULPAT MASTER
+# BadgeMaster Pro — Version 6.1 Professional
 
-![Deploy](https://github.com/mtara555/boulpat-master/actions/workflows/deploy.yml/badge.svg)
+Application web professionnelle de **création et gestion de badges d'identification**.
 
-PWA de gestion des fiches techniques et ordres de fabrication
-pour le rayon **Boulangerie-Pâtisserie**.
+Fonctionne entièrement dans le navigateur (PWA), sans serveur. Idéale pour :
+- Conférences & salons
+- Accueils d'entreprise
+- Événements & séminaires
+- Gestion des visiteurs
 
-## 🌐 Application en ligne
+## Nouveautés v6.1 Professional
 
-👉 **https://mtara555.github.io/boulpat-master/**
+- ✅ **Page Paramètres** complète (organisation, logo, options d'impression)
+- ✅ **Logo & organisation** appliqués automatiquement sur les nouveaux badges
+- ✅ **Modales de confirmation** professionnelles (plus de `confirm()` navigateur)
+- ✅ **Empty states** soignés avec actions contextuelles
+- ✅ **PWA corrigée** : installation sur écran d'accueil, cache offline fiable
+- ✅ **Service Worker v6** avec stratégie cache-first + mise à jour automatique
+- ✅ **Store settings** (IndexedDB v3) pour persistance des préférences
+- ✅ Interface et versioning professionnel
 
-## ✨ Fonctionnalités
+## Nouveauté : badge compact
 
-- 📋 Fiches techniques standardisées et modifiables
-- 🌍 Bilingue Français / العربية avec switch instantané
-- 🧮 Calculs automatiques (prix de revient, marge, rendement)
-- ⚠️ Détection automatique des 14 allergènes réglementaires
-- 📱 PWA installable, fonctionne hors ligne au fournil
-- 👥 Rôles utilisateurs (Chef / Équipe / Moniteur)
-- 🏭 4 familles : Boulangerie fabriquée, Négoce, Viennoiserie, Pâtisserie
+- Format **🏷️ Compact** : largeur ajustable de **70 à 80 mm**, hauteur ajustable de **25 à 35 mm** (curseurs + saisie, valeurs bornées).
+- Disponible à la création, à l'import Excel, à l'édition et à l'impression A4 / PDF.
 
-## 🚀 Stack technique
+## Fonctionnalités
 
-- **Frontend** : PWA vanilla (HTML/CSS/JS, sans framework)
-- **Déploiement** : GitHub Pages + GitHub Actions
-- **Base de données** : Firebase Firestore (cache hors ligne, temps réel)
-- **Auth** : Firebase Authentication (e-mail/mot de passe + Google), rôles dans Firestore
+| Module | Description |
+|--------|-------------|
+| 🏠 Tableau de bord | Stats en direct, actions rapides, événements récents |
+| 🎪 Événements | Création, association badges, statut auto (passé / en cours / à venir) |
+| ✏️ Créer un badge | Prévisualisation temps réel, photo webcam/import, QR code, formats CR80/CR79/CR100… |
+| 📊 Import Excel | Création de badges en masse (.xlsx) |
+| 📋 Tous les badges | Recherche, filtres, sélection multiple, impression |
+| 🪪 Badges Visiteurs | Enregistrement entrée/sortie + badge dédié |
+| 📓 Journal des visites | Stats, filtres date, export CSV / PDF |
+| ⚙️ Paramètres | Organisation, logo, qualité impression, sauvegarde/restauration |
+| 🖨️ Impression A4 | Grille multi-badges |
+| 💾 Sauvegarde JSON | Export / import complet des données |
 
-## 📅 Roadmap
+## Utilisation
 
-- [x] Étape 1 — Comptes & outils
-- [x] Étape 2 — Déploiement automatique GitHub Pages
-- [x] Étape 3 — Firebase (Firestore + Auth)
-- [x] Étape 4 — Sync temps réel des fiches
-- [x] Étape 5 — Module Fabrication (Ordres de Fabrication)
-- [x] Étape 6 — Mode Terrain (minuteur, offline)
-- [x] Fichiers source du moniteur, photos/vidéos des étapes, QR code, export PDF
-- [x] Étape 7 — HACCP, traçabilité des lots, étiquettes allergènes (V2)
-- [ ] Étape 8 — PWA installable + notifications
+1. Ouvrir `index.html` dans un navigateur moderne (Chrome, Edge, Firefox, Safari).
+2. Pour une utilisation hors-ligne : installer en PWA (menu navigateur → « Installer l'application »).
+3. Créer d'abord un **événement**, puis des badges associés.
+
+## Technologies
+
+- HTML / CSS / JS vanilla (mono-fichier)
+- IndexedDB (stockage local)
+- QRCode.js, html2canvas, jsPDF, SheetJS (CDN)
+- PWA (manifest + service worker)
+
+## Stockage
+
+Toutes les données restent **localement** dans le navigateur.  
+Pensez à exporter régulièrement une sauvegarde depuis **Paramètres**.
 
 ---
 
-*Projet privé — La Pâtisserie / BoulPat Master*
-
-## Cloud Storage (fichier source, vidéos des étapes)
-
-1. Console Firebase → **Storage** → *Commencer* (le plan Blaze peut être exigé ; il reste gratuit dans les quotas).
-2. Onglet **Règles** → collez le contenu de `storage.rules` → *Publier*.
-3. Sans Storage, tout fonctionne sauf l'envoi du fichier source et des vidéos (les photos des étapes sont intégrées à la fiche).
-
-## V2 — Qualité (onglet « Qualité »)
-
-- **Températures** : équipements et seuils configurables (Chef), relevés horodatés, action corrective obligatoire hors limites.
-- **Nettoyage** : plan quotidien / hebdomadaire à cocher, historique par jour.
-- **Lots reçus** : registre (ingrédient, n° de lot, fournisseur, DLC) avec alertes périmé / < 7 jours.
-- **Traçabilité** : n° de lot saisi dans chaque OF ; recherche d'un lot → OF et produits concernés.
-- **Étiquettes** : depuis une fiche (bouton « Étiquette »), FR / AR, A7 · A6 · 100×70 mm. Modèle indicatif à faire valider (ONSSA / responsable qualité).
-
-Collections Firestore : `equipements`, `taches`, `releves`, `nettoyages`, `lots`, `config/etiquette` (voir `firestore.rules`).
+**BadgeMaster Pro v6.1 Professional** — Application de gestion de badges niveau pro.
