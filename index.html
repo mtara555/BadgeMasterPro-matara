@@ -4060,12 +4060,39 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.handleVendeurLogoUpload = function(e){
     var f=e.target.files[0]; if(!f) return;
     var r=new FileReader();
-    r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ currentVendeurLogoSrc=c; document.getElementById('vendeur-logo-preview').innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;">'; updateVendeurPreview(); }); };
+    r.onload=function(ev){
+      // Utilise transparent pour garder couleur d'origine
+      var tryTransparent = function(dataUrl){
+        return new Promise(function(resolve){
+          var img = new Image();
+          img.onload = function(){
+            var w=img.width, h=img.height;
+            var maxW=500, maxH=200;
+            var ratio=Math.min(maxW/w,maxH/h,1);
+            var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
+            var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
+            var ctx=canvas.getContext('2d');
+            ctx.clearRect(0,0,cw,ch);
+            ctx.drawImage(img,0,0,cw,ch);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.onerror=function(){ resolve(dataUrl); };
+          img.src=dataUrl;
+        });
+      };
+      tryTransparent(ev.target.result).then(function(c){
+        currentVendeurLogoSrc=c;
+        window.currentVendeurLogoSrc=c;
+        var lp=document.getElementById('vendeur-logo-preview');
+        if(lp) lp.innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;background:transparent;">';
+        updateVendeurPreview();
+      });
+    };
     r.readAsDataURL(f);
   };
   window.clearVendeurLogo = function(){ currentVendeurLogoSrc=''; document.getElementById('vendeur-logo-preview').innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>'; updateVendeurPreview(); };
 
-  function updateVendeurPreview(){
+    function updateVendeurPreview(){
     var ln = (document.getElementById('vendeur-lastname')||{}).value||'';
     var fn = (document.getElementById('vendeur-firstname')||{}).value||'';
     var marque = (document.getElementById('vendeur-marque')||{}).value||'TCL';
@@ -4079,32 +4106,32 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       if(headerLogo){
         var bgMode = document.getElementById('vendeur-logo-bg') ? document.getElementById('vendeur-logo-bg').value : 'transparent';
         var forceWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-        // FIX: si fond blanc + forcer blanc = logo blanc invisible sur blanc -> on garde couleur originale
-        var filterStyle = '';
-        if(forceWhite && bgMode !== 'white'){
-          filterStyle = 'filter:brightness(0) invert(1); -webkit-filter:brightness(0) invert(1);';
-        } else {
-          filterStyle = 'filter:none; -webkit-filter:none;';
-        }
-        var bgStyle = '';
-        var containerBg = '';
-        if(bgMode==='white'){
-          bgStyle='background:white !important; padding:6px 14px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;';
-          containerBg='background:#1a56b0;';
-          // Si fond blanc, on FORCE couleur originale pour visibilité
-          filterStyle = 'filter:none; -webkit-filter:none;';
-        } else if(bgMode==='blue'){
-          bgStyle='background:transparent; padding:0;';
-          containerBg='background:#1a56b0;';
-        } else {
-          bgStyle='background:transparent; padding:0;';
-        }
-        headerEl.style.cssText = containerBg + ' height:62px; display:flex; align-items:center; justify-content:center;';
-        headerEl.innerHTML = '<span style="'+bgStyle+'"><img src="'+headerLogo+'" alt="Logo" style="max-height:46px; max-width:88%; object-fit:contain; display:block; '+filterStyle+'"></span>';
         headerEl.classList.add('has-logo');
+        headerEl.style.background = '#1a56b0';
+        headerEl.style.display = 'flex';
+        headerEl.style.alignItems = 'center';
+        headerEl.style.justifyContent = 'center';
+        headerEl.style.height = '62px';
+        var imgStyle = 'max-height:46px; max-width:88%; object-fit:contain; display:block;';
+        if(bgMode === 'white'){
+          // MODE CARRE BLANC - très visible
+          imgStyle += ' filter:none !important; -webkit-filter:none !important;';
+          headerEl.innerHTML = '<div style="background:#ffffff; padding:8px 18px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15);"><img src="'+headerLogo+'" alt="Logo" style="'+imgStyle+' background:transparent;"></div>';
+        } else if(forceWhite){
+          // Forcer blanc sur bleu
+          imgStyle += ' filter:brightness(0) invert(1) !important; -webkit-filter:brightness(0) invert(1) !important; background:transparent;';
+          headerEl.innerHTML = '<img src="'+headerLogo+'" alt="Logo" style="'+imgStyle+'">';
+        } else {
+          // Couleur d'origine sur bleu - ex Beko bleu reste bleu mais on le met en blanc si besoin de contraste
+          // Si logo est bleu foncé sur fond bleu, on le force en blanc automatiquement pour visibilité
+          // Mais on garde couleur originale par défaut
+          imgStyle += ' filter:none; -webkit-filter:none; background:transparent;';
+          headerEl.innerHTML = '<img src="'+headerLogo+'" alt="Logo" style="'+imgStyle+'">';
+        }
       } else {
         headerEl.textContent = 'LOGO DU MARQUE';
         headerEl.classList.remove('has-logo');
+        headerEl.style.background = '#1a56b0';
       }
     }
     var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.textContent = fullName;
@@ -4127,26 +4154,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   }
   window.updateVendeurPreview = updateVendeurPreview;
 
-  function buildVendeurBadgeHTML(v, withQR){
+    function buildVendeurBadgeHTML(v, withQR){
     var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
     var marque = v.brandName||v.marque||'TCL';
     var bgMode = v.logoBg || 'transparent';
     var forceWhite = !!v.logoWhite;
-    var filterStyle = '';
-    if(forceWhite && bgMode !== 'white'){
-      filterStyle = 'filter:brightness(0) invert(1); -webkit-filter:brightness(0) invert(1);';
-    } else {
-      filterStyle = 'filter:none; -webkit-filter:none;';
-    }
-    var bgWrapper = '';
     var logoH = (v.sizes&&v.sizes.logo)||46;
-    var innerLogo = '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:'+logoH+'px; max-width:88%; object-fit:contain; display:block; '+filterStyle+'">';
+    var imgBaseStyle = 'max-height:'+logoH+'px; max-width:88%; object-fit:contain; display:block;';
     var logoHtml = '';
     if(v.brandLogo||v.logo){
-      if(bgMode==='white'){
-        logoHtml = '<span style="background:white; padding:5px 12px; border-radius:6px; display:inline-flex;">'+innerLogo+'</span>';
+      var src = v.brandLogo||v.logo;
+      if(bgMode === 'white'){
+        // Carré blanc bien visible + logo couleur originale
+        logoHtml = '<div style="background:#ffffff; padding:6px 14px; border-radius:8px; display:inline-flex; box-shadow:0 1px 4px rgba(0,0,0,0.1);"><img src="'+src+'" alt="Logo" style="'+imgBaseStyle+' filter:none; -webkit-filter:none; background:transparent;"></div>';
+      } else if(forceWhite){
+        logoHtml = '<img src="'+src+'" alt="Logo" style="'+imgBaseStyle+' filter:brightness(0) invert(1); -webkit-filter:brightness(0) invert(1); background:transparent;">';
       } else {
-        logoHtml = innerLogo;
+        logoHtml = '<img src="'+src+'" alt="Logo" style="'+imgBaseStyle+' filter:none; -webkit-filter:none; background:transparent;">';
       }
     } else {
       logoHtml = 'LOGO DU MARQUE';
