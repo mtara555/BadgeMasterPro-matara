@@ -1,34 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style>
+<head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a237e">
 <link rel="manifest" href="manifest.json">
-<title>BadgeMaster Pro v6.4 — Vendeur Marque</title>
+<title>BadgeMaster Pro v6.3 — Vendeur Marque</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -482,9 +461,6 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
   opacity: 0.9 !important;
 }
 
-/* La case MARQUE ne passe pas sous le QR */
-.badge-vendeur-exact .bv-marque-box { align-self: flex-start !important; max-width: calc(100% - 28px - 70px) !important; }
-
 /* Mode compact pour impression */
 .badge-compact.badge-vendeur-exact { width: 284px !important; height: 178px !important; }
 .badge-compact.badge-vendeur-exact .bv-header { height: 46px !important; font-size: 1rem !important; }
@@ -494,11 +470,6 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-compact.badge-vendeur-exact .bv-marque-box { margin-left: 18px !important; font-size: 0.68rem !important; padding: 3px 7px !important; }
 
 /* Page vendeurs styles */
-/* Cadre de coupe vendeurs : décoché = le trait disparaît sans changer la taille du badge */
-#vendeur-print-content:not(.cut-frame) .badge-vendeur-exact,
-#print-content:not(.cut-frame) .badge-vendeur-exact { border-color: transparent !important; }
-.vendeur-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--c-border); border-radius:10px; background:var(--c-surface); }
-.vendeur-row.selected { border-color:#1a56b0; box-shadow:0 0 0 2px rgba(26,86,176,0.2); }
 .vendeur-form-card { border: 1.5px solid rgba(26,86,176,0.2); background: linear-gradient(180deg, rgba(26,86,176,0.04) 0%, var(--c-surface) 100%); }
 .vendeur-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 18px; }
 .vendeur-stat { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; padding: 16px; text-align: center; border-top: 3px solid #1a56b0; }
@@ -941,186 +912,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
    PRINT
    ============================================================ */
 
-/* ============================================================
-   UI MODERNE + RESPONSIVE (PC · tablette · smartphone) — v6.4
-   Couche d'affichage uniquement : ne modifie ni les modèles de badges ni l'impression.
-   ============================================================ */
-@media screen {
-  :root {
-    color-scheme: dark;
-    --c-bg: #0a0d15; --c-surface: #131724; --c-surface2: #1a1f2f;
-    --c-border: rgba(255,255,255,0.08); --c-border2: rgba(255,255,255,0.15);
-    --c-primary: #5b7cff; --c-primary-dim: rgba(91,124,255,0.16); --c-primary-glow: rgba(91,124,255,0.45);
-    --radius: 16px; --radius-sm: 10px; --radius-lg: 22px;
-    --shadow: 0 8px 30px rgba(0,0,0,0.35); --shadow-lg: 0 20px 60px rgba(0,0,0,0.55);
-    --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px);
-    --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
-    --glass: rgba(19,23,36,0.78);
-  }
-  body {
-    background:
-      radial-gradient(1100px 560px at 88% -8%, rgba(91,124,255,0.14), transparent 60%),
-      radial-gradient(900px 520px at -8% 108%, rgba(0,212,170,0.08), transparent 55%),
-      var(--c-bg);
-    background-attachment: fixed;
-  }
-  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-  ::selection { background: var(--c-primary-dim); }
-  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.16); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); background-clip: content-box; border: 2px solid transparent; }
-  :focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; border-radius: 6px; }
-
-  /* ---- Barre latérale ---- */
-  .sidebar { background: var(--glass); backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%); padding-left: var(--sal); }
-  .sidebar-header { padding: 22px 18px 16px; }
-  .sidebar-logo { border-radius: 12px; }
-  .nav-group { padding: 8px 10px; }
-  .nav-group-label { padding: 10px 12px 6px; }
-  .nav-item { border-radius: 12px; margin: 2px 0; padding: 10px 12px; }
-  .nav-item:hover { background: rgba(255,255,255,0.06); transform: translateX(2px); }
-  .nav-item.active { background: linear-gradient(135deg, rgba(91,124,255,0.22), rgba(91,124,255,0.08)); color: #fff; box-shadow: inset 0 0 0 1px rgba(91,124,255,0.35); }
-  .nav-item.active::before { left: -10px; height: 55%; width: 4px; }
-  .nav-icon { width: 30px; height: 30px; line-height: 30px; font-size: 1rem; border-radius: 9px; background: rgba(255,255,255,0.05); }
-  .nav-item.active .nav-icon { background: rgba(91,124,255,0.28); }
-  .sidebar-footer { font-family: var(--font-mono); }
-
-  /* ---- Contenu ---- */
-  .main { min-width: 0; }
-  .pages { min-width: 0; padding: 28px clamp(16px, 3vw, 40px) 40px; max-width: 1560px; width: 100%; margin-inline: auto; }
-  .page-title { font-size: clamp(1.25rem, 2.2vw, 1.75rem); background: linear-gradient(90deg, #fff, rgba(255,255,255,0.72)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .page-header { margin-bottom: 22px; }
-  .card { border-radius: var(--radius); background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0)) , var(--c-surface); box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 6px 22px rgba(0,0,0,0.22); }
-  .card-header { padding: 16px 20px; }
-  .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important; gap: 14px; }
-  .vendeur-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important; }
-  .quick-actions { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important; }
-  .stat-card { border-radius: var(--radius); background: linear-gradient(160deg, rgba(91,124,255,0.09), rgba(255,255,255,0) 60%), var(--c-surface); }
-  .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-  .form-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
-  .preview-wrapper { align-items: safe center; overflow-x: auto; border-radius: var(--radius); }
-  .btn { border-radius: 10px; min-height: 40px; font-weight: 700; letter-spacing: 0.01em; }
-  .btn-sm { min-height: 34px; }
-  .btn-primary { background: linear-gradient(135deg, #5b7cff, #4560e6); box-shadow: 0 6px 18px rgba(91,124,255,0.35); }
-  .btn-accent { box-shadow: 0 6px 18px rgba(0,212,170,0.25); }
-  .btn-danger { box-shadow: 0 6px 18px rgba(255,77,106,0.25); }
-  .btn:focus-visible { outline-offset: 3px; }
-  .form-group input, .form-group select, .form-group textarea, .search-box { border-radius: 12px; }
-  .option-btn { border-radius: 12px; }
-  .badge-list-item, .event-card, .vendeur-row, .visitor-list-item { border-radius: 14px; transition: border-color var(--transition), background var(--transition), transform var(--transition); }
-  .badge-list-item:hover, .event-card:hover { transform: translateY(-1px); }
-  .journal-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .toast-container > * { backdrop-filter: blur(14px); border-radius: 14px; box-shadow: var(--shadow); }
-
-  /* ---- Fenêtres (modales) ---- */
-  .modal-overlay { background: rgba(4,6,12,0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-  .modal-box { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), var(--c-surface); border: 1px solid var(--c-border); max-height: 94vh; max-height: 94dvh; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-  .modal-footer { position: sticky; bottom: 0; background: var(--c-surface); padding-bottom: calc(16px + var(--sab)); z-index: 2; flex-wrap: wrap; }
-
-  /* ---- Barres mobiles ---- */
-  .topbar { background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding-top: var(--sat); height: calc(var(--nav-h) + var(--sat)); padding-left: calc(16px + var(--sal)); padding-right: calc(16px + var(--sar)); }
-  .bottom-nav { background: var(--glass); backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%); height: calc(var(--bottom-nav-h) + var(--sab)); padding-bottom: var(--sab); }
-}
-
-/* ---- Grand écran (PC) : aperçu qui reste visible pendant la saisie ---- */
-@media screen and (min-width: 1101px) {
-  .preview-panel > .card:last-child { position: sticky; top: 20px; align-self: start; }
-}
-
-/* ---- Tablette : menu réduit en icônes (769–1100 px) ---- */
-@media screen and (min-width: 769px) and (max-width: 1100px) {
-  :root { --sidebar-w: 78px; }
-  .sidebar-header { justify-content: center; padding: 18px 8px 14px; }
-  .sidebar-title, .sidebar-version, .sidebar-footer { display: none; }
-  .nav-group { padding: 8px; }
-  .nav-group-label { font-size: 0; padding: 6px 0; border-top: 1px solid var(--c-border); margin: 4px 8px 0; }
-  .nav-group:first-of-type .nav-group-label { border-top: 0; }
-  .nav-item { font-size: 0; justify-content: center; padding: 10px 0; gap: 0; }
-  .nav-item.active::before { left: -8px; }
-  .nav-icon { width: 36px; height: 36px; line-height: 36px; font-size: 1.15rem; }
-  .nav-badge { position: absolute; top: 2px; right: 6px; margin: 0; font-size: 0.58rem; padding: 1px 5px; }
-  .pages { padding: 24px 22px 32px; }
-  .page-header .btn-group, .page-header > div:last-child { flex-wrap: wrap; }
-}
-
-/* ---- Petit écran : bannières, formulaires, fenêtres en feuille du bas ---- */
-@media screen and (max-width: 900px) {
-  #vendeur-modal .modal-body > div:first-child { grid-template-columns: minmax(0, 1fr) !important; }
-  #vendeur-modal .modal-body > div:first-child > * { min-width: 0; }
-  #vendeur-modal .modal-body div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
-  .modal-box { max-width: 100% !important; }
-}
-@media screen and (max-width: 768px) {
-  .pages { padding: 14px 14px calc(var(--bottom-nav-h) + var(--sab) + 18px); }
-  .page-header { align-items: flex-start; }
-  .page-header > div:last-child, .page-header .btn-group { width: 100%; }
-  .page-header .btn { flex: 1 1 auto; justify-content: center; }
-  .card-body { padding: 16px; }
-  .card-header { padding: 14px 16px; }
-  .toolbar > * { flex: 1 1 140px; min-width: 0; }
-  .toolbar .search-box, .toolbar input[type=text] { flex-basis: 100%; }
-  .btn-group { gap: 8px; }
-  .btn-group > .btn { flex: 1 1 auto; justify-content: center; }
-  .modal-overlay { align-items: flex-end; padding: 0; }
-  .modal-box { width: 100%; border-radius: 22px 22px 0 0; }
-  .modal-body { padding: 16px; }
-  .modal-footer { padding: 12px 16px calc(12px + var(--sab)); }
-  .modal-footer .btn { flex: 1 1 auto; justify-content: center; }
-  .size-sliders { grid-template-columns: 1fr 1fr; }
-  .toast-container { left: 12px; right: 12px; bottom: calc(var(--bottom-nav-h) + var(--sab) + 10px); align-items: stretch; }
-  #vendeurs-grid .badge-vendeur-exact { zoom: 0.92; }
-  .a4-page { margin: 12px 0; }
-  #print-content, #vendeur-print-content, #visitor-print-content { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-}
-@media screen and (max-width: 520px) {
-  #vendeur-modal .modal-body div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: minmax(0, 1fr) !important; }
-  #vendeur-modal .badge-vendeur-exact { zoom: 0.85; }
-  .pages { padding: 12px 12px calc(var(--bottom-nav-h) + var(--sab) + 18px); }
-  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
-  .vendeur-stats { grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
-  .vendeur-stat { padding: 10px 4px; }
-  .vendeur-stat .stat-label { font-size: 0.58rem; letter-spacing: 0.02em; }
-  .quick-actions { grid-template-columns: repeat(2, 1fr) !important; }
-  .size-sliders { grid-template-columns: 1fr; }
-  #model-group { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 6px !important; }
-  #model-group .option-btn { padding: 10px 4px; font-size: 0.72rem; }
-  #format-group { flex-wrap: wrap; }
-  #format-group .option-btn { flex: 1 1 28%; }
-  .preview-wrapper { padding: 10px; }
-  .card-body { padding: 14px; }
-  .page-title { font-size: 1.2rem; }
-  #vendeurs-grid .badge-vendeur-exact { zoom: 0.84; }
-}
-@media screen and (max-width: 380px) {
-  #vendeur-modal .badge-vendeur-exact { zoom: 0.74; }
-  #vendeurs-grid .badge-vendeur-exact { zoom: 0.76; }
-  .stat-number { font-size: 1.15rem; }
-}
-
-/* ---- Écrans tactiles : cibles de 44 px, champs à 16 px (évite le zoom automatique iOS) ---- */
-@media screen and (pointer: coarse) {
-  .btn, .btn-sm { min-height: 44px; }
-  .btn-icon { min-width: 44px; }
-  .nav-item { min-height: 46px; }
-  .form-group input, .form-group select, .form-group textarea, .search-box, .journal-date-input,
-  input[type=text], input[type=number], input[type=date], input[type=search], select, textarea { font-size: 16px !important; }
-  input[type=checkbox], input[type=radio] { min-width: 20px; min-height: 20px; }
-  .badge-list-item input[type=checkbox] { width: 22px; height: 22px; }
-}
-
-/* ---- Téléphone en mode paysage : barre basse plus fine ---- */
-@media screen and (max-height: 480px) and (orientation: landscape) {
-  :root { --bottom-nav-h: 54px; --nav-h: 52px; }
-  .bottom-nav-item { flex-direction: row; justify-content: center; gap: 6px; font-size: 0.6rem; padding: 4px; }
-  .modal-box { max-height: 100dvh; border-radius: 0; }
-}
-
-/* ---- Accessibilité : réduire les animations si demandé ---- */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-}
-
 /* Bannière bleue vide : garde la hauteur, masque logo + organisation */
 .badge-ribbon-empty .badge-ribbon-content { visibility: hidden; }
 
@@ -1143,17 +934,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     print-color-adjust: exact !important;
   }
 }
-
-/* FIX VISIBILITE PAGES - V7 */
-.page.active { display: block !important; opacity: 1 !important; visibility: visible !important; }
-#page-visitors, #page-vendeurs, #page-journal { min-height: 60vh; }
-
-
-/* FIX V8 TOUCHES */
-.btn, .nav-item, .bottom-nav-item { pointer-events: auto !important; touch-action: manipulation; }
-.bottom-nav { z-index: 999 !important; }
-.modal-overlay { pointer-events: auto; }
-
 </style>
 </head>
 <body>
@@ -1198,7 +978,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="sidebar-logo">🏷</div>
       <div>
         <div class="sidebar-title">BadgeMaster</div>
-        <div class="sidebar-version">Pro Edition v6.4</div>
+        <div class="sidebar-version">Pro Edition v6.2 - Vendeur Marque FIX</div>
       </div>
     </div>
 
@@ -1337,6 +1117,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                   <div class="option-btn active" onclick="selectModel('with-photo',this)"><span class="icon">📷</span>Avec Photo</div>
                   <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
                   <div class="option-btn" onclick="selectModel('brand-vendor',this)" style="border-color:#ffb300;color:#ffb300;"><span class="icon">🏷️</span>Vendeur Marque</div>
+                </div>
+                  <div class="option-btn" onclick="selectModel('no-photo',this)"><span class="icon">📋</span>Sans Photo</div>
                 </div>
               </div>
               <div class="form-group">
@@ -1492,6 +1274,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             </div>
           </div>
         </div>
+      </div>
 
       <!-- IMPORT EXCEL -->
       <div class="page" id="page-import-excel">
@@ -1782,9 +1565,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                 <option value="">Toutes les marques</option>
               </select>
               <button class="btn btn-ghost btn-sm" onclick="selectAllVendeurs()">☑ Tout</button>
-              <button class="btn btn-ghost btn-sm" onclick="clearVendeurSelection()">☐ Aucun</button>
-              <button class="btn btn-ghost btn-sm" id="vendeurs-view-btn" onclick="toggleVendeursView()">☰ Liste</button>
-              <span id="vendeurs-selected-count" style="font-size:0.78rem;color:var(--c-text-muted);">0 sélectionné(s)</span>
               <button class="btn btn-info btn-sm" onclick="printSelectedVendeurs()">🖨️ Imprimer sélection</button>
               <button class="btn btn-accent btn-sm" onclick="printAllVendeursA4()">📄 Planche A4</button>
               <button class="btn btn-danger btn-sm" onclick="deleteSelectedVendeurs()">🗑️</button>
@@ -1793,7 +1573,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         </div>
 
         <!-- Grid des vendeurs -->
-        <div id="vendeurs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:16px;"></div>
+        <div id="vendeurs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
         <div id="vendeurs-empty" class="empty-state" style="display:none;">
           <div class="empty-icon">🏷️</div>
           <div class="empty-title">Aucun badge vendeur</div>
@@ -2233,12 +2013,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             <label>🎪 ÉVÉNEMENT</label>
             <select id="vendeur-event"><option value="">-- Événement (optionnel) --</option></select>
           </div>
-          <div class="form-group" style="background:#eef4ff;border:1.5px dashed #1a56b0;border-radius:12px;padding:12px;">
-            <label>➕ PLUSIEURS VENDEURS DE CETTE MARQUE (un nom par ligne)</label>
-            <textarea id="vendeur-bulk" rows="3" placeholder="CHAARAOUI AHMED&#10;BOUSSOUF MOHAMED SAID"></textarea>
-            <button class="btn btn-info btn-sm" type="button" onclick="saveVendeursBulk()" style="margin-top:8px;">➕ Créer tous les badges</button>
-            <div style="font-size:0.7rem;color:#555;margin-top:6px;">Utilise la marque, le logo, le fond du logo, les polices, les tailles et le QR choisis ci-dessous. Le nom est repris tel que saisi.</div>
-          </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;">
             <div style="background:#eef4ff;border:2px solid #1a56b0;border-radius:12px;padding:14px;">
@@ -2350,12 +2124,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="no-print">
         <div class="btn-group print-ctrl" style="margin-bottom:14px;">
           <button class="btn btn-success btn-sm" onclick="window.print()">🖨️ Imprimer</button>
-          <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--c-text-muted);cursor:pointer;"><input type="checkbox" id="vendeur-cut-frame" checked onchange="document.getElementById('vendeur-print-content').classList.toggle('cut-frame', this.checked)" style="accent-color:#1a56b0;"> ✂️ Cadre de coupe</label>
           <button class="btn btn-pdf btn-sm" onclick="exportVendeursPDF()">📄 Export PDF</button>
           <span id="vendeur-print-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;"></span>
         </div>
       </div>
-      <div id="vendeur-print-content" class="cut-frame"></div>
+      <div id="vendeur-print-content"></div>
     </div>
   </div>
 </div>
@@ -2525,7 +2298,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   }
 
-  function refreshAll(){ /* SUPPRIME - remplacé par version unifiée V9 en fin de fichier */ try{ loadEvents(); }catch(e){} try{ loadAllBadges(); }catch(e){} try{ updateStats(); }catch(e){} try{ loadAllVisitors && loadAllVisitors(); }catch(e){} try{ updateVisitorStats && updateVisitorStats(); }catch(e){} try{ loadVendeurs && loadVendeurs(); }catch(e){} try{ loadJournal && loadJournal(); }catch(e){} }
+  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
   function updateStats(){
     if(!db) return;
     var tx=db.transaction(['events','badges','imports'],'readonly');
@@ -2533,14 +2306,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var n=e.target.result;
       document.getElementById('stat-events').textContent=n;
       var bnBadge=document.getElementById('bn-events-count');
-      if(bnBadge){ if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; } }
+      if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('badges').count().onsuccess=function(e){
       var n=e.target.result;
       document.getElementById('stat-badges').textContent=n;
       document.getElementById('badges-count').textContent=n;
       var bnBadge=document.getElementById('bn-badges-count');
-      if(bnBadge){ if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; } }
+      if(n>0){ bnBadge.style.display='block'; bnBadge.textContent=n; } else { bnBadge.style.display='none'; }
     };
     tx.objectStore('imports').count().onsuccess=function(e){ /* stat-imports removed */ };
     tx.objectStore('badges').getAll().onsuccess=function(e){ document.getElementById('stat-photos').textContent=e.target.result.filter(b=>b.photo).length; };
@@ -2557,56 +2330,23 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Navigation ----
   function showPage(pageId, navItem){
-    try{
-      var pageEl = document.getElementById('page-'+pageId);
-      if(!pageEl){ console.error('Page introuvable:', pageId, ' Disponible:', Array.from(document.querySelectorAll('.page')).map(p=>p.id)); return; }
-      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-      pageEl.classList.add('active');
-      // Force visible
-      pageEl.style.display='block';
-      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-      if(navItem) navItem.classList.add('active');
-      // Sync bottom nav
-      document.querySelectorAll('.bottom-nav-item').forEach(function(item){
-        item.classList.remove('active');
-        var oc = item.getAttribute('onclick')||'';
-        if(oc.indexOf("'"+pageId+"'")!==-1 || oc.indexOf('"'+pageId+'"')!==-1){
-          item.classList.add('active');
-        }
-      });
-      if(!navItem){
-        document.querySelectorAll('.nav-item').forEach(function(ni){
-          var oc = ni.getAttribute('onclick')||'';
-          if(oc.indexOf("'"+pageId+"'")!==-1 || oc.indexOf('"'+pageId+'"')!==-1) ni.classList.add('active');
-        });
-      }
-      if(pageId==='dashboard'){ try{ updateStats(); }catch(e){} try{ loadEvents(); }catch(e){} try{ updateVisitorStats && updateVisitorStats(); }catch(e){} try{ loadVendeurs && loadVendeurs(); }catch(e){} }
-      if(pageId==='events') { try{ loadEvents(); }catch(e){ console.warn(e); } }
-      if(pageId==='all-badges') { try{ loadAllBadges(); }catch(e){} }
-      if(pageId==='import-excel') { try{ loadImportsHistory(); }catch(e){} }
-      if(pageId==='visitors'){ try{ loadAllVisitors && loadAllVisitors(); }catch(e){ console.error('loadAllVisitors',e); } try{ updateVisitorStats && updateVisitorStats(); }catch(e){} }
-      if(pageId==='vendeurs'){ try{ loadVendeurs && loadVendeurs(); }catch(e){ console.error('loadVendeurs',e); } }
-      if(pageId==='journal'){ try{ loadJournal && loadJournal(); }catch(e){ console.error('loadJournal',e); } }
-      if(pageId==='settings'){ try{ loadSettings(); }catch(e){} try{ updateDbInfo(); }catch(e){} }
-      if(pageId==='create-badge'){
-        try{
-          if(!currentBadgeEditId && !document.getElementById('badge-name').value){
-            var defOrg = (typeof appSettings !== 'undefined' && appSettings.orgName) ? appSettings.orgName : '';
-            if(defOrg && !document.getElementById('badge-org').value) document.getElementById('badge-org').value = defOrg;
-            if(typeof appSettings !== 'undefined' && appSettings.logo && !currentLogoSrc){
-              currentLogoSrc = appSettings.logo;
-              var lp=document.getElementById('logo-preview'); if(lp) lp.innerHTML='<img src="'+appSettings.logo+'">';
-              var rl=document.getElementById('ribbon-logo'); if(rl) rl.innerHTML='<img src="'+appSettings.logo+'">';
-            }
-            updateBadgePreview();
-          }
-        }catch(e){}
-      }
-      if(window.innerWidth<=768) closeSidebar();
-    }catch(err){
-      console.error('showPage error', err);
-    }
-  }
+    var pageEl = document.getElementById('page-'+pageId);
+    if(!pageEl){ console.error('Page introuvable:', pageId); return; }
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    pageEl.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    if(navItem) navItem.classList.add('active');
+    // Sync bottom nav
+    document.querySelectorAll('.bottom-nav-item').forEach(function(item){
+      item.classList.remove('active');
+    });
+    if(pageId==='dashboard'){ updateStats(); loadEvents(); updateVisitorStats && updateVisitorStats(); }
+    if(pageId==='events') loadEvents();
+    if(pageId==='all-badges') loadAllBadges();
+    if(pageId==='import-excel') loadImportsHistory();
+    if(pageId==='visitors'){ loadAllVisitors && loadAllVisitors(); updateVisitorStats && updateVisitorStats(); }
+    if(pageId==='journal'){ loadJournal && loadJournal(); }
+    if(pageId==='settings'){ loadSettings(); updateDbInfo(); }
     if(pageId==='create-badge'){
       // Pré-remplir org/logo si formulaire vide (nouveau badge)
       if(!currentBadgeEditId && !document.getElementById('badge-name').value){
@@ -2625,12 +2365,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.showPage=showPage;
 
   window.bnNav=function(pageId, item){
-    try{
-      document.querySelectorAll('.bottom-nav-item').forEach(i=>i.classList.remove('active'));
-      if(item) item.classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-      showPage(pageId, null);
-    }catch(e){ console.error('bnNav',e); }
+    document.querySelectorAll('.bottom-nav-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    // Sync sidebar nav
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    showPage(pageId, null);
   };
 
   // ---- Sidebar ----
@@ -3300,7 +3039,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     });
   };
   function createPrintBadgeHTML(badge, idx, individual){
-    if(badge.model==='vendeur-exact' && window.buildVendeurBadgeHTML) return window.buildVendeurBadgeHTML(badge,false);
     var fmt='badge-'+(badge.format||'cr80');
     // Pour le format custom, on applique les dimensions via style inline
     var customStyle='';
@@ -4356,12 +4094,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         +'h1{font-size:15px;color:#e65100;margin-bottom:2px;}p.sub{font-size:9px;color:#666;margin-bottom:14px;}'
         +'table{width:100%;border-collapse:collapse;}th{background:#e65100;color:white;padding:6px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:0.05em;}'
         +'td{padding:5px 8px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#fff7f0;}'
-        +'
-/* FIX VISIBILITE PAGES - V7 */
-.page.active { display: block !important; opacity: 1 !important; visibility: visible !important; }
-#page-visitors, #page-vendeurs, #page-journal { min-height: 60vh; }
-
-</style></head><body>'
+        +'</style></head><body>'
         +'<h1>📋 Journal des visites</h1>'
         +'<p class="sub">Période : '+escapeHTML(periodLabel)+' &nbsp;|&nbsp; '+visitors.length+' visite(s) &nbsp;|&nbsp; Généré le '+new Date().toLocaleDateString('fr-FR')+'</p>'
         +'<table><thead><tr><th>Date</th><th>Entrée</th><th>Sortie</th><th>Durée</th><th>Visiteur</th><th>Société</th><th>Département</th><th>Hôte</th></tr></thead>'
@@ -4388,7 +4121,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     vendeurEditId = null;
     currentVendeurLogoSrc = '';
     document.getElementById('vendeur-modal-title') && (document.getElementById('vendeur-modal-title').textContent='🏷️ Nouveau Vendeur');
-    ['vendeur-lastname','vendeur-firstname','vendeur-marque','vendeur-event','vendeur-bulk'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value=''; });
+    ['vendeur-lastname','vendeur-firstname','vendeur-marque','vendeur-event'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value=''; });
     var lp=document.getElementById('vendeur-logo-preview'); if(lp) lp.innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
     updateVendeurPreview();
     document.getElementById('vendeur-modal').classList.add('show');
@@ -4610,42 +4343,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     }
   };
 
-
-  // ---- Ajout de plusieurs vendeurs (un nom par ligne) ----
-  function collectVendeurSettings(){
-    var g=function(id,d){ var el=document.getElementById(id); return el?el.value:d; };
-    var qr=document.getElementById('vendeur-show-qr'), lw=document.getElementById('vendeur-logo-white');
-    return {
-      fontName:g('vendeur-font-name',"'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif"),
-      fontRole:g('vendeur-font-role','Arial, sans-serif'),
-      fontMarque:g('vendeur-font-marque',"'BFMarjane-Black_V1', sans-serif"),
-      showQR:qr?qr.checked:true, logoWhite:lw?lw.checked:false, logoBg:g('vendeur-logo-bg','white'),
-      sizes:{ name:parseInt(g('vsl-name'))||24, role:parseInt(g('vsl-role'))||14, marque:parseInt(g('vsl-marque'))||13, header:parseInt(g('vsl-header'))||62, logo:parseInt(g('vsl-logo'))||46 }
-    };
-  }
-  window.saveVendeursBulk=function(){
-    if(vendeurEditId){ showToast('Fermez la modification pour ajouter plusieurs vendeurs','error'); return; }
-    var names=((document.getElementById('vendeur-bulk')||{}).value||'').split(/\r?\n/).map(function(t){return t.trim();}).filter(Boolean);
-    if(!names.length){ showToast('Saisissez au moins un nom (un par ligne)','error'); return; }
-    var marque=((document.getElementById('vendeur-marque')||{}).value||'').trim();
-    if(!marque){ showToast('Marque requise','error'); return; }
-    var _db=db||window.db; if(!_db){ showToast('Base non prête, recharge','error'); return; }
-    var eventId=parseInt((document.getElementById('vendeur-event')||{}).value); if(isNaN(eventId)) eventId=null;
-    var st=collectVendeurSettings(), logo=currentVendeurLogoSrc||window.currentVendeurLogoSrc||'', base=Date.now();
-    var tx=_db.transaction(['badges'],'readwrite'), os=tx.objectStore('badges');
-    names.forEach(function(n,i){
-      os.put(Object.assign({ id:base+i, name:n, firstname:'', lastname:n, brandName:marque, marque:marque, brandLogo:logo, logo:logo, role:'Vendeur', org:marque,
-        model:'vendeur-exact', format:'vendeur-exact', eventId:eventId, createdAt:new Date().toISOString(), photo:'', badgeId:'VEND-'+base+'-'+i }, st));
-    });
-    tx.oncomplete=function(){ showToast(names.length+' vendeur(s) créé(s) ✅'); closeVendeurModal(); if(typeof refreshAll==='function') refreshAll(); loadVendeurs(); };
-    tx.onerror=function(e){ showToast('Erreur: '+(e.target.error||e.target),'error'); };
-  };
-
-  // ---- Vue liste / grille + sélection ----
-  var vendeursListView=(function(){ try{ return localStorage.getItem('vendeursView')==='list'; }catch(e){ return false; } })();
-  window.toggleVendeursView=function(){ vendeursListView=!vendeursListView; try{ localStorage.setItem('vendeursView',vendeursListView?'list':'grid'); }catch(e){} loadVendeurs(); };
-  window.clearVendeurSelection=function(){ selectedVendeurs.clear(); loadVendeurs(); };
-
   function loadVendeurs(){
     if(!db || !db.objectStoreNames.contains('badges')) return;
     var tx=db.transaction(['badges'],'readonly');
@@ -4657,15 +4354,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var marqueFilter=(document.getElementById('filter-vendeur-marque')||{}).value||'';
       if(marqueFilter) all=all.filter(function(b){ return (b.brandName||b.marque||'')===marqueFilter; });
 
-      try{ document.getElementById('vendeurs-total').textContent=all.length; }catch(e){}
-      try{ document.getElementById('vendeurs-count').textContent=all.length; }catch(e){}
-      try{ document.getElementById('vstat-vendeurs').textContent=all.length; }catch(e){}
+      document.getElementById('vendeurs-total').textContent=all.length;
+      document.getElementById('vendeurs-count').textContent=all.length;
+      document.getElementById('vstat-vendeurs').textContent=all.length;
       var marques=[...new Set(all.map(function(b){return b.brandName||b.marque;}).filter(Boolean))];
-      try{ document.getElementById('vstat-marques').textContent=marques.length; }catch(e){}
-      try{ document.getElementById('vstat-vendeurs-print').textContent=all.length; }catch(e){}
-      try{ var bnV=document.getElementById('bn-vendeurs-count'); if(bnV){ bnV.textContent=all.length; bnV.style.display=all.length? 'block':'none'; } }catch(e){}
-      var _sc=document.getElementById('vendeurs-selected-count'); if(_sc) _sc.textContent=selectedVendeurs.size+' sélectionné(s)';
-      var _vb=document.getElementById('vendeurs-view-btn'); if(_vb) _vb.textContent=vendeursListView?'▦ Grille':'☰ Liste';
+      document.getElementById('vstat-marques').textContent=marques.length;
+      document.getElementById('vstat-vendeurs-print').textContent=all.length;
 
       // remplir filtre marques
       var sel=document.getElementById('filter-vendeur-marque');
@@ -4679,21 +4373,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var empty=document.getElementById('vendeurs-empty');
       if(!all.length){ grid.innerHTML=''; empty.style.display='block'; return; }
       empty.style.display='none';
-      grid.style.gridTemplateColumns = vendeursListView ? '1fr' : 'repeat(auto-fill,minmax(min(100%,340px),1fr))';
-      grid.style.gap = vendeursListView ? '8px' : '16px';
       grid.innerHTML=all.map(function(v){
         var fullName=escapeHTML(v.name|| (v.firstname+' '+v.lastname));
         var marque=escapeHTML(v.brandName||v.marque||'—');
         var logo=v.brandLogo||v.logo||'';
         var thumb=logo ? '<img src="'+logo+'" style="width:52px;height:52px;object-fit:contain;background:white;border-radius:8px;padding:4px;border:1px solid #eee;">' : '<div style="width:52px;height:52px;background:#1a56b0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">'+marque.charAt(0)+'</div>';
-        if(vendeursListView){
-          return '<div class="vendeur-row'+(selectedVendeurs.has(v.id)?' selected':'')+'">'
-            +'<input type="checkbox" '+(selectedVendeurs.has(v.id)?'checked':'')+' onchange="toggleVendeurSelect('+v.id+')">'
-            +thumb
-            +'<div style="flex:1;min-width:0;"><div style="font-weight:800;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+fullName+'</div><div style="font-size:0.78rem;color:var(--c-text-muted);"><span style="border-left:2px solid #3b9eff;padding-left:6px;">Vendeur</span> · <strong style="color:#b89300;">'+marque+'</strong></div></div>'
-            +'<div style="display:flex;gap:6px;"><button class="btn btn-info btn-sm btn-icon" onclick="editVendeur('+v.id+')">✏️</button><button class="btn btn-ghost btn-sm btn-icon" onclick="downloadVendeurBadge('+v.id+')">⬇️</button><button class="btn btn-danger btn-sm btn-icon" onclick="deleteVendeur('+v.id+')">🗑️</button></div>'
-          +'</div>';
-        }
         return '<div class="card" style="margin:0;border:1px solid '+(selectedVendeurs.has(v.id)?'#1a56b0':'var(--c-border)')+';background:var(--c-surface);'+(selectedVendeurs.has(v.id)?'box-shadow:0 0 0 2px rgba(26,86,176,0.2);':'')+'">'
           +'<div style="padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--c-border);">'
             +'<input type="checkbox" '+(selectedVendeurs.has(v.id)?'checked':'')+' onchange="toggleVendeurSelect('+v.id+')">'
@@ -4916,140 +4600,28 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     },600);
   };
 
-  
-  // === FIX V7 : refreshAll unique et complet + populateEventSelectors patch ===
-  (function(){
-    try{
-      if(typeof populateEventSelectors === 'function'){
-        var _origPopulate = populateEventSelectors;
-        populateEventSelectors = function(events){
-          try{ _origPopulate(events); }catch(e){}
-          try{
-            var sel=document.getElementById('vendeur-event'); if(!sel) return;
-            var val=sel.value;
-            sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
-            events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
-            if(val) sel.value=val;
-          }catch(e){}
-        };
-      }
-    }catch(e){}
-  })();
+  // Patch refreshAll
+  var _origRefreshAll = refreshAll;
+  refreshAll = function(){ _origRefreshAll(); try{ loadVendeurs(); }catch(e){} };
 
-  function refreshAll(){
-    try{ loadEvents(); }catch(e){ console.warn('loadEvents',e); }
-    try{ loadAllBadges(); }catch(e){ console.warn('loadAllBadges',e); }
-    try{ updateStats(); }catch(e){ console.warn('updateStats',e); }
-    try{ loadAllVisitors && loadAllVisitors(); }catch(e){ console.warn('loadAllVisitors',e); }
-    try{ updateVisitorStats && updateVisitorStats(); }catch(e){ console.warn('updateVisitorStats',e); }
-    try{ loadVendeurs && loadVendeurs(); }catch(e){ console.warn('loadVendeurs',e); }
-    try{ loadJournal && loadJournal(); }catch(e){ console.warn('loadJournal',e); }
-  }
-  window.refreshAll = refreshAll;
+  // Charger events dans select vendeur
+  var _origPopulate = populateEventSelectors;
+  populateEventSelectors = function(events){
+    _origPopulate(events);
+    var sel=document.getElementById('vendeur-event'); if(!sel) return;
+    var val=sel.value;
+    sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
+    events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
+    if(val) sel.value=val;
+  };
 
-  // === FIX V8 : Exposition globale de toutes les fonctions pour onclick (touches) ===
-  try{
-    window.closeModal = closeModal;
-    window.openEventModal = openEventModal;
-    window.saveEvent = saveEvent;
-    window.updateEvent = updateEvent;
-    window.editEvent = editEvent;
-    window.deleteEvent = deleteEvent;
-    window.createBadgeForEvent = createBadgeForEvent;
-    window.importForEvent = importForEvent;
-    window.selectModel = selectModel;
-    window.selectFormat = selectFormat;
-    window.selectImportModel = selectImportModel;
-    window.selectImportFormat = selectImportFormat;
-    window.selectVisitorModel = selectVisitorModel;
-    window.openCamera = openCamera;
-    window.closeCamera = closeCamera;
-    window.switchCamera = switchCamera;
-    window.takeSnapshot = takeSnapshot;
-    window.clearPhoto = clearPhoto;
-    window.clearBrandLogo = clearBrandLogo;
-    window.saveBadge = saveBadge;
-    window.resetBadgeForm = resetBadgeForm;
-    window.resetBadgeSizes = resetBadgeSizes;
-    window.resetVisitorSizes = resetVisitorSizes;
-    window.resetVendeurSizes = resetVendeurSizes;
-    window.editBadge = editBadge;
-    window.deleteBadge = deleteBadge;
-    window.downloadBadge = downloadBadge;
-    window.toggleSelect = toggleSelect;
-    window.selectAllBadges = selectAllBadges;
-    window.deleteSelectedBadges = deleteSelectedBadges;
-    window.openPrintModal = openPrintModal;
-    window.exportBadgesPDF = exportBadgesPDF;
-    window.exportAllData = exportAllData;
-    window.clearAllData = clearAllData;
-    window.saveSettings = saveSettings;
-    window.clearSettingsLogo = clearSettingsLogo;
-    window.openVisitorModal = openVisitorModal;
-    window.closeVisitorModal = closeVisitorModal;
-    window.saveVisitor = saveVisitor;
-    window.editVisitor = editVisitor;
-    window.deleteVisitor = deleteVisitor;
-    window.deleteSelectedVisitors = deleteSelectedVisitors;
-    window.selectAllVisitors = selectAllVisitors;
-    window.downloadVisitorBadge = downloadVisitorBadge;
-    window.printOneVisitor = printOneVisitor;
-    window.printSelectedVisitors = printSelectedVisitors;
-    window.exportVisitorPDF = exportVisitorPDF;
-    window.setJournalFilter = setJournalFilter;
-    window.exportJournalCSV = exportJournalCSV;
-    window.exportJournalPDF = exportJournalPDF;
-    window.openVendeurModal = openVendeurModal;
-    window.closeVendeurModal = closeVendeurModal;
-    window.saveVendeur = saveVendeur;
-    window.saveVendeursBulk = saveVendeursBulk;
-    window.editVendeur = editVendeur;
-    window.deleteVendeur = deleteVendeur;
-    window.deleteSelectedVendeurs = deleteSelectedVendeurs;
-    window.selectAllVendeurs = selectAllVendeurs;
-    window.clearVendeurSelection = clearVendeurSelection;
-    window.toggleVendeurSelect = toggleVendeurSelect;
-    window.toggleVendeursView = toggleVendeursView;
-    window.downloadVendeurBadge = downloadVendeurBadge;
-    window.printSelectedVendeurs = printSelectedVendeurs;
-    window.printAllVendeursA4 = printAllVendeursA4;
-    window.exportVendeursExcel = exportVendeursExcel;
-    window.exportVendeursPDF = exportVendeursPDF;
-    window.toggleSidebar = toggleSidebar;
-    window.closeSidebar = closeSidebar;
-    window.showPage = showPage;
-    window.bnNav = bnNav;
-    window.refreshAll = refreshAll;
-    window.closeModal = closeModal;
-    // Fix double tactile : empêche le ghost-click
-    document.addEventListener('touchstart', function(){}, {passive:true});
-  }catch(e){ console.warn('expose',e); }
 
-  // === FIX Touches mobiles : rebind bottom-nav avec addEventListener ===
-  try{
-    document.querySelectorAll('.bottom-nav-item').forEach(function(item){
-      item.addEventListener('click', function(ev){
-        var oc = item.getAttribute('onclick')||'';
-        var m = oc.match(/bnNav\s*\(\s*['"]([^'"]+)['"]/);
-        if(m){ ev.preventDefault(); bnNav(m[1], item); }
-      });
-    });
-    // Sidebar nav aussi
-    document.querySelectorAll('.nav-item').forEach(function(item){
-      item.addEventListener('click', function(ev){
-        var oc = item.getAttribute('onclick')||'';
-        var m = oc.match(/showPage\s*\(\s*['"]([^'"]+)['"]/);
-        if(m){ ev.preventDefault(); showPage(m[1], item); }
-      });
-    });
-  }catch(e){ console.warn('rebind',e); }
+  // ====================================================================
+  //  Patch refreshAll pour inclure visiteurs (original)
+  // ====================================================================
+  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); try{ loadVendeurs(); }catch(e){} }
 
-  // Expose aussi loadVendeurs / visitors globalement si besoin
-  try{ window.loadVendeurs = loadVendeurs; }catch(e){}
-  try{ window.loadAllVisitors = loadAllVisitors; }catch(e){}
-  try{ window.loadJournal = loadJournal; }catch(e){}
-
-})(); 
+})();
 </script>
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</body>
 </html>
