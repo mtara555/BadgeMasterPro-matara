@@ -368,10 +368,18 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
   overflow: hidden;
 }
 .badge-vendeur-exact .bv-header img {
-  max-height: 46px !important;
+  max-height: 50px !important;
   max-width: 88% !important;
   object-fit: contain !important;
-  filter: brightness(0) invert(1) !important;
+  background: white !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+  display: block !important;
+}
+.badge-vendeur-exact .bv-header.has-logo {
+  background: #1a56b0 !important;
+  padding: 6px !important;
 }
 .badge-vendeur-exact .bv-body {
   padding: 14px 18px 10px 18px !important;
@@ -2014,11 +2022,38 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               <div class="bv-header">LOGO DU MARQUE</div>
               <div class="bv-body">
                 <div class="bv-name" id="vp-name">Nom et prenom</div>
-                <div class="bv-role-line"><div class="bv-role">Vendeur</div></div>
+                <div class="bv-role-line"><div class="bv-role" id="vp-role">Vendeur</div></div>
                 <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">Haier</span></div>
               </div>
               <div class="bv-qr" id="vp-qr"></div>
             </div>
+          </div>
+          <!-- MENU AJUSTER TAILLES VENDEURS -->
+          <div class="size-panel" style="margin-top:14px;background:var(--c-surface2);border:1px solid var(--c-border);border-radius:12px;padding:12px;">
+            <h4 style="font-size:0.82rem;color:#1a56b0;margin-bottom:10px;display:flex;align-items:center;gap:6px;">🎛️ Ajuster les tailles</h4>
+            <div class="size-sliders" style="display:grid;gap:10px;">
+              <div class="size-slider-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <label style="font-size:0.75rem;min-width:90px;">Nom <span id="vsl-lbl-name" style="color:#1a56b0;font-weight:700;">24px</span></label>
+                <input type="range" id="vsl-name" min="12" max="32" value="24" oninput="applyVendeurSizes()" style="flex:1;accent-color:#1a56b0;">
+              </div>
+              <div class="size-slider-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <label style="font-size:0.75rem;min-width:90px;">Vendeur <span id="vsl-lbl-role" style="color:#1a56b0;font-weight:700;">14px</span></label>
+                <input type="range" id="vsl-role" min="8" max="20" value="14" oninput="applyVendeurSizes()" style="flex:1;accent-color:#1a56b0;">
+              </div>
+              <div class="size-slider-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <label style="font-size:0.75rem;min-width:90px;">Marque <span id="vsl-lbl-marque" style="color:#1a56b0;font-weight:700;">13px</span></label>
+                <input type="range" id="vsl-marque" min="8" max="20" value="13" oninput="applyVendeurSizes()" style="flex:1;accent-color:#1a56b0;">
+              </div>
+              <div class="size-slider-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <label style="font-size:0.75rem;min-width:90px;">Bande bleue <span id="vsl-lbl-header" style="color:#1a56b0;font-weight:700;">62px</span></label>
+                <input type="range" id="vsl-header" min="40" max="90" value="62" oninput="applyVendeurSizes()" style="flex:1;accent-color:#1a56b0;">
+              </div>
+              <div class="size-slider-row" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <label style="font-size:0.75rem;min-width:90px;">Logo <span id="vsl-lbl-logo" style="color:#1a56b0;font-weight:700;">50px</span></label>
+                <input type="range" id="vsl-logo" min="24" max="80" value="50" oninput="applyVendeurSizes()" style="flex:1;accent-color:#1a56b0;">
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="resetVendeurSizes()">↺ Réinitialiser tailles</button>
           </div>
           <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe082;border-radius:8px;padding:10px;">
             <div style="font-size:0.75rem;font-weight:700;color:#b89300;">📋 Composition du badge vendeur:</div>
@@ -4072,13 +4107,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var headerLogo = currentVendeurLogoSrc;
     var pv = document.getElementById('vendeur-badge-preview');
     if(!pv) return;
-    // header
+    // header - CORRIGE affichage logo
     var headerEl = pv.querySelector('.bv-header');
     if(headerEl){
       if(headerLogo){
-        headerEl.innerHTML = '<img src="'+headerLogo+'">';
+        headerEl.innerHTML = '<img src="'+headerLogo+'" alt="Logo Marque">';
+        headerEl.classList.add('has-logo');
       } else {
         headerEl.textContent = 'LOGO DU MARQUE';
+        headerEl.classList.remove('has-logo');
       }
     }
     // name
@@ -4100,11 +4137,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   function buildVendeurBadgeHTML(v, withQR){
     var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
     var marque = v.brandName||v.marque||'Haier';
-    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'">' : 'LOGO DU MARQUE';
+    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:50px;max-width:88%;object-fit:contain;background:white;padding:4px 12px;border-radius:6px;">' : 'LOGO DU MARQUE';
+    var headerClass = (v.brandLogo||v.logo) ? 'bv-header has-logo' : 'bv-header';
     var qrId = withQR ? ' id="vqr-'+v.id+'"' : '';
     var qrBox = withQR ? '<div class="bv-qr"'+qrId+'></div>' : '<div class="bv-qr" style="display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#999;">QR</div>';
     return '<div class="badge-vendeur-exact">'
-      +'<div class="bv-header">'+logoHtml+'</div>'
+      +'<div class="'+headerClass+'">'+logoHtml+'</div>'
       +'<div class="bv-body">'
         +'<div class="bv-name">'+escapeHTML(fullName)+'</div>'
         +'<div class="bv-role-line"><div class="bv-role">Vendeur</div></div>'
@@ -4310,6 +4348,39 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   };
 
+
+  
+  // TAILLES VENDEUR - NOUVEAU
+  var vendeurSizes = { name:24, role:14, marque:13, header:62, logo:50 };
+  window.applyVendeurSizes = function(){
+    vendeurSizes.name = parseInt(document.getElementById('vsl-name').value);
+    vendeurSizes.role = parseInt(document.getElementById('vsl-role').value);
+    vendeurSizes.marque = parseInt(document.getElementById('vsl-marque').value);
+    vendeurSizes.header = parseInt(document.getElementById('vsl-header').value);
+    vendeurSizes.logo = parseInt(document.getElementById('vsl-logo').value);
+    
+    document.getElementById('vsl-lbl-name').textContent = vendeurSizes.name+'px';
+    document.getElementById('vsl-lbl-role').textContent = vendeurSizes.role+'px';
+    document.getElementById('vsl-lbl-marque').textContent = vendeurSizes.marque+'px';
+    document.getElementById('vsl-lbl-header').textContent = vendeurSizes.header+'px';
+    document.getElementById('vsl-lbl-logo').textContent = vendeurSizes.logo+'px';
+    
+    var pv = document.getElementById('vendeur-badge-preview');
+    if(!pv) return;
+    var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.style.fontSize = vendeurSizes.name+'px';
+    var roleEl = pv.querySelector('#vp-role'); if(roleEl) roleEl.style.fontSize = vendeurSizes.role+'px';
+    var marqueBox = pv.querySelector('.bv-marque-box'); if(marqueBox) marqueBox.style.fontSize = vendeurSizes.marque+'px';
+    var headerEl = pv.querySelector('.bv-header'); if(headerEl) headerEl.style.height = vendeurSizes.header+'px';
+    var logoImg = pv.querySelector('.bv-header img'); if(logoImg) logoImg.style.maxHeight = vendeurSizes.logo+'px';
+  };
+  window.resetVendeurSizes = function(){
+    document.getElementById('vsl-name').value=24;
+    document.getElementById('vsl-role').value=14;
+    document.getElementById('vsl-marque').value=13;
+    document.getElementById('vsl-header').value=62;
+    document.getElementById('vsl-logo').value=50;
+    applyVendeurSizes();
+  };
 
   window.exportVendeursPDF = function(){
     var jsPDF = window.jspdf.jsPDF;
