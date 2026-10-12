@@ -778,6 +778,9 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
    PRINT
    ============================================================ */
 
+/* Bannière bleue vide : garde la hauteur, masque logo + organisation */
+.badge-ribbon-empty .badge-ribbon-content { visibility: hidden; }
+
 /* ===== CADRE DE COUPE : trait fin à la dimension exacte de chaque badge (impression / PDF) ===== */
 #print-content.cut-frame .badge-template { border-radius: 0 !important; border: none !important; box-shadow: none !important; }
 #print-content.cut-frame .badge-template::after {
@@ -1063,6 +1066,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
                   <label>📅 Expiration</label>
                   <input type="date" id="badge-date" oninput="updateBadgePreview()">
                   <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="badge-show-date" checked onchange="updateBadgePreview()" style="width:auto;"> Afficher la date d'expiration sur le badge</label>
+                  <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:0.8rem;cursor:pointer;"><input type="checkbox" id="badge-empty-ribbon" onchange="updateBadgePreview()" style="width:auto;"> Bannière bleue vide (sans logo ni organisation)</label>
                 </div>
               </div>
               <div class="form-group" id="photo-input-group">
@@ -2233,6 +2237,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var smallPrev=document.getElementById('brand-logo-preview');
       if(smallPrev && currentBrandLogoSrc){ smallPrev.innerHTML='<img src="'+currentBrandLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">'; }
     }
+    var er=document.getElementById('badge-empty-ribbon'); var bp=document.getElementById('badge-preview'); if(bp&&er) bp.classList.toggle('badge-ribbon-empty', er.checked);
     var sd=document.getElementById('badge-show-date'); var showD=sd?sd.checked:true;
     if(pd){ var st=pd.previousElementSibling, br=st?st.previousElementSibling:null; var disp=showD?'':'none';
       pd.style.display=disp; if(st) st.style.display=disp; if(br && br.tagName==='BR') br.style.display=disp; }
@@ -2410,6 +2415,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       badgeId:document.getElementById('badge-id').value.trim()||'AUTO-'+Date.now(),
       date:document.getElementById('badge-date').value,
       showDate:document.getElementById('badge-show-date').checked,
+      emptyRibbon:document.getElementById('badge-empty-ribbon').checked,
       photo:currentPhotoSrc, logo:currentLogoSrc,
       brandLogo:currentBrandLogoSrc,
       brandName:brandNameEl?brandNameEl.value.trim():'',
@@ -2426,6 +2432,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     currentBadgeEditId=null; currentLogoSrc=''; currentPhotoSrc=''; currentBrandLogoSrc=''; var bn=document.getElementById('badge-brand-name'); if(bn) bn.value=''; var blp=document.getElementById('brand-logo-preview'); if(blp) blp.innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
     ['badge-name','badge-role','badge-id','badge-date'].forEach(id=>document.getElementById(id).value='');
     var sdr=document.getElementById('badge-show-date'); if(sdr) sdr.checked=true;
+    var erc=document.getElementById('badge-empty-ribbon'); if(erc) erc.checked=false;
     // Appliquer les paramètres organisation par défaut
     var defaultOrg = (typeof appSettings !== 'undefined' && appSettings.orgName) ? appSettings.orgName : '';
     document.getElementById('badge-org').value = defaultOrg;
@@ -2462,6 +2469,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       document.getElementById('badge-id').value=b.badgeId||'';
       document.getElementById('badge-date').value=b.date||'';
       document.getElementById('badge-show-date').checked=(b.showDate!==false);
+      document.getElementById('badge-empty-ribbon').checked=!!b.emptyRibbon;
       selectModel(b.model||'with-photo',document.querySelector('#model-group .option-btn[onclick*="'+( b.model||'with-photo' )+'"]')||document.querySelector('#model-group .option-btn:first-child'));
       if(b.format==='compact' && b.customW && b.customH){ compactWidthMm=clampMm(b.customW,COMPACT_LIMITS.wMin,COMPACT_LIMITS.wMax,75); compactHeightMm=clampMm(b.customH,COMPACT_LIMITS.hMin,COMPACT_LIMITS.hMax,30); }
       selectFormat(b.format||'cr80',document.querySelector('#format-group .option-btn[onclick*="'+(b.format||'cr80')+'"]')||document.querySelector('#format-group .option-btn:first-child'));
@@ -2704,7 +2712,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var body=isBrand ? '<div class="badge-body-brand">'+brandBodyInner(badge.brandLogo||'', badge.brandName||'', badge.name, badge.role, badge.badgeId, badge.date||'N/A', false, badge.showDate)+'</div>' : badge.model==='with-photo'?
       '<div class="badge-body-with-photo"><div class="photo-area"><img src="'+(badge.photo||'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'130\'%3E%3Crect fill=\'%23bbdefb\' width=\'100\' height=\'130\'/%3E%3Ctext x=\'50\' y=\'70\' text-anchor=\'middle\' fill=\'%230d47a1\' font-size=\'12\'%3EPHOTO%3C/text%3E%3C/svg%3E')+'"></div><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expStr+'</div></div></div>':
       '<div class="badge-body-no-photo"><div class="info-area"><div class="info-name">'+escapeHTML(badge.name)+'</div><div class="info-sub">'+escapeHTML(badge.role)+'</div><div class="info-detail"><strong>ID:</strong> '+escapeHTML(badge.badgeId)+expStr+'</div></div></div>';
-    return '<div class="badge-template '+fmt+(isBrand?' badge-brand-model':'')+'"'+(customStyle||'')+'><div class="badge-top-banner">'+'À VOTRE SERVICE'+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
+    return '<div class="badge-template '+fmt+(isBrand?' badge-brand-model':'')+(badge.emptyRibbon?' badge-ribbon-empty':'')+'"'+(customStyle||'')+'><div class="badge-top-banner">'+'À VOTRE SERVICE'+'</div><div class="badge-ribbon"><div class="badge-ribbon-content">'+logo+'<div class="badge-org-name">'+escapeHTML(badge.org)+'</div></div></div>'+body+'<div class="qr-area" id="pqr-'+idx+'"></div></div>';
   }
   window.exportBadgesPDF=function(){
     var {jsPDF}=window.jspdf;
