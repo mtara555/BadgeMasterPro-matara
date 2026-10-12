@@ -1143,6 +1143,11 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     print-color-adjust: exact !important;
   }
 }
+
+/* FIX VISIBILITE PAGES - V7 */
+.page.active { display: block !important; opacity: 1 !important; visibility: visible !important; }
+#page-visitors, #page-vendeurs, #page-journal { min-height: 60vh; }
+
 </style>
 </head>
 <body>
@@ -2546,35 +2551,56 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
   // ---- Navigation ----
   function showPage(pageId, navItem){
-    var pageEl = document.getElementById('page-'+pageId);
-    if(!pageEl){ console.error('Page introuvable:', pageId); return; }
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    pageEl.classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    if(navItem) navItem.classList.add('active');
-    // Sync bottom nav
-    document.querySelectorAll('.bottom-nav-item').forEach(function(item){
-      item.classList.remove('active');
-      // auto active bottom nav by matching onclick
-      if(item.getAttribute('onclick') && item.getAttribute('onclick').includes("'"+pageId+"'")){
-        item.classList.add('active');
-      }
-    });
-    // Highlight corresponding sidebar item even when called from bottom nav
-    if(!navItem){
-      document.querySelectorAll('.nav-item').forEach(function(ni){
-        var oc = ni.getAttribute('onclick')||'';
-        if(oc.includes("'"+pageId+"'") || oc.includes('"'+pageId+'"')) ni.classList.add('active');
+    try{
+      var pageEl = document.getElementById('page-'+pageId);
+      if(!pageEl){ console.error('Page introuvable:', pageId, ' Disponible:', Array.from(document.querySelectorAll('.page')).map(p=>p.id)); return; }
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      pageEl.classList.add('active');
+      // Force visible
+      pageEl.style.display='block';
+      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+      if(navItem) navItem.classList.add('active');
+      // Sync bottom nav
+      document.querySelectorAll('.bottom-nav-item').forEach(function(item){
+        item.classList.remove('active');
+        var oc = item.getAttribute('onclick')||'';
+        if(oc.indexOf("'"+pageId+"'")!==-1 || oc.indexOf('"'+pageId+'"')!==-1){
+          item.classList.add('active');
+        }
       });
+      if(!navItem){
+        document.querySelectorAll('.nav-item').forEach(function(ni){
+          var oc = ni.getAttribute('onclick')||'';
+          if(oc.indexOf("'"+pageId+"'")!==-1 || oc.indexOf('"'+pageId+'"')!==-1) ni.classList.add('active');
+        });
+      }
+      if(pageId==='dashboard'){ try{ updateStats(); }catch(e){} try{ loadEvents(); }catch(e){} try{ updateVisitorStats && updateVisitorStats(); }catch(e){} try{ loadVendeurs && loadVendeurs(); }catch(e){} }
+      if(pageId==='events') { try{ loadEvents(); }catch(e){ console.warn(e); } }
+      if(pageId==='all-badges') { try{ loadAllBadges(); }catch(e){} }
+      if(pageId==='import-excel') { try{ loadImportsHistory(); }catch(e){} }
+      if(pageId==='visitors'){ try{ loadAllVisitors && loadAllVisitors(); }catch(e){ console.error('loadAllVisitors',e); } try{ updateVisitorStats && updateVisitorStats(); }catch(e){} }
+      if(pageId==='vendeurs'){ try{ loadVendeurs && loadVendeurs(); }catch(e){ console.error('loadVendeurs',e); } }
+      if(pageId==='journal'){ try{ loadJournal && loadJournal(); }catch(e){ console.error('loadJournal',e); } }
+      if(pageId==='settings'){ try{ loadSettings(); }catch(e){} try{ updateDbInfo(); }catch(e){} }
+      if(pageId==='create-badge'){
+        try{
+          if(!currentBadgeEditId && !document.getElementById('badge-name').value){
+            var defOrg = (typeof appSettings !== 'undefined' && appSettings.orgName) ? appSettings.orgName : '';
+            if(defOrg && !document.getElementById('badge-org').value) document.getElementById('badge-org').value = defOrg;
+            if(typeof appSettings !== 'undefined' && appSettings.logo && !currentLogoSrc){
+              currentLogoSrc = appSettings.logo;
+              var lp=document.getElementById('logo-preview'); if(lp) lp.innerHTML='<img src="'+appSettings.logo+'">';
+              var rl=document.getElementById('ribbon-logo'); if(rl) rl.innerHTML='<img src="'+appSettings.logo+'">';
+            }
+            updateBadgePreview();
+          }
+        }catch(e){}
+      }
+      if(window.innerWidth<=768) closeSidebar();
+    }catch(err){
+      console.error('showPage error', err);
     }
-    if(pageId==='dashboard'){ updateStats(); loadEvents(); updateVisitorStats && updateVisitorStats(); loadVendeurs && loadVendeurs(); }
-    if(pageId==='events') loadEvents();
-    if(pageId==='all-badges') loadAllBadges();
-    if(pageId==='import-excel') loadImportsHistory();
-    if(pageId==='visitors'){ loadAllVisitors && loadAllVisitors(); updateVisitorStats && updateVisitorStats(); }
-    if(pageId==='vendeurs'){ loadVendeurs && loadVendeurs(); }
-    if(pageId==='journal'){ loadJournal && loadJournal(); }
-    if(pageId==='settings'){ loadSettings(); updateDbInfo(); }
+  }
     if(pageId==='create-badge'){
       // Pré-remplir org/logo si formulaire vide (nouveau badge)
       if(!currentBadgeEditId && !document.getElementById('badge-name').value){
@@ -2593,11 +2619,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.showPage=showPage;
 
   window.bnNav=function(pageId, item){
-    document.querySelectorAll('.bottom-nav-item').forEach(i=>i.classList.remove('active'));
-    item.classList.add('active');
-    // Sync sidebar nav
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    showPage(pageId, null);
+    try{
+      document.querySelectorAll('.bottom-nav-item').forEach(i=>i.classList.remove('active'));
+      if(item) item.classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+      showPage(pageId, null);
+    }catch(e){ console.error('bnNav',e); }
   };
 
   // ---- Sidebar ----
@@ -4323,7 +4350,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         +'h1{font-size:15px;color:#e65100;margin-bottom:2px;}p.sub{font-size:9px;color:#666;margin-bottom:14px;}'
         +'table{width:100%;border-collapse:collapse;}th{background:#e65100;color:white;padding:6px 8px;text-align:left;font-size:8px;text-transform:uppercase;letter-spacing:0.05em;}'
         +'td{padding:5px 8px;border-bottom:1px solid #eee;}tr:nth-child(even) td{background:#fff7f0;}'
-        +'</style></head><body>'
+        +'
+/* FIX VISIBILITE PAGES - V7 */
+.page.active { display: block !important; opacity: 1 !important; visibility: visible !important; }
+#page-visitors, #page-vendeurs, #page-journal { min-height: 60vh; }
+
+</style></head><body>'
         +'<h1>📋 Journal des visites</h1>'
         +'<p class="sub">Période : '+escapeHTML(periodLabel)+' &nbsp;|&nbsp; '+visitors.length+' visite(s) &nbsp;|&nbsp; Généré le '+new Date().toLocaleDateString('fr-FR')+'</p>'
         +'<table><thead><tr><th>Date</th><th>Entrée</th><th>Sortie</th><th>Durée</th><th>Visiteur</th><th>Société</th><th>Département</th><th>Hôte</th></tr></thead>'
@@ -4619,15 +4651,13 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var marqueFilter=(document.getElementById('filter-vendeur-marque')||{}).value||'';
       if(marqueFilter) all=all.filter(function(b){ return (b.brandName||b.marque||'')===marqueFilter; });
 
-      document.getElementById('vendeurs-total').textContent=all.length;
-      document.getElementById('vendeurs-count').textContent=all.length;
-      document.getElementById('vstat-vendeurs').textContent=all.length;
+      try{ document.getElementById('vendeurs-total').textContent=all.length; }catch(e){}
+      try{ document.getElementById('vendeurs-count').textContent=all.length; }catch(e){}
+      try{ document.getElementById('vstat-vendeurs').textContent=all.length; }catch(e){}
       var marques=[...new Set(all.map(function(b){return b.brandName||b.marque;}).filter(Boolean))];
-      document.getElementById('vstat-marques').textContent=marques.length;
-      document.getElementById('vstat-vendeurs-print').textContent=all.length;
-      // bottom nav badges
-      var bnV=document.getElementById('bn-vendeurs-count'); if(bnV){ bnV.textContent=all.length; bnV.style.display=all.length? 'block':'none'; }
-      var bnB=document.getElementById('bn-badges-count'); if(bnB){ /* total badges handled elsewhere */ }
+      try{ document.getElementById('vstat-marques').textContent=marques.length; }catch(e){}
+      try{ document.getElementById('vstat-vendeurs-print').textContent=all.length; }catch(e){}
+      try{ var bnV=document.getElementById('bn-vendeurs-count'); if(bnV){ bnV.textContent=all.length; bnV.style.display=all.length? 'block':'none'; } }catch(e){}
       var _sc=document.getElementById('vendeurs-selected-count'); if(_sc) _sc.textContent=selectedVendeurs.size+' sélectionné(s)';
       var _vb=document.getElementById('vendeurs-view-btn'); if(_vb) _vb.textContent=vendeursListView?'▦ Grille':'☰ Liste';
 
@@ -4881,24 +4911,25 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
 
   
-  // === PATCH UNIFIE : refreshAll centralise tout ===
-  // On garde populateEventSelectors patch mais on refait refreshAll proprement
+  // === FIX V7 : refreshAll unique et complet + populateEventSelectors patch ===
   (function(){
-    // patch populateEventSelectors pour alimenter le select vendeur
-    if(typeof populateEventSelectors === 'function'){
-      var _origPopulate = populateEventSelectors;
-      populateEventSelectors = function(events){
-        try{ _origPopulate(events); }catch(e){}
-        var sel=document.getElementById('vendeur-event'); if(!sel) return;
-        var val=sel.value;
-        sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
-        events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
-        if(val) sel.value=val;
-      };
-    }
+    try{
+      if(typeof populateEventSelectors === 'function'){
+        var _origPopulate = populateEventSelectors;
+        populateEventSelectors = function(events){
+          try{ _origPopulate(events); }catch(e){}
+          try{
+            var sel=document.getElementById('vendeur-event'); if(!sel) return;
+            var val=sel.value;
+            sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
+            events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
+            if(val) sel.value=val;
+          }catch(e){}
+        };
+      }
+    }catch(e){}
   })();
 
-  // refreshAll final - UNIQUE et complet (évite écrasement)
   function refreshAll(){
     try{ loadEvents(); }catch(e){ console.warn('loadEvents',e); }
     try{ loadAllBadges(); }catch(e){ console.warn('loadAllBadges',e); }
@@ -4906,8 +4937,13 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     try{ loadAllVisitors && loadAllVisitors(); }catch(e){ console.warn('loadAllVisitors',e); }
     try{ updateVisitorStats && updateVisitorStats(); }catch(e){ console.warn('updateVisitorStats',e); }
     try{ loadVendeurs && loadVendeurs(); }catch(e){ console.warn('loadVendeurs',e); }
+    try{ loadJournal && loadJournal(); }catch(e){ console.warn('loadJournal',e); }
   }
   window.refreshAll = refreshAll;
+  // Expose aussi loadVendeurs / visitors globalement si besoin
+  try{ window.loadVendeurs = loadVendeurs; }catch(e){}
+  try{ window.loadAllVisitors = loadAllVisitors; }catch(e){}
+  try{ window.loadJournal = loadJournal; }catch(e){}
 
 })(); 
 </script>
