@@ -1598,7 +1598,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             <div class="size-slider-row"><label>Photo L <span id="lbl-photo-w">100px</span></label><input type="range" id="sl-photo-w" min="40" max="160" value="100" oninput="applyBadgeSizes()"></div>
             <div class="size-slider-row"><label>Photo H <span id="lbl-photo-h">130px</span></label><input type="range" id="sl-photo-h" min="40" max="200" value="130" oninput="applyBadgeSizes()"></div>
             <div class="size-slider-row"><label>QR Code <span id="lbl-qr-size">65px</span></label><input type="range" id="sl-qr-size" min="30" max="100" value="65" oninput="applyBadgeSizes()"></div>
-            <div class="size-slider-row"><label>Bannière <span id="lbl-font-banner">6px</span></label><input type="range" id="sl-font-banner" min="4" max="14" value="6" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Bannière jaune (texte) <span id="lbl-font-banner">6px</span></label><input type="range" id="sl-font-banner" min="4" max="14" value="6" oninput="applyBadgeSizes()"></div>
+            <div class="size-slider-row"><label>Bannière bleue (hauteur) <span id="lbl-ribbon-h">65px</span></label><input type="range" id="sl-ribbon-h" min="20" max="120" value="65" oninput="applyBadgeSizes()"></div>
           </div>
           <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="resetBadgeSizes()">↺ Réinitialiser</button>
         </div>
@@ -2750,8 +2751,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   var badgeSizesTouched=false;
   window.applyBadgeSizes=function(){
     badgeSizesTouched=true;
-    var ids=['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'];
-    var lbls=['lbl-font-name','lbl-font-role','lbl-font-org','lbl-font-detail','lbl-photo-w','lbl-photo-h','lbl-qr-size','lbl-font-banner'];
+    var ids=['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner','sl-ribbon-h'];
+    var lbls=['lbl-font-name','lbl-font-role','lbl-font-org','lbl-font-detail','lbl-photo-w','lbl-photo-h','lbl-qr-size','lbl-font-banner','lbl-ribbon-h'];
     var vals=ids.reduce((o,id)=>{ o[id]=document.getElementById(id).value; return o; },{});
     ids.forEach((id,i)=>{ document.getElementById(lbls[i]).textContent=vals[id]+'px'; });
     // --- Badges standards : valeurs en px appliquées directement ---
@@ -2764,6 +2765,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     document.querySelectorAll(std+'.brand-logo-area').forEach(el=>{ el.style.width=vals['sl-photo-w']+'px'; el.style.height=vals['sl-photo-w']+'px'; });
     document.querySelectorAll(std+'.qr-area').forEach(el=>{ el.style.width=vals['sl-qr-size']+'px'; el.style.height=vals['sl-qr-size']+'px'; });
     document.querySelectorAll(std+'.badge-top-banner').forEach(el=>el.style.fontSize=vals['sl-font-banner']+'px');
+    // Hauteur de la bannière bleue (badges standards) ; le corps du badge s'ajuste pour garder la même hauteur totale
+    document.querySelectorAll(std.trim()).forEach(function(bd){
+      var rb=bd.querySelector('.badge-ribbon'), tb=bd.querySelector('.badge-top-banner'), body=bd.querySelector('[class*="badge-body"]');
+      if(!rb) return;
+      var rh=parseFloat(vals['sl-ribbon-h']);
+      rb.style.height=rh+'px'; rb.style.boxSizing='border-box';
+      var rc=rb.querySelector('.badge-ribbon-content'); if(rc){ rc.style.height='100%'; rc.style.boxSizing='border-box'; rc.style.paddingTop='0'; rc.style.paddingBottom='0'; }
+      if(body && tb){ body.style.height='calc(100% - '+(tb.offsetHeight+rh)+'px)'; }
+    });
     // --- Badges compacts : mêmes curseurs, appliqués comme un facteur (valeur / défaut) sur la base compacte ---
     var D={name:14,role:10,org:11,detail:8,pw:100,ph:130,qr:65};
     var k=function(id,d){ return parseFloat(vals[id])/d; };
@@ -2784,7 +2794,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     });
   };
   window.resetBadgeSizes=function(){
-    ['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner'].forEach((id,i)=>document.getElementById(id).value=[14,10,11,8,100,130,65,6][i]);
+    ['sl-font-name','sl-font-role','sl-font-org','sl-font-detail','sl-photo-w','sl-photo-h','sl-qr-size','sl-font-banner','sl-ribbon-h'].forEach((id,i)=>document.getElementById(id).value=[14,10,11,8,100,130,65,6,65][i]);
     applyBadgeSizes();
   };
 
