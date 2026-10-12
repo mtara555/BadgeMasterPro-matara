@@ -4270,36 +4270,77 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.buildVendeurBadgeHTML = buildVendeurBadgeHTML;
 
   window.saveVendeur = function(){
-    var ln = document.getElementById('vendeur-lastname').value.trim();
-    var fn = document.getElementById('vendeur-firstname').value.trim();
-    var marque = document.getElementById('vendeur-marque').value.trim();
-    var eventId = parseInt(document.getElementById('vendeur-event').value)||null;
-    if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
-    if(!marque){ showToast('Marque requise','error'); return; }
-    var badge = {
-      id: vendeurEditId||Date.now(),
-      name: (fn+' '+ln).trim(),
-      firstname: fn,
-      lastname: ln,
-      brandName: marque,
-      marque: marque,
-      brandLogo: currentVendeurLogoSrc,
-      logo: currentVendeurLogoSrc,
-      role: 'Vendeur',
-      org: marque,
-      model: 'vendeur-exact',
-      format: 'vendeur-exact',
-      eventId: eventId,
-      createdAt: new Date().toISOString(),
-      photo: '',
-      badgeId: 'VEND-'+Date.now()
-    };
-    var tx=db.transaction(['badges'],'readwrite');
-    tx.objectStore('badges').put(badge).onsuccess=function(){
-      showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
-      closeVendeurModal();
-      refreshAll(); loadVendeurs();
-    };
+    try{
+      var lnEl = document.getElementById('vendeur-lastname');
+      var fnEl = document.getElementById('vendeur-firstname');
+      var marqueEl = document.getElementById('vendeur-marque');
+      var eventEl = document.getElementById('vendeur-event');
+      var ln = lnEl ? lnEl.value.trim() : '';
+      var fn = fnEl ? fnEl.value.trim() : '';
+      var marque = marqueEl ? marqueEl.value.trim() : '';
+      var eventRaw = eventEl ? eventEl.value : '';
+      var eventId = parseInt(eventRaw); if(isNaN(eventId)) eventId = null;
+      if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
+      if(!marque){ showToast('Marque requise','error'); return; }
+      if(!db && !window.db){ showToast('Base non prête, recharge','error'); return; }
+      var _db = db || window.db;
+      var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
+      var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
+      var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'BFMarjane-Black_V1', sans-serif";
+      var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
+      var logoWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
+      var logoBg = document.getElementById('vendeur-logo-bg') ? document.getElementById('vendeur-logo-bg').value : 'white';
+      var sizes = {name:24, role:14, marque:13, header:62, logo:46};
+      try{
+        sizes.name = parseInt((document.getElementById('vsl-name')||{}).value)||24;
+        sizes.role = parseInt((document.getElementById('vsl-role')||{}).value)||14;
+        sizes.marque = parseInt((document.getElementById('vsl-marque')||{}).value)||13;
+        sizes.header = parseInt((document.getElementById('vsl-header')||{}).value)||62;
+        sizes.logo = parseInt((document.getElementById('vsl-logo')||{}).value)||46;
+        localStorage.setItem('vendeurSizes', JSON.stringify(sizes));
+        localStorage.setItem('vendeurFonts', JSON.stringify({name:fontName, role:fontRole, marque:fontMarque}));
+        localStorage.setItem('vendeurQR', showQR ? '1' : '0');
+        localStorage.setItem('vendeurLogoBg', logoBg);
+        localStorage.setItem('vendeurLogoWhite', logoWhite ? '1' : '0');
+      }catch(e){}
+      var badge = {
+        id: vendeurEditId||Date.now(),
+        name: (fn+' '+ln).trim(),
+        firstname: fn,
+        lastname: ln,
+        brandName: marque,
+        marque: marque,
+        brandLogo: currentVendeurLogoSrc || window.currentVendeurLogoSrc || '',
+        logo: currentVendeurLogoSrc || window.currentVendeurLogoSrc || '',
+        role: 'Vendeur',
+        org: marque,
+        model: 'vendeur-exact',
+        format: 'vendeur-exact',
+        eventId: eventId,
+        createdAt: new Date().toISOString(),
+        photo: '',
+        badgeId: 'VEND-'+Date.now(),
+        fontName: fontName,
+        fontRole: fontRole,
+        fontMarque: fontMarque,
+        showQR: showQR,
+        logoWhite: logoWhite,
+        logoBg: logoBg,
+        sizes: sizes
+      };
+      var tx=_db.transaction(['badges'],'readwrite');
+      tx.oncomplete = function(){
+        showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
+        closeVendeurModal();
+        if(typeof refreshAll === 'function') refreshAll();
+        if(typeof loadVendeurs === 'function') loadVendeurs();
+      };
+      tx.onerror = function(e){ showToast('Erreur: '+(e.target.error||e.target), 'error'); };
+      tx.objectStore('badges').put(badge);
+    }catch(err){
+      console.error(err);
+      if(typeof showToast !== 'undefined') showToast('Erreur: '+err.message,'error'); else alert('Erreur: '+err.message);
+    }
   };
 
   function loadVendeurs(){
@@ -4378,22 +4419,96 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
 
   window.editVendeur=function(id){
-    var tx=db.transaction(['badges'],'readonly');
+    var _db = db || window.db;
+    if(!_db){ showToast('Base non prête','error'); return; }
+    var tx=_db.transaction(['badges'],'readonly');
     tx.objectStore('badges').get(id).onsuccess=function(e){
       var v=e.target.result; if(!v) return;
       vendeurEditId=id;
+      window.vendeurEditId=id;
       currentVendeurLogoSrc=v.brandLogo||v.logo||'';
+      window.currentVendeurLogoSrc=currentVendeurLogoSrc;
       document.getElementById('vendeur-lastname').value=v.lastname||'';
       document.getElementById('vendeur-firstname').value=v.firstname||'';
       document.getElementById('vendeur-marque').value=v.brandName||v.marque||'';
       if(v.eventId) document.getElementById('vendeur-event').value=v.eventId;
       var lp=document.getElementById('vendeur-logo-preview');
-      if(lp) lp.innerHTML=currentVendeurLogoSrc ? '<img src="'+currentVendeurLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">' : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
+      if(lp) lp.innerHTML=currentVendeurLogoSrc ? '<img src="'+currentVendeurLogoSrc+'" style="width:100%;height:100%;object-fit:contain;background:transparent;">' : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
       document.getElementById('vendeur-modal-title').textContent='✏️ Modifier Vendeur';
+      if(document.getElementById('vendeur-show-qr')) document.getElementById('vendeur-show-qr').checked = v.showQR !== false;
+      if(document.getElementById('vendeur-logo-white')) document.getElementById('vendeur-logo-white').checked = !!v.logoWhite;
+      if(document.getElementById('vendeur-logo-bg')) document.getElementById('vendeur-logo-bg').value = v.logoBg || 'white';
+      if(v.fontName && document.getElementById('vendeur-font-name')) document.getElementById('vendeur-font-name').value=v.fontName;
+      if(v.fontRole && document.getElementById('vendeur-font-role')) document.getElementById('vendeur-font-role').value=v.fontRole;
+      if(v.fontMarque && document.getElementById('vendeur-font-marque')) document.getElementById('vendeur-font-marque').value=v.fontMarque;
+      if(v.sizes){
+        if(typeof vendeurSizes !== 'undefined') Object.assign(vendeurSizes, v.sizes);
+        if(typeof window.vendeurSizes !== 'undefined') Object.assign(window.vendeurSizes, v.sizes);
+        var map = {name:'vsl-name', role:'vsl-role', marque:'vsl-marque', header:'vsl-header', logo:'vsl-logo'};
+        Object.keys(map).forEach(function(k){ var el=document.getElementById(map[k]); if(el && v.sizes[k]) el.value=v.sizes[k]; });
+      }
       document.getElementById('vendeur-modal').classList.add('show');
       updateVendeurPreview();
+      setTimeout(function(){ if(typeof applyVendeurSizes==='function') applyVendeurSizes(); if(typeof applyVendeurFonts==='function') applyVendeurFonts(); }, 150);
     };
   };
+  window.vendeurSizes = window.vendeurSizes || {name:24, role:14, marque:13, header:62, logo:46};
+  window.applyVendeurSizes = window.applyVendeurSizes || function(){
+    try{
+      var s = window.vendeurSizes;
+      var elN=document.getElementById('vsl-name'); if(elN){ s.name=parseInt(elN.value)||24; var lbl=document.getElementById('vsl-lbl-name'); if(lbl) lbl.textContent=s.name+'px'; }
+      var elR=document.getElementById('vsl-role'); if(elR){ s.role=parseInt(elR.value)||14; var lbl=document.getElementById('vsl-lbl-role'); if(lbl) lbl.textContent=s.role+'px'; }
+      var elM=document.getElementById('vsl-marque'); if(elM){ s.marque=parseInt(elM.value)||13; var lbl=document.getElementById('vsl-lbl-marque'); if(lbl) lbl.textContent=s.marque+'px'; }
+      var elH=document.getElementById('vsl-header'); if(elH){ s.header=parseInt(elH.value)||62; var lbl=document.getElementById('vsl-lbl-header'); if(lbl) lbl.textContent=s.header+'px'; }
+      var elL=document.getElementById('vsl-logo'); if(elL){ s.logo=parseInt(elL.value)||46; var lbl=document.getElementById('vsl-lbl-logo'); if(lbl) lbl.textContent=s.logo+'px'; }
+      var pv=document.getElementById('vendeur-badge-preview'); if(!pv) return;
+      var nameEl=pv.querySelector('#vp-name'); if(nameEl) nameEl.style.setProperty('font-size', s.name+'px', 'important');
+      var roleEl=pv.querySelector('.bv-role'); if(roleEl) roleEl.style.setProperty('font-size', s.role+'px', 'important');
+      var roleEl2=pv.querySelector('#vp-role'); if(roleEl2) roleEl2.style.setProperty('font-size', s.role+'px', 'important');
+      var marqueBox=pv.querySelector('.bv-marque-box'); if(marqueBox) marqueBox.style.setProperty('font-size', s.marque+'px', 'important');
+      var headerEl=pv.querySelector('.bv-header'); if(headerEl) headerEl.style.setProperty('height', s.header+'px', 'important');
+      var logoImg=pv.querySelector('.bv-header img'); if(logoImg) logoImg.style.setProperty('max-height', s.logo+'px', 'important');
+      try{ localStorage.setItem('vendeurSizes', JSON.stringify(s)); }catch(e){}
+    }catch(e){ console.error('applyVendeurSizes', e); }
+  };
+  window.resetVendeurSizes = window.resetVendeurSizes || function(){
+    var m={ 'vsl-name':24, 'vsl-role':14, 'vsl-marque':13, 'vsl-header':62, 'vsl-logo':46 };
+    Object.keys(m).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=m[id]; });
+    window.applyVendeurSizes();
+  };
+  window.applyVendeurFonts = window.applyVendeurFonts || function(){
+    try{
+      var fn=document.getElementById('vendeur-font-name'); var fr=document.getElementById('vendeur-font-role'); var fm=document.getElementById('vendeur-font-marque');
+      if(!fn) return;
+      var fontName=fn.value; var fontRole=fr?fr.value:fontName; var fontMarque=fm?fm.value:fontName;
+      var pv=document.getElementById('vendeur-badge-preview'); if(!pv) return;
+      var nameEl=pv.querySelector('#vp-name'); if(nameEl) nameEl.style.setProperty('font-family', fontName, 'important');
+      var headerEl=pv.querySelector('.bv-header'); if(headerEl) headerEl.style.setProperty('font-family', fontName, 'important');
+      var roleEl=pv.querySelector('.bv-role'); if(roleEl) roleEl.style.setProperty('font-family', fontRole, 'important');
+      var roleEl2=pv.querySelector('#vp-role'); if(roleEl2) roleEl2.style.setProperty('font-family', fontRole, 'important');
+      var marqueBox=pv.querySelector('.bv-marque-box'); if(marqueBox) marqueBox.style.setProperty('font-family', fontMarque, 'important');
+      try{ localStorage.setItem('vendeurFonts', JSON.stringify({name:fontName, role:fontRole, marque:fontMarque})); }catch(e){}
+    }catch(e){ console.error('applyVendeurFonts', e); }
+  };
+  window.resetVendeurFonts = window.resetVendeurFonts || function(){
+    var sel=document.getElementById('vendeur-font-name'); if(sel) sel.value="'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
+    var selR=document.getElementById('vendeur-font-role'); if(selR) selR.value="Arial, sans-serif";
+    var selM=document.getElementById('vendeur-font-marque'); if(selM) selM.value="'BFMarjane-Black_V1', sans-serif";
+    window.applyVendeurFonts();
+  };
+  window.detectPCFonts = window.detectPCFonts || async function(){
+    var listDiv=document.getElementById('pc-fonts-list'); if(!listDiv) return;
+    listDiv.style.display='block'; listDiv.innerHTML='⏳ Détection...';
+    try{
+      if('queryLocalFonts' in window){
+        var fonts=await window.queryLocalFonts(); var families=[...new Set(fonts.map(f=>f.family))].sort();
+        listDiv.innerHTML='<strong>Polices PC ('+families.length+'):</strong><br>'+families.slice(0,80).join(', ');
+        return;
+      }
+    }catch(e){}
+    listDiv.innerHTML='API Local Fonts non supportée. Polices standards disponibles.';
+  };
+
 
   window.downloadVendeurBadge=function(id){
     var tx=db.transaction(['badges'],'readonly');
