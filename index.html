@@ -341,38 +341,6 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
 .badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
   /* ===== NOUVEAU MODELE VENDEUR EXACT - SUIVANT IMAGE FOURNIE ===== */
-
-/* BFMarjane-Black_V1 - Police installée sur PC de l'utilisateur */
-@font-face {
-  font-family: 'BFMarjane-Black_V1';
-  src: local('BFMarjane-Black_V1'), local('BFMarjane Black'), local('BF Marjane Black'), local('BFMarjane-Black');
-  font-weight: 900;
-  font-display: swap;
-}
-.badge-vendeur-exact .bv-name {
-  font-family: 'BFMarjane-Black_V1', 'BFMarjane Black', 'Plus Jakarta Sans', Arial, sans-serif;
-}
-
-
-
-.badge-vendeur-exact .bv-header img {
-  max-height: 50px !important;
-  max-width: 90% !important;
-  object-fit: contain !important;
-  display: block !important;
-  margin: 0 auto !important;
-  filter: none !important;
-  -webkit-filter: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  padding: 0 !important;
-  border: none !important;
-}
-.badge-vendeur-exact .bv-header img.force-white {
-  filter: brightness(0) invert(1) !important;
-  -webkit-filter: brightness(0) invert(1) !important;
-}
-
 .badge-vendeur-exact {
   width: 354px !important; height: 228px !important;
   background: #ffffff !important;
@@ -404,7 +372,6 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
   max-width: 88% !important;
   object-fit: contain !important;
   filter: none !important;
-  -webkit-filter: none !important;
   background: transparent !important;
 }
 .badge-vendeur-exact .bv-body {
@@ -1998,129 +1965,82 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
 <!-- Modal Impression Visiteurs -->
 
-<!-- Modal Nouveau Vendeur - MODELE EXACT - FINAL V7 CORRIGE -->
+<!-- Modal Nouveau Vendeur - MODELE EXACT -->
 <div class="modal-overlay" id="vendeur-modal">
-  <div class="modal-box" style="max-width:920px;">
+  <div class="modal-box" style="max-width:760px;">
     <div class="modal-handle"></div>
     <div class="modal-header" style="background:linear-gradient(135deg,#1a56b0,#3b82f6);color:white;">
-      <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur - FINAL</h3>
+      <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur - Modèle Marque</h3>
       <span class="modal-close" onclick="closeVendeurModal()" style="color:white;">×</span>
     </div>
     <div class="modal-body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <!-- Form -->
         <div>
+          <div style="background:rgba(26,86,176,0.06);border:1.5px dashed rgba(26,86,176,0.25);border-radius:10px;padding:10px;margin-bottom:14px;">
+            <div style="font-size:0.75rem;font-weight:700;color:#1a56b0;margin-bottom:4px;">📐 MODÈLE EXACT DE L'IMAGE</div>
+            <div style="font-size:0.7rem;color:#666;">Bande bleue LOGO DU MARQUE + Nom et prenom bleu + Vendeur + MARQUE doré</div>
+          </div>
           <div class="form-grid">
-            <div class="form-group"><label>Prénom *</label><input type="text" id="vendeur-firstname" placeholder="Mohamed Said" oninput="updateVendeurPreview()"></div>
-            <div class="form-group"><label>Nom *</label><input type="text" id="vendeur-lastname" placeholder="BOUSSOUF" oninput="updateVendeurPreview()"></div>
+            <div class="form-group"><label>Prénom *</label><input type="text" id="vendeur-firstname" placeholder="Ex: Ahmed" oninput="updateVendeurPreview()"></div>
+            <div class="form-group"><label>Nom *</label><input type="text" id="vendeur-lastname" placeholder="Ex: Benali" oninput="updateVendeurPreview()"></div>
           </div>
           <div class="form-group">
-            <label>🏷️ MARQUE *</label>
-            <input type="text" id="vendeur-marque" placeholder="TCL" oninput="updateVendeurPreview()" style="border-color:#b89300;font-weight:700;">
+            <label>🏷️ MARQUE * (ex: Haier)</label>
+            <input type="text" id="vendeur-marque" placeholder="Ex: Haier, Samsung, LG..." oninput="updateVendeurPreview()" style="border-color:#b89300;font-weight:700;">
+            <div style="font-size:0.68rem;color:#999;margin-top:4px;">Sera affiché en doré: MARQUE: Haier</div>
           </div>
           <div class="form-group">
-            <label>🎪 Événement</label>
+            <label>🎪 Événement (optionnel)</label>
             <select id="vendeur-event"><option value="">-- Aucun --</option></select>
           </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;">
-            <div style="background:#eef4ff;border:2px solid #1a56b0;border-radius:10px;padding:12px;">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;color:#1a56b0;margin:0;">
-                <input type="checkbox" id="vendeur-show-qr" checked onchange="updateVendeurPreview()" style="width:22px;height:22px;accent-color:#1a56b0;">
-                📱 QR Code
-              </label>
-              <div style="font-size:0.7rem;margin-top:5px;">Cocher pour afficher QR</div>
-            </div>
-            <div style="background:#fff8e1;border:2px solid #b89300;border-radius:10px;padding:12px;">
-              <label style="font-weight:800;color:#b89300;font-size:0.8rem;display:block;margin-bottom:6px;">🎨 Arrière-plan Logo</label>
-              <select id="vendeur-logo-bg" onchange="updateVendeurPreview()" style="width:100%;padding:7px;border-radius:6px;border:1px solid #ccc;font-size:0.78rem;">
-                <option value="transparent" selected>Transparent - garde rouge TCL</option>
-                <option value="white">Blanc - carré blanc</option>
-                <option value="blue">Bleu - direct sur bleu</option>
-              </select>
-              <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.75rem;cursor:pointer;">
-                <input type="checkbox" id="vendeur-logo-white" onchange="updateVendeurPreview()">
-                Forcer en blanc
-              </label>
-            </div>
-          </div>
-
           <div class="form-group">
-            <label>🖼️ Logo - Couleur d'origine (rouge TCL)</label>
+            <label>🖼️ Logo de la Marque (affiché dans bande bleue)</label>
             <div style="display:flex;gap:10px;align-items:center;">
-              <div id="vendeur-logo-preview" style="width:70px;height:70px;background:repeating-conic-gradient(#eee 0% 25%, white 0% 50%) 0 0/12px 12px;border-radius:10px;border:1.5px solid #ccc;display:flex;align-items:center;justify-content:center;overflow:hidden;"><span style="opacity:0.3;">🏷️</span></div>
+              <div id="vendeur-logo-preview" style="width:64px;height:64px;background:white;border-radius:10px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.4rem;opacity:0.3;">🏷️</span></div>
               <div style="display:flex;flex-direction:column;gap:6px;">
-                <button class="btn btn-primary btn-sm" onclick="document.getElementById('vendeur-logo-file').click()">📂 Choisir logo</button>
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('vendeur-logo-file').click()">📂 Choisir logo marque</button>
                 <button class="btn btn-ghost btn-sm" onclick="clearVendeurLogo()">🗑️ Effacer</button>
               </div>
               <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none" onchange="handleVendeurLogoUpload(event)">
             </div>
-          </div>
-
-          <div style="background:linear-gradient(135deg,rgba(26,86,176,0.08),rgba(79,116,255,0.08));border:1.5px solid #1a56b0;border-radius:12px;padding:12px;margin-top:10px;">
-            <label style="color:#1a56b0;font-weight:800;font-size:0.85rem;">🔤 Police - BFMarjane-Black_V1 par défaut</label>
-            <select id="vendeur-font-name" onchange="applyVendeurFonts()" style="width:100%;margin-top:8px;padding:9px;border-radius:8px;border:1.5px solid #1a56b0;font-weight:700;">
-              <option value="'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif" selected>BFMarjane-Black_V1 - Défaut PC ✅</option>
-              <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
-              <option value="Arial, sans-serif">Arial</option>
-              <option value="'Arial Black', sans-serif">Arial Black</option>
-              <option value="'Segoe UI', sans-serif">Segoe UI</option>
-              <option value="Tahoma, sans-serif">Tahoma</option>
-              <option value="Verdana, sans-serif">Verdana</option>
-              <option value="Impact, sans-serif">Impact</option>
-            </select>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-              <select id="vendeur-font-role" onchange="applyVendeurFonts()" style="padding:7px;border-radius:6px;">
-                <option value="'BFMarjane-Black_V1', sans-serif">BFMarjane - Rôle</option>
-                <option value="Arial, sans-serif" selected>Arial - Rôle</option>
-              </select>
-              <select id="vendeur-font-marque" onchange="applyVendeurFonts()" style="padding:7px;border-radius:6px;">
-                <option value="'BFMarjane-Black_V1', sans-serif" selected>BFMarjane - Marque</option>
-                <option value="Arial Black, sans-serif">Arial Black</option>
-              </select>
-            </div>
-            <div style="display:flex;gap:6px;margin-top:8px;">
-              <button class="btn btn-ghost btn-sm" onclick="detectPCFonts()" style="font-size:0.7rem;">🔍 Détecter polices PC</button>
-              <button class="btn btn-ghost btn-sm" onclick="resetVendeurFonts()" style="font-size:0.7rem;">↺ BFMarjane</button>
-            </div>
-            <div id="pc-fonts-list" style="font-size:0.65rem;color:#666;margin-top:6px;display:none;"></div>
-          </div>
-
-          <div style="background:#f5f5f5;border:1px solid #ddd;border-radius:10px;padding:12px;margin-top:12px;">
-            <label style="font-weight:700;color:#1a56b0;">📐 Tailles</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
-              <div><label style="font-size:0.7rem;">Nom <span id="vsl-lbl-name">24px</span></label><input type="range" id="vsl-name" min="12" max="36" value="24" oninput="applyVendeurSizes()" style="width:100%;"></div>
-              <div><label style="font-size:0.7rem;">Rôle <span id="vsl-lbl-role">14px</span></label><input type="range" id="vsl-role" min="8" max="20" value="14" oninput="applyVendeurSizes()" style="width:100%;"></div>
-              <div><label style="font-size:0.7rem;">Marque <span id="vsl-lbl-marque">13px</span></label><input type="range" id="vsl-marque" min="8" max="20" value="13" oninput="applyVendeurSizes()" style="width:100%;"></div>
-              <div><label style="font-size:0.7rem;">Header <span id="vsl-lbl-header">62px</span></label><input type="range" id="vsl-header" min="40" max="90" value="62" oninput="applyVendeurSizes()" style="width:100%;"></div>
-              <div><label style="font-size:0.7rem;">Logo <span id="vsl-lbl-logo">50px</span></label><input type="range" id="vsl-logo" min="24" max="80" value="50" oninput="applyVendeurSizes()" style="width:100%;"></div>
-            </div>
+            <div style="font-size:0.68rem;color:#666;background:#f0f6ff;padding:6px 8px;border-radius:6px;margin-top:8px;">💡 Si aucun logo, le texte <strong>LOGO DU MARQUE</strong> sera affiché dans la bande bleue comme sur ton image modèle.</div>
           </div>
         </div>
+        <!-- Preview -->
         <div>
-          <div style="font-size:0.72rem;font-weight:700;color:#1a56b0;margin-bottom:10px;">🖼️ Aperçu</div>
-          <div style="display:flex;justify-content:center;padding:16px;background:repeating-conic-gradient(rgba(0,0,0,0.04) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:12px;border:2px dashed #1a56b0;">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--c-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🖼️ Aperçu live - Modèle exact</div>
+          <div style="display:flex;justify-content:center;padding:16px;background:repeating-conic-gradient(rgba(0,0,0,0.03) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:12px;border:1px dashed #1a56b0;">
             <div class="badge-vendeur-exact" id="vendeur-badge-preview">
-              <div class="bv-header" style="font-family:'BFMarjane-Black_V1', sans-serif;">LOGO DU MARQUE</div>
+              <div class="bv-header">LOGO DU MARQUE</div>
               <div class="bv-body">
-                <div class="bv-name" id="vp-name" style="font-family:'BFMarjane-Black_V1', sans-serif;">Nom et prenom</div>
-                <div class="bv-role-line"><div class="bv-role" id="vp-role">Vendeur</div></div>
-                <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">TCL</span></div>
+                <div class="bv-name" id="vp-name">Nom et prenom</div>
+                <div class="bv-role-line"><div class="bv-role">Vendeur</div></div>
+                <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">Haier</span></div>
               </div>
               <div class="bv-qr" id="vp-qr"></div>
             </div>
+          </div>
+          <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe082;border-radius:8px;padding:10px;">
+            <div style="font-size:0.75rem;font-weight:700;color:#b89300;">📋 Composition du badge vendeur:</div>
+            <ul style="font-size:0.72rem;color:#666;margin:6px 0 0 16px;line-height:1.5;">
+              <li>Bande bleue #1a56b0 avec logo marque (blanc sur bleu)</li>
+              <li>Nom et prénom en bleu #1a56b0, gras, grand</li>
+              <li>Ligne verticale bleue + texte Vendeur</li>
+              <li>Pastille gris clair avec MARQUE: en doré</li>
+              <li>Bordure noire fine 1.8px comme modèle</li>
+            </ul>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeVendeurModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="saveVendeur()" style="background:#1a56b0;font-weight:800;padding:10px 24px;">💾 Enregistrer Vendeur</button>
+      <button class="btn btn-primary" onclick="saveVendeur()" style="background:#1a56b0;">💾 Enregistrer Vendeur</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Impression Vendeurs -->
-<!-- Modal Impression Vendeurs -->
 <!-- Modal Impression Vendeurs -->
 <div class="modal-overlay" id="vendeur-print-modal">
   <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;">
@@ -2269,7 +2189,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
     req.onsuccess = function(e){
       db = e.target.result;
-      window.db = db; // FIX EDIT - rendre db global
       loadSettings();
       db.onerror = function(ev){ console.error('DB error:', ev.target.error); };
       refreshAll();
@@ -4149,33 +4068,62 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   function updateVendeurPreview(){
     var ln = (document.getElementById('vendeur-lastname')||{}).value||'';
     var fn = (document.getElementById('vendeur-firstname')||{}).value||'';
-    var marque = (document.getElementById('vendeur-marque')||{}).value||'Haier';
+    var marque = (document.getElementById('vendeur-marque')||{}).value||'TCL';
     var fullName = (fn+' '+ln).trim() || 'Nom et prenom';
     var headerLogo = currentVendeurLogoSrc;
+    if(typeof window.currentVendeurLogoSrc !== 'undefined' && window.currentVendeurLogoSrc) headerLogo = window.currentVendeurLogoSrc;
     var pv = document.getElementById('vendeur-badge-preview');
     if(!pv) return;
-    // header
     var headerEl = pv.querySelector('.bv-header');
     if(headerEl){
       if(headerLogo){
-        headerEl.innerHTML = '<img src="'+headerLogo+'">';
+        var bgMode = document.getElementById('vendeur-logo-bg') ? document.getElementById('vendeur-logo-bg').value : 'transparent';
+        var forceWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
+        // FIX: si fond blanc + forcer blanc = logo blanc invisible sur blanc -> on garde couleur originale
+        var filterStyle = '';
+        if(forceWhite && bgMode !== 'white'){
+          filterStyle = 'filter:brightness(0) invert(1); -webkit-filter:brightness(0) invert(1);';
+        } else {
+          filterStyle = 'filter:none; -webkit-filter:none;';
+        }
+        var bgStyle = '';
+        var containerBg = '';
+        if(bgMode==='white'){
+          bgStyle='background:white !important; padding:6px 14px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;';
+          containerBg='background:#1a56b0;';
+          // Si fond blanc, on FORCE couleur originale pour visibilité
+          filterStyle = 'filter:none; -webkit-filter:none;';
+        } else if(bgMode==='blue'){
+          bgStyle='background:transparent; padding:0;';
+          containerBg='background:#1a56b0;';
+        } else {
+          bgStyle='background:transparent; padding:0;';
+        }
+        headerEl.style.cssText = containerBg + ' height:62px; display:flex; align-items:center; justify-content:center;';
+        headerEl.innerHTML = '<span style="'+bgStyle+'"><img src="'+headerLogo+'" alt="Logo" style="max-height:46px; max-width:88%; object-fit:contain; display:block; '+filterStyle+'"></span>';
+        headerEl.classList.add('has-logo');
       } else {
         headerEl.textContent = 'LOGO DU MARQUE';
+        headerEl.classList.remove('has-logo');
       }
     }
-    // name
-    var nameEl = pv.querySelector('#vp-name');
-    if(nameEl) nameEl.textContent = fullName;
-    // marque
-    var marqueEl = pv.querySelector('#vp-marque-name');
-    if(marqueEl) marqueEl.textContent = marque || 'Haier';
-    // QR
+    var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.textContent = fullName;
+    var marqueEl = pv.querySelector('#vp-marque-name'); if(marqueEl) marqueEl.textContent = marque || 'TCL';
+    var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
     var qrDiv = pv.querySelector('#vp-qr');
     if(qrDiv){
-      qrDiv.innerHTML='';
-      var qrText = 'NOM:'+fullName+'|VENDEUR|MARQUE:'+marque;
-      setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:42,height:42,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },30);
+      if(showQR){
+        qrDiv.style.display='block';
+        qrDiv.innerHTML='';
+        var qrText = 'NOM:'+fullName+'|VENDEUR|MARQUE:'+marque;
+        setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:42,height:42,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },30);
+      } else {
+        qrDiv.style.display='none';
+        qrDiv.innerHTML='';
+      }
     }
+    if(typeof applyVendeurSizes === 'function'){ try{ applyVendeurSizes(); }catch(e){} }
+    if(typeof applyVendeurFonts === 'function'){ try{ applyVendeurFonts(); }catch(e){} }
   }
   window.updateVendeurPreview = updateVendeurPreview;
 
@@ -4183,111 +4131,80 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
     var marque = v.brandName||v.marque||'TCL';
     var bgMode = v.logoBg || 'transparent';
-    var logoFilter = v.logoWhite ? 'filter:brightness(0) invert(1);' : 'filter:none; -webkit-filter:none;';
-    var bgStyle = '';
-    if(bgMode==='white'){ bgStyle='background:white;padding:4px 12px;border-radius:6px;'; }
-    else if(bgMode==='white-transparent'){ bgStyle='background:rgba(255,255,255,0.9);padding:4px 12px;border-radius:6px;'; }
-    else { bgStyle='background:transparent;'; }
-    var logoH = (v.sizes&&v.sizes.logo)||50;
-    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:'+logoH+'px;max-width:90%;object-fit:contain;display:block;margin:0 auto;'+logoFilter+bgStyle+'">' : 'LOGO DU MARQUE';
+    var forceWhite = !!v.logoWhite;
+    var filterStyle = '';
+    if(forceWhite && bgMode !== 'white'){
+      filterStyle = 'filter:brightness(0) invert(1); -webkit-filter:brightness(0) invert(1);';
+    } else {
+      filterStyle = 'filter:none; -webkit-filter:none;';
+    }
+    var bgWrapper = '';
+    var logoH = (v.sizes&&v.sizes.logo)||46;
+    var innerLogo = '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:'+logoH+'px; max-width:88%; object-fit:contain; display:block; '+filterStyle+'">';
+    var logoHtml = '';
+    if(v.brandLogo||v.logo){
+      if(bgMode==='white'){
+        logoHtml = '<span style="background:white; padding:5px 12px; border-radius:6px; display:inline-flex;">'+innerLogo+'</span>';
+      } else {
+        logoHtml = innerLogo;
+      }
+    } else {
+      logoHtml = 'LOGO DU MARQUE';
+    }
     var headerClass = (v.brandLogo||v.logo) ? 'bv-header has-logo' : 'bv-header';
     var headerH = (v.sizes&&v.sizes.header)||62;
     var nameSize = (v.sizes&&v.sizes.name)||24;
     var roleSize = (v.sizes&&v.sizes.role)||14;
     var marqueSize = (v.sizes&&v.sizes.marque)||13;
-    var fName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', 'Plus Jakarta Sans', sans-serif";
+    var fName = v.fontName || "'BFMarjane-Black_V1', sans-serif";
     var fRole = v.fontRole || "Arial, sans-serif";
     var fMarque = v.fontMarque || "'BFMarjane-Black_V1', sans-serif";
     var showQR = v.showQR !== false;
     var qrId = (withQR && showQR) ? ' id="vqr-'+v.id+'"' : '';
-    var qrBox = '';
-    if(showQR){
-      if(withQR){ qrBox = '<div class="bv-qr"'+qrId+'></div>'; }
-      // else in preview mode, qr handled separately
-    }
-    // else qrBox reste vide = pas de QR
+    var qrBox = showQR ? (withQR ? '<div class="bv-qr"'+qrId+'></div>' : '') : '';
     return '<div class="badge-vendeur-exact">'
-      +'<div class="'+headerClass+'" style="height:'+headerH+'px;font-family:'+fName+';background:#1a56b0;display:flex;align-items:center;justify-content:center;">'+logoHtml+'</div>'
+      +'<div class="'+headerClass+'" style="height:'+headerH+'px; font-family:'+fName+'; background:#1a56b0; display:flex; align-items:center; justify-content:center;">'+logoHtml+'</div>'
       +'<div class="bv-body">'
-        +'<div class="bv-name" style="font-size:'+nameSize+'px;font-family:'+fName+';">'+escapeHTML(fullName)+'</div>'
-        +'<div class="bv-role-line"><div class="bv-role" style="font-size:'+roleSize+'px;font-family:'+fRole+';">Vendeur</div></div>'
-        +'<div class="bv-marque-box" style="font-size:'+marqueSize+'px;font-family:'+fMarque+';"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
+        +'<div class="bv-name" style="font-size:'+nameSize+'px; font-family:'+fName+';">'+escapeHTML(fullName)+'</div>'
+        +'<div class="bv-role-line"><div class="bv-role" style="font-size:'+roleSize+'px; font-family:'+fRole+';">Vendeur</div></div>'
+        +'<div class="bv-marque-box" style="font-size:'+marqueSize+'px; font-family:'+fMarque+';"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
       +'</div>'
       + qrBox
     +'</div>';
   }
+  window.buildVendeurBadgeHTML = buildVendeurBadgeHTML;
 
   window.saveVendeur = function(){
-    try{
-      var lnEl = document.getElementById('vendeur-lastname');
-      var fnEl = document.getElementById('vendeur-firstname');
-      var marqueEl = document.getElementById('vendeur-marque');
-      var eventEl = document.getElementById('vendeur-event');
-      var ln = lnEl ? lnEl.value.trim() : '';
-      var fn = fnEl ? fnEl.value.trim() : '';
-      var marque = marqueEl ? marqueEl.value.trim() : '';
-      var eventRaw = eventEl ? eventEl.value : '';
-      var eventId = parseInt(eventRaw); if(isNaN(eventId)) eventId = null;
-      if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
-      if(!marque){ showToast('Marque requise','error'); return; }
-      if(!db){ showToast('Base non prête','error'); return; }
-      var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', sans-serif";
-      var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
-      var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'BFMarjane-Black_V1', sans-serif";
-      var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
-      var logoWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-      var logoBg = document.getElementById('vendeur-logo-bg') ? document.getElementById('vendeur-logo-bg').value : 'transparent';
-      // Récupère tailles actuelles
-      var sizes = {name:24, role:14, marque:13, header:62, logo:50};
-      try{
-        sizes.name = parseInt((document.getElementById('vsl-name')||{}).value)||24;
-        sizes.role = parseInt((document.getElementById('vsl-role')||{}).value)||14;
-        sizes.marque = parseInt((document.getElementById('vsl-marque')||{}).value)||13;
-        sizes.header = parseInt((document.getElementById('vsl-header')||{}).value)||62;
-        sizes.logo = parseInt((document.getElementById('vsl-logo')||{}).value)||50;
-        // Sauvegarde localStorage pour persistance
-        localStorage.setItem('vendeurSizes', JSON.stringify(sizes));
-        localStorage.setItem('vendeurFonts', JSON.stringify({name:fontName, role:fontRole, marque:fontMarque}));
-        localStorage.setItem('vendeurQR', showQR ? '1' : '0');
-      }catch(e){}
-      var badge = {
-        id: vendeurEditId||Date.now(),
-        name: (fn+' '+ln).trim(),
-        firstname: fn,
-        lastname: ln,
-        brandName: marque,
-        marque: marque,
-        brandLogo: currentVendeurLogoSrc||'',
-        logo: currentVendeurLogoSrc||'',
-        role: 'Vendeur',
-        org: marque,
-        model: 'vendeur-exact',
-        format: 'vendeur-exact',
-        eventId: eventId,
-        createdAt: new Date().toISOString(),
-        photo: '',
-        badgeId: 'VEND-'+Date.now(),
-        fontName: fontName,
-        fontRole: fontRole,
-        fontMarque: fontMarque,
-        showQR: showQR,
-        logoWhite: logoWhite,
-        logoBg: logoBg,
-        sizes: sizes
-      };
-      var tx=db.transaction(['badges'],'readwrite');
-      tx.oncomplete = function(){
-        showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
-        closeVendeurModal();
-        if(typeof refreshAll === 'function') refreshAll();
-        if(typeof loadVendeurs === 'function') loadVendeurs();
-      };
-      tx.onerror = function(e){ showToast('Erreur: '+e.target.error,'error'); };
-      tx.objectStore('badges').put(badge);
-    }catch(err){
-      console.error(err);
-      showToast('Erreur: '+err.message,'error');
-    }
+    var ln = document.getElementById('vendeur-lastname').value.trim();
+    var fn = document.getElementById('vendeur-firstname').value.trim();
+    var marque = document.getElementById('vendeur-marque').value.trim();
+    var eventId = parseInt(document.getElementById('vendeur-event').value)||null;
+    if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
+    if(!marque){ showToast('Marque requise','error'); return; }
+    var badge = {
+      id: vendeurEditId||Date.now(),
+      name: (fn+' '+ln).trim(),
+      firstname: fn,
+      lastname: ln,
+      brandName: marque,
+      marque: marque,
+      brandLogo: currentVendeurLogoSrc,
+      logo: currentVendeurLogoSrc,
+      role: 'Vendeur',
+      org: marque,
+      model: 'vendeur-exact',
+      format: 'vendeur-exact',
+      eventId: eventId,
+      createdAt: new Date().toISOString(),
+      photo: '',
+      badgeId: 'VEND-'+Date.now()
+    };
+    var tx=db.transaction(['badges'],'readwrite');
+    tx.objectStore('badges').put(badge).onsuccess=function(){
+      showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
+      closeVendeurModal();
+      refreshAll(); loadVendeurs();
+    };
   };
 
   function loadVendeurs(){
@@ -4376,26 +4293,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       document.getElementById('vendeur-marque').value=v.brandName||v.marque||'';
       if(v.eventId) document.getElementById('vendeur-event').value=v.eventId;
       var lp=document.getElementById('vendeur-logo-preview');
-      if(lp) lp.innerHTML=currentVendeurLogoSrc ? '<img src="'+currentVendeurLogoSrc+'" style="width:100%;height:100%;object-fit:contain;background:transparent;filter:none;">' : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
+      if(lp) lp.innerHTML=currentVendeurLogoSrc ? '<img src="'+currentVendeurLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">' : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
       document.getElementById('vendeur-modal-title').textContent='✏️ Modifier Vendeur';
-      // Restaure QR
-      if(document.getElementById('vendeur-show-qr')) document.getElementById('vendeur-show-qr').checked = v.showQR !== false;
-      if(document.getElementById('vendeur-logo-white')) document.getElementById('vendeur-logo-white').checked = !!v.logoWhite;
-      if(document.getElementById('vendeur-logo-bg')) document.getElementById('vendeur-logo-bg').value = v.logoBg || 'transparent';
-      // Restaure polices
-      if(v.fontName && document.getElementById('vendeur-font-name')) document.getElementById('vendeur-font-name').value=v.fontName;
-      if(v.fontRole && document.getElementById('vendeur-font-role')) document.getElementById('vendeur-font-role').value=v.fontRole;
-      if(v.fontMarque && document.getElementById('vendeur-font-marque')) document.getElementById('vendeur-font-marque').value=v.fontMarque;
-      // Restaure tailles
-      if(v.sizes){
-        if(typeof vendeurSizes !== 'undefined') Object.assign(vendeurSizes, v.sizes);
-        else window.vendeurSizes = Object.assign({}, v.sizes);
-        var map = {name:'vsl-name', role:'vsl-role', marque:'vsl-marque', header:'vsl-header', logo:'vsl-logo'};
-        Object.keys(map).forEach(function(k){ var el=document.getElementById(map[k]); if(el && v.sizes[k]) el.value=v.sizes[k]; });
-      }
       document.getElementById('vendeur-modal').classList.add('show');
       updateVendeurPreview();
-      setTimeout(function(){ if(typeof applyVendeurSizes==='function') applyVendeurSizes(); if(typeof applyVendeurFonts==='function') applyVendeurFonts(); }, 100);
     };
   };
 
@@ -4448,18 +4349,15 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       html+='</div>';
     }
     document.getElementById(containerId).innerHTML=html;
-    // QR generation - RESPECTE showQR = false (ne génère pas si décoché)
+    // QR generation
     setTimeout(function(){
       vendeurs.forEach(function(v){
-        if(v.showQR===false) return; // SKIP si QR décoché
         var div=document.getElementById('vqr-'+v.id); if(!div) return;
         var txt='NOM:'+(v.name||'')+'|VENDEUR|MARQUE:'+(v.brandName||v.marque||'');
         try{ new QRCode(div,{text:txt,width:40,height:40,correctLevel:QRCode.CorrectLevel.M}); setTimeout(function(){ var c=div.querySelector('canvas'); if(c){ var du=c.toDataURL('image/png'); div.innerHTML=''; var img=document.createElement('img'); img.src=du; img.style.cssText='width:100%;height:100%;display:block;'; div.appendChild(img);} },300); }catch(e){}
       });
     },200);
   }
-  window.generateVendeurPrintContent = generateVendeurPrintContent;
-
   window.exportVendeursExcel=function(){
     var tx=db.transaction(['badges'],'readonly');
     tx.objectStore('badges').getAll().onsuccess=function(e){
@@ -4515,235 +4413,5 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
 })();
 </script>
-
-<script>
-// OVERRIDE CORRECTIF FINAL - tout réécrit
-(function(){
-  var selectedVendeurs = window.selectedVendeurs || new Set();
-  window.selectedVendeurs = selectedVendeurs;
-  window.currentVendeurLogoSrc = window.currentVendeurLogoSrc || '';
-  
-  function compressLogoTransparentFinal(dataUrl){
-    return new Promise(function(resolve){
-      var img = new Image();
-      img.onload = function(){
-        var w=img.width, h=img.height;
-        var maxW=400, maxH=120;
-        var ratio=Math.min(maxW/w,maxH/h,1);
-        var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
-        var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
-        var ctx=canvas.getContext('2d');
-        ctx.clearRect(0,0,cw,ch);
-        ctx.drawImage(img,0,0,cw,ch);
-        resolve(canvas.toDataURL('image/png'));
-      };
-      img.onerror=function(){ resolve(dataUrl); };
-      img.src=dataUrl;
-    });
-  }
-  window.compressLogoTransparent = compressLogoTransparentFinal;
-
-  window.handleVendeurLogoUpload = function(e){
-    var f=e.target.files[0]; if(!f) return;
-    var r=new FileReader();
-    r.onload=function(ev){
-      compressLogoTransparentFinal(ev.target.result).then(function(c){
-        window.currentVendeurLogoSrc=c;
-        var lp=document.getElementById('vendeur-logo-preview');
-        if(lp) lp.innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;background:transparent;filter:none;">';
-        if(window.updateVendeurPreview) window.updateVendeurPreview();
-      });
-    };
-    r.readAsDataURL(f);
-  };
-
-  window.updateVendeurPreview = function(){
-    var ln = (document.getElementById('vendeur-lastname')||{}).value||'';
-    var fn = (document.getElementById('vendeur-firstname')||{}).value||'';
-    var marque = (document.getElementById('vendeur-marque')||{}).value||'TCL';
-    var fullName = (fn+' '+ln).trim() || 'Nom et prenom';
-    var headerLogo = window.currentVendeurLogoSrc;
-    var pv = document.getElementById('vendeur-badge-preview');
-    if(!pv) return;
-    var headerEl = pv.querySelector('.bv-header');
-    if(headerEl){
-      if(headerLogo){
-        var bgMode = document.getElementById('vendeur-logo-bg') ? document.getElementById('vendeur-logo-bg').value : 'transparent';
-        var forceWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-        var filterStyle = forceWhite ? 'filter:brightness(0) invert(1);' : 'filter:none;';
-        var bgStyle = '';
-        if(bgMode==='white'){ bgStyle='background:white;padding:4px 12px;border-radius:6px;'; }
-        else if(bgMode==='white-transparent'){ bgStyle='background:rgba(255,255,255,0.9);padding:4px 12px;border-radius:6px;'; }
-        else { bgStyle='background:transparent;'; }
-        headerEl.innerHTML = '<img src="'+headerLogo+'" alt="Logo" style="max-height:50px;max-width:90%;object-fit:contain;display:block;margin:0 auto;'+filterStyle+bgStyle+'">';
-        headerEl.classList.add('has-logo');
-      } else {
-        headerEl.textContent = 'LOGO DU MARQUE';
-        headerEl.classList.remove('has-logo');
-      }
-    }
-    var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.textContent = fullName;
-    var marqueEl = pv.querySelector('#vp-marque-name'); if(marqueEl) marqueEl.textContent = marque || 'TCL';
-    var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
-    var qrDiv = pv.querySelector('#vp-qr');
-    if(qrDiv){
-      if(showQR){
-        qrDiv.style.display='block';
-        qrDiv.innerHTML='';
-        var qrText = 'NOM:'+fullName+'|VENDEUR|MARQUE:'+marque;
-        setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:42,height:42,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },30);
-      } else {
-        qrDiv.style.display='none';
-        qrDiv.innerHTML='';
-      }
-    }
-    if(window.applyVendeurSizes) { try{ window.applyVendeurSizes(); }catch(e){} }
-    if(window.applyVendeurFonts) { try{ window.applyVendeurFonts(); }catch(e){} }
-  };
-
-  window.buildVendeurBadgeHTML = function(v, withQR){
-    var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
-    var marque = v.brandName||v.marque||'TCL';
-    var bgMode = v.logoBg || 'transparent';
-    var logoFilter = v.logoWhite ? 'filter:brightness(0) invert(1);' : 'filter:none; -webkit-filter:none;';
-    var bgStyle = '';
-    if(bgMode==='white'){ bgStyle='background:white;padding:4px 12px;border-radius:6px;'; }
-    else if(bgMode==='white-transparent'){ bgStyle='background:rgba(255,255,255,0.9);padding:4px 12px;border-radius:6px;'; }
-    else { bgStyle='background:transparent;'; }
-    var logoH = (v.sizes&&v.sizes.logo)||50;
-    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:'+logoH+'px;max-width:90%;object-fit:contain;display:block;margin:0 auto;'+logoFilter+bgStyle+'">' : 'LOGO DU MARQUE';
-    var headerClass = (v.brandLogo||v.logo) ? 'bv-header has-logo' : 'bv-header';
-    var headerH = (v.sizes&&v.sizes.header)||62;
-    var nameSize = (v.sizes&&v.sizes.name)||24;
-    var roleSize = (v.sizes&&v.sizes.role)||14;
-    var marqueSize = (v.sizes&&v.sizes.marque)||13;
-    var fName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', 'Plus Jakarta Sans', sans-serif";
-    var fRole = v.fontRole || "Arial, sans-serif";
-    var fMarque = v.fontMarque || "'Plus Jakarta Sans', sans-serif";
-    var showQR = v.showQR !== false;
-    var qrId = (withQR && showQR) ? ' id="vqr-'+v.id+'"' : '';
-    var qrBox = showQR ? (withQR ? '<div class="bv-qr"'+qrId+'></div>' : '') : '';
-    function esc(s){ return String(s||'').replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
-    return '<div class="badge-vendeur-exact">'
-      +'<div class="'+headerClass+'" style="height:'+headerH+'px;font-family:'+fName+';background:#1a56b0;display:flex;align-items:center;justify-content:center;">'+logoHtml+'</div>'
-      +'<div class="bv-body">'
-        +'<div class="bv-name" style="font-size:'+nameSize+'px;font-family:'+fName+';">'+esc(fullName)+'</div>'
-        +'<div class="bv-role-line"><div class="bv-role" style="font-size:'+roleSize+'px;font-family:'+fRole+';">Vendeur</div></div>'
-        +'<div class="bv-marque-box" style="font-size:'+marqueSize+'px;font-family:'+fMarque+';"><strong>MARQUE:</strong> <span>'+esc(marque)+'</span></div>'
-      +'</div>'
-      + qrBox
-    +'</div>';
-  };
-
-  window.saveVendeur = function(){
-    try{
-      var ln = (document.getElementById('vendeur-lastname')||{}).value.trim();
-      var fn = (document.getElementById('vendeur-firstname')||{}).value.trim();
-      var marque = (document.getElementById('vendeur-marque')||{}).value.trim();
-      var eventRaw = (document.getElementById('vendeur-event')||{}).value||'';
-      var eventId = parseInt(eventRaw); if(isNaN(eventId)) eventId = null;
-      if(!ln && !fn){ alert('Nom et prénom requis'); return; }
-      if(!marque){ alert('Marque requise'); return; }
-      var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', sans-serif";
-      var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
-      var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'BFMarjane-Black_V1', sans-serif";
-      var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
-      var logoWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-      var logoBg = document.getElementById('vendeur-logo-bg') ? document.getElementById('vendeur-logo-bg').value : 'transparent';
-      var sizes = window.vendeurSizes || {name:24, role:14, marque:13, header:62, logo:50};
-      try{ sizes.name = parseInt(document.getElementById('vsl-name').value)||24; sizes.role = parseInt(document.getElementById('vsl-role').value)||14; sizes.marque = parseInt(document.getElementById('vsl-marque').value)||13; sizes.header = parseInt(document.getElementById('vsl-header').value)||62; sizes.logo = parseInt(document.getElementById('vsl-logo').value)||50; }catch(e){}
-      var badge = {
-        id: window.vendeurEditId||Date.now(),
-        name: (fn+' '+ln).trim(),
-        firstname: fn,
-        lastname: ln,
-        brandName: marque,
-        marque: marque,
-        brandLogo: window.currentVendeurLogoSrc||'',
-        logo: window.currentVendeurLogoSrc||'',
-        role: 'Vendeur',
-        org: marque,
-        model: 'vendeur-exact',
-        format: 'vendeur-exact',
-        eventId: eventId,
-        createdAt: new Date().toISOString(),
-        photo: '',
-        badgeId: 'VEND-'+Date.now(),
-        fontName: fontName,
-        fontRole: fontRole,
-        fontMarque: fontMarque,
-        showQR: showQR,
-        logoWhite: logoWhite,
-        logoBg: logoBg,
-        sizes: sizes
-      };
-      if(!window.db){ alert('Base de données non prête, recharge la page'); return; }
-      var tx=window.db.transaction(['badges'],'readwrite');
-      tx.oncomplete = function(){
-        if(window.showToast) window.showToast(window.vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
-        if(window.closeVendeurModal) window.closeVendeurModal();
-        if(typeof window.refreshAll === 'function') window.refreshAll();
-        if(typeof window.loadVendeurs === 'function') window.loadVendeurs();
-      };
-      tx.onerror = function(e){ alert('Erreur: '+e.target.error); };
-      tx.objectStore('badges').put(badge);
-    }catch(err){
-      console.error(err);
-      alert('Erreur: '+err.message);
-    }
-  };
-
-  window.vendeurSizes = window.vendeurSizes || { name:24, role:14, marque:13, header:62, logo:50 };
-  window.applyVendeurSizes = function(){
-    try{
-      var s = window.vendeurSizes;
-      s.name = parseInt(document.getElementById('vsl-name').value)||24;
-      s.role = parseInt(document.getElementById('vsl-role').value)||14;
-      s.marque = parseInt(document.getElementById('vsl-marque').value)||13;
-      s.header = parseInt(document.getElementById('vsl-header').value)||62;
-      s.logo = parseInt(document.getElementById('vsl-logo').value)||50;
-      var lblN=document.getElementById('vsl-lbl-name'); if(lblN) lblN.textContent = s.name+'px';
-      var lblR=document.getElementById('vsl-lbl-role'); if(lblR) lblR.textContent = s.role+'px';
-      var lblM=document.getElementById('vsl-lbl-marque'); if(lblM) lblM.textContent = s.marque+'px';
-      var lblH=document.getElementById('vsl-lbl-header'); if(lblH) lblH.textContent = s.header+'px';
-      var lblL=document.getElementById('vsl-lbl-logo'); if(lblL) lblL.textContent = s.logo+'px';
-      var pv = document.getElementById('vendeur-badge-preview');
-      if(!pv) return;
-      var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.style.setProperty('font-size', s.name+'px', 'important');
-      var roleEl = pv.querySelector('.bv-role'); if(roleEl) roleEl.style.setProperty('font-size', s.role+'px', 'important');
-      var roleEl2 = pv.querySelector('#vp-role'); if(roleEl2) roleEl2.style.setProperty('font-size', s.role+'px', 'important');
-      var marqueBox = pv.querySelector('.bv-marque-box'); if(marqueBox) marqueBox.style.setProperty('font-size', s.marque+'px', 'important');
-      var headerEl = pv.querySelector('.bv-header'); if(headerEl) headerEl.style.setProperty('height', s.header+'px', 'important');
-      var logoImg = pv.querySelector('.bv-header img'); if(logoImg) { logoImg.style.setProperty('max-height', s.logo+'px', 'important'); }
-    }catch(e){ console.error(e); }
-  };
-  window.resetVendeurSizes = function(){
-    var elN=document.getElementById('vsl-name'); if(elN) elN.value=24;
-    var elR=document.getElementById('vsl-role'); if(elR) elR.value=14;
-    var elM=document.getElementById('vsl-marque'); if(elM) elM.value=13;
-    var elH=document.getElementById('vsl-header'); if(elH) elH.value=62;
-    var elL=document.getElementById('vsl-logo'); if(elL) elL.value=50;
-    window.applyVendeurSizes();
-  };
-  window.applyVendeurFonts = function(){
-    try{
-      var fontName = document.getElementById('vendeur-font-name').value;
-      var fontRole = document.getElementById('vendeur-font-role').value;
-      var fontMarque = document.getElementById('vendeur-font-marque').value;
-      var pv = document.getElementById('vendeur-badge-preview');
-      if(!pv) return;
-      var nameEl = pv.querySelector('#vp-name'); if(nameEl) { nameEl.style.setProperty('font-family', fontName, 'important'); }
-      var roleEl = pv.querySelector('.bv-role'); if(roleEl) { roleEl.style.setProperty('font-family', fontRole, 'important'); }
-      var roleEl2 = pv.querySelector('#vp-role'); if(roleEl2) { roleEl2.style.setProperty('font-family', fontRole, 'important'); }
-      var marqueEl = pv.querySelector('.bv-marque-box'); if(marqueEl) { marqueEl.style.setProperty('font-family', fontMarque, 'important'); }
-    }catch(e){ console.error(e); }
-  };
-  window.resetVendeurFonts = function(){
-    var sel=document.getElementById('vendeur-font-name'); if(sel) sel.value = "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
-    if(window.applyVendeurFonts) window.applyVendeurFonts();
-  };
-})();
-</script>
-
 </body>
 </html>
