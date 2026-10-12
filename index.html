@@ -1148,6 +1148,12 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 .page.active { display: block !important; opacity: 1 !important; visibility: visible !important; }
 #page-visitors, #page-vendeurs, #page-journal { min-height: 60vh; }
 
+
+/* FIX V8 TOUCHES */
+.btn, .nav-item, .bottom-nav-item { pointer-events: auto !important; touch-action: manipulation; }
+.bottom-nav { z-index: 999 !important; }
+.modal-overlay { pointer-events: auto; }
+
 </style>
 </head>
 <body>
@@ -2519,7 +2525,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   }
 
-  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+  function refreshAll(){ /* SUPPRIME - remplacé par version unifiée V9 en fin de fichier */ try{ loadEvents(); }catch(e){} try{ loadAllBadges(); }catch(e){} try{ updateStats(); }catch(e){} try{ loadAllVisitors && loadAllVisitors(); }catch(e){} try{ updateVisitorStats && updateVisitorStats(); }catch(e){} try{ loadVendeurs && loadVendeurs(); }catch(e){} try{ loadJournal && loadJournal(); }catch(e){} }
   function updateStats(){
     if(!db) return;
     var tx=db.transaction(['events','badges','imports'],'readonly');
@@ -4940,6 +4946,104 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     try{ loadJournal && loadJournal(); }catch(e){ console.warn('loadJournal',e); }
   }
   window.refreshAll = refreshAll;
+
+  // === FIX V8 : Exposition globale de toutes les fonctions pour onclick (touches) ===
+  try{
+    window.closeModal = closeModal;
+    window.openEventModal = openEventModal;
+    window.saveEvent = saveEvent;
+    window.updateEvent = updateEvent;
+    window.editEvent = editEvent;
+    window.deleteEvent = deleteEvent;
+    window.createBadgeForEvent = createBadgeForEvent;
+    window.importForEvent = importForEvent;
+    window.selectModel = selectModel;
+    window.selectFormat = selectFormat;
+    window.selectImportModel = selectImportModel;
+    window.selectImportFormat = selectImportFormat;
+    window.selectVisitorModel = selectVisitorModel;
+    window.openCamera = openCamera;
+    window.closeCamera = closeCamera;
+    window.switchCamera = switchCamera;
+    window.takeSnapshot = takeSnapshot;
+    window.clearPhoto = clearPhoto;
+    window.clearBrandLogo = clearBrandLogo;
+    window.saveBadge = saveBadge;
+    window.resetBadgeForm = resetBadgeForm;
+    window.resetBadgeSizes = resetBadgeSizes;
+    window.resetVisitorSizes = resetVisitorSizes;
+    window.resetVendeurSizes = resetVendeurSizes;
+    window.editBadge = editBadge;
+    window.deleteBadge = deleteBadge;
+    window.downloadBadge = downloadBadge;
+    window.toggleSelect = toggleSelect;
+    window.selectAllBadges = selectAllBadges;
+    window.deleteSelectedBadges = deleteSelectedBadges;
+    window.openPrintModal = openPrintModal;
+    window.exportBadgesPDF = exportBadgesPDF;
+    window.exportAllData = exportAllData;
+    window.clearAllData = clearAllData;
+    window.saveSettings = saveSettings;
+    window.clearSettingsLogo = clearSettingsLogo;
+    window.openVisitorModal = openVisitorModal;
+    window.closeVisitorModal = closeVisitorModal;
+    window.saveVisitor = saveVisitor;
+    window.editVisitor = editVisitor;
+    window.deleteVisitor = deleteVisitor;
+    window.deleteSelectedVisitors = deleteSelectedVisitors;
+    window.selectAllVisitors = selectAllVisitors;
+    window.downloadVisitorBadge = downloadVisitorBadge;
+    window.printOneVisitor = printOneVisitor;
+    window.printSelectedVisitors = printSelectedVisitors;
+    window.exportVisitorPDF = exportVisitorPDF;
+    window.setJournalFilter = setJournalFilter;
+    window.exportJournalCSV = exportJournalCSV;
+    window.exportJournalPDF = exportJournalPDF;
+    window.openVendeurModal = openVendeurModal;
+    window.closeVendeurModal = closeVendeurModal;
+    window.saveVendeur = saveVendeur;
+    window.saveVendeursBulk = saveVendeursBulk;
+    window.editVendeur = editVendeur;
+    window.deleteVendeur = deleteVendeur;
+    window.deleteSelectedVendeurs = deleteSelectedVendeurs;
+    window.selectAllVendeurs = selectAllVendeurs;
+    window.clearVendeurSelection = clearVendeurSelection;
+    window.toggleVendeurSelect = toggleVendeurSelect;
+    window.toggleVendeursView = toggleVendeursView;
+    window.downloadVendeurBadge = downloadVendeurBadge;
+    window.printSelectedVendeurs = printSelectedVendeurs;
+    window.printAllVendeursA4 = printAllVendeursA4;
+    window.exportVendeursExcel = exportVendeursExcel;
+    window.exportVendeursPDF = exportVendeursPDF;
+    window.toggleSidebar = toggleSidebar;
+    window.closeSidebar = closeSidebar;
+    window.showPage = showPage;
+    window.bnNav = bnNav;
+    window.refreshAll = refreshAll;
+    window.closeModal = closeModal;
+    // Fix double tactile : empêche le ghost-click
+    document.addEventListener('touchstart', function(){}, {passive:true});
+  }catch(e){ console.warn('expose',e); }
+
+  // === FIX Touches mobiles : rebind bottom-nav avec addEventListener ===
+  try{
+    document.querySelectorAll('.bottom-nav-item').forEach(function(item){
+      item.addEventListener('click', function(ev){
+        var oc = item.getAttribute('onclick')||'';
+        var m = oc.match(/bnNav\s*\(\s*['"]([^'"]+)['"]/);
+        if(m){ ev.preventDefault(); bnNav(m[1], item); }
+      });
+    });
+    // Sidebar nav aussi
+    document.querySelectorAll('.nav-item').forEach(function(item){
+      item.addEventListener('click', function(ev){
+        var oc = item.getAttribute('onclick')||'';
+        var m = oc.match(/showPage\s*\(\s*['"]([^'"]+)['"]/);
+        if(m){ ev.preventDefault(); showPage(m[1], item); }
+      });
+    });
+  }catch(e){ console.warn('rebind',e); }
+
   // Expose aussi loadVendeurs / visitors globalement si besoin
   try{ window.loadVendeurs = loadVendeurs; }catch(e){}
   try{ window.loadAllVisitors = loadAllVisitors; }catch(e){}
