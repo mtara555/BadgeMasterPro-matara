@@ -340,7 +340,115 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-org-name { font-size: 1.1rem; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); line-height: 1.2; }
 .badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
 .badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
-  /* ===== VENDEUR DE MARQUE : rendu identique à la maquette, SANS cadre extérieur ===== */
+  /* ===== NOUVEAU MODELE VENDEUR EXACT - SUIVANT IMAGE FOURNIE ===== */
+.badge-vendeur-exact {
+  width: 354px !important; height: 228px !important;
+  background: #ffffff !important;
+  border: 1.8px solid #111 !important;
+  border-radius: 2px !important;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.08) !important;
+  overflow: hidden !important;
+  font-family: 'Plus Jakarta Sans', Arial, sans-serif !important;
+  position: relative;
+}
+.badge-vendeur-exact .bv-header {
+  background: #1a56b0 !important;
+  height: 62px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-weight: 800 !important;
+  font-size: 1.35rem !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  position: relative;
+  overflow: hidden;
+}
+.badge-vendeur-exact .bv-header img {
+  max-height: 46px !important;
+  max-width: 88% !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+}
+.badge-vendeur-exact .bv-body {
+  padding: 14px 18px 10px 18px !important;
+  background: white !important;
+  height: calc(100% - 62px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
+.badge-vendeur-exact .bv-name {
+  color: #1a56b0 !important;
+  font-size: 1.55rem !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  margin-bottom: 12px !important;
+  letter-spacing: -0.02em !important;
+}
+.badge-vendeur-exact .bv-role-line {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  margin-bottom: 12px !important;
+  margin-left: 28px !important;
+}
+.badge-vendeur-exact .bv-role {
+  font-size: 0.88rem !important;
+  color: #5a5a5a !important;
+  font-weight: 500 !important;
+  border-left: 3.5px solid #3b9eff !important;
+  padding-left: 8px !important;
+  line-height: 1.2 !important;
+}
+.badge-vendeur-exact .bv-marque-box {
+  margin-left: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #f5f5f7 !important;
+  border-radius: 6px !important;
+  padding: 5px 10px 5px 8px !important;
+  font-size: 0.82rem !important;
+  color: #666 !important;
+  border: 1px solid #efefef !important;
+}
+.badge-vendeur-exact .bv-marque-box strong {
+  color: #b89300 !important;
+  font-weight: 800 !important;
+  margin-right: 4px !important;
+  text-transform: uppercase !important;
+  font-size: 0.78rem !important;
+}
+.badge-vendeur-exact .bv-qr {
+  position: absolute !important;
+  bottom: 8px !important;
+  right: 8px !important;
+  width: 48px !important;
+  height: 48px !important;
+  background: white !important;
+  border: 1px solid #eee !important;
+  border-radius: 6px !important;
+  padding: 2px !important;
+  opacity: 0.9 !important;
+}
+
+/* Mode compact pour impression */
+.badge-compact.badge-vendeur-exact { width: 284px !important; height: 178px !important; }
+.badge-compact.badge-vendeur-exact .bv-header { height: 46px !important; font-size: 1rem !important; }
+.badge-compact.badge-vendeur-exact .bv-name { font-size: 1.15rem !important; margin-bottom: 8px !important; }
+.badge-compact.badge-vendeur-exact .bv-body { padding: 10px 14px !important; }
+.badge-compact.badge-vendeur-exact .bv-role-line { margin-left: 18px !important; margin-bottom: 8px !important; }
+.badge-compact.badge-vendeur-exact .bv-marque-box { margin-left: 18px !important; font-size: 0.68rem !important; padding: 3px 7px !important; }
+
+/* Page vendeurs styles */
+.vendeur-form-card { border: 1.5px solid rgba(26,86,176,0.2); background: linear-gradient(180deg, rgba(26,86,176,0.04) 0%, var(--c-surface) 100%); }
+.vendeur-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 18px; }
+.vendeur-stat { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; padding: 16px; text-align: center; border-top: 3px solid #1a56b0; }
+
+/* ===== VENDEUR DE MARQUE : rendu identique à la maquette, SANS cadre extérieur ===== */
   .badge-template.badge-brand-model { border: none !important; box-shadow: none !important; outline: none !important; }
   .badge-body-brand { display: flex; padding: 6px 14px; height: calc(100% - 87px); gap: 12px; align-items: center; box-sizing: border-box; overflow: hidden; }
   .brand-logo-area { width: 100px; height: 100px; background: #fff; border: none; border-radius: 10px; overflow: hidden; flex-shrink: 0; display:flex; align-items:center; justify-content:center; box-sizing: border-box; }
@@ -856,6 +964,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       <div class="nav-item" onclick="showPage('import-excel',this)"><span class="nav-icon">📊</span> Import Excel</div>
       <div class="nav-item" onclick="showPage('all-badges',this)"><span class="nav-icon">📋</span> Tous les badges <span class="nav-badge" id="badges-count">0</span></div>
       <div class="nav-item" onclick="showPage('visitors',this)"><span class="nav-icon">🪪</span> Badges Visiteurs <span class="nav-badge" id="visitors-count" style="background:#ff8f00;">0</span></div>
+      <div class="nav-item" onclick="showPage('vendeurs',this)" style="background:rgba(26,86,176,0.08);"><span class="nav-icon">🏷️</span> Badges Vendeurs <span class="nav-badge" id="vendeurs-count" style="background:#1a56b0;">0</span></div>
       <div class="nav-item" onclick="showPage('journal',this)"><span class="nav-icon">📋</span> Journal des visites</div>
     </div>
 
@@ -1387,6 +1496,66 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       </div>
 
 
+            <!-- ================================================
+           BADGES VENDEURS - ECRAN DEDIE NOUVEAU MODELE
+           ================================================ -->
+      <div class="page" id="page-vendeurs">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">🏷️ Badges Vendeurs - Modèle Marque</div>
+            <div class="page-subtitle"><span id="vendeurs-total">0</span> vendeur(s) · Modèle exact suivant image fournie</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm" onclick="exportVendeursExcel()">📊 Export Excel</button>
+            <button class="btn btn-primary btn-sm" onclick="openVendeurModal()">+ Nouveau vendeur</button>
+          </div>
+        </div>
+
+        <!-- Stats vendeurs -->
+        <div class="vendeur-stats">
+          <div class="vendeur-stat" style="border-top-color:#1a56b0;">
+            <div style="font-size:1.6rem;">🏷️</div>
+            <div class="stat-number" id="vstat-vendeurs" style="color:#1a56b0;">0</div>
+            <div class="stat-label">Total vendeurs</div>
+          </div>
+          <div class="vendeur-stat" style="border-top-color:#ffb300;">
+            <div style="font-size:1.6rem;">🏭</div>
+            <div class="stat-number" id="vstat-marques" style="color:#b89300;">0</div>
+            <div class="stat-label">Marques</div>
+          </div>
+          <div class="vendeur-stat" style="border-top-color:#00c87c;">
+            <div style="font-size:1.6rem;">🖨️</div>
+            <div class="stat-number" id="vstat-vendeurs-print" style="color:#00c87c;">0</div>
+            <div class="stat-label">Prêts à imprimer</div>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body" style="padding:14px 16px;">
+            <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <input type="text" class="search-box" id="search-vendeurs" placeholder="🔍 Rechercher vendeur, marque..." oninput="loadVendeurs()" style="flex:1;min-width:180px;padding:10px 14px;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);">
+              <select id="filter-vendeur-marque" onchange="loadVendeurs()" style="padding:10px 14px;background:var(--c-surface2);border:1.5px solid var(--c-border);border-radius:8px;color:var(--c-text);">
+                <option value="">Toutes les marques</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="selectAllVendeurs()">☑ Tout</button>
+              <button class="btn btn-info btn-sm" onclick="printSelectedVendeurs()">🖨️ Imprimer sélection</button>
+              <button class="btn btn-accent btn-sm" onclick="printAllVendeursA4()">📄 Planche A4</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSelectedVendeurs()">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid des vendeurs -->
+        <div id="vendeurs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;"></div>
+        <div id="vendeurs-empty" class="empty-state" style="display:none;">
+          <div class="empty-icon">🏷️</div>
+          <div class="empty-title">Aucun badge vendeur</div>
+          <div class="empty-desc">Créez votre premier badge vendeur avec le modèle exact LOGO DU MARQUE / Nom et prénom / Vendeur / MARQUE</div>
+          <button class="btn btn-primary btn-sm" onclick="openVendeurModal()">+ Créer le premier vendeur</button>
+        </div>
+      </div>
+
       <!-- ========== SETTINGS ========== -->
       <div class="page" id="page-settings">
         <div class="page-header">
@@ -1483,10 +1652,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         <span class="bn-icon">🏠</span>
         <span>Accueil</span>
       </div>
-      <div class="bottom-nav-item" onclick="bnNav('events',this)">
-        <span class="bn-icon">🎪</span>
-        <span>Événements</span>
-        <span class="bn-badge" id="bn-events-count" style="display:none">0</span>
+      <div class="bottom-nav-item" onclick="bnNav('vendeurs',this)">
+        <span class="bn-icon">🏷️</span>
+        <span>Vendeurs</span>
+        <span class="bn-badge" id="bn-vendeurs-count" style="display:none;background:#1a56b0;">0</span>
       </div>
       <div class="bottom-nav-item" onclick="bnNav('visitors',this)" style="position:relative;">
         <div style="position:absolute;top:-14px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff6b00,#ff9a3c);display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 16px rgba(255,107,0,0.5);">🪪</div>
@@ -1794,6 +1963,104 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 </div>
 
 <!-- Modal Impression Visiteurs -->
+
+<!-- Modal Nouveau Vendeur - MODELE EXACT -->
+<div class="modal-overlay" id="vendeur-modal">
+  <div class="modal-box" style="max-width:760px;">
+    <div class="modal-handle"></div>
+    <div class="modal-header" style="background:linear-gradient(135deg,#1a56b0,#3b82f6);color:white;">
+      <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur - Modèle Marque</h3>
+      <span class="modal-close" onclick="closeVendeurModal()" style="color:white;">×</span>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <!-- Form -->
+        <div>
+          <div style="background:rgba(26,86,176,0.06);border:1.5px dashed rgba(26,86,176,0.25);border-radius:10px;padding:10px;margin-bottom:14px;">
+            <div style="font-size:0.75rem;font-weight:700;color:#1a56b0;margin-bottom:4px;">📐 MODÈLE EXACT DE L'IMAGE</div>
+            <div style="font-size:0.7rem;color:#666;">Bande bleue LOGO DU MARQUE + Nom et prenom bleu + Vendeur + MARQUE doré</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group"><label>Prénom *</label><input type="text" id="vendeur-firstname" placeholder="Ex: Ahmed" oninput="updateVendeurPreview()"></div>
+            <div class="form-group"><label>Nom *</label><input type="text" id="vendeur-lastname" placeholder="Ex: Benali" oninput="updateVendeurPreview()"></div>
+          </div>
+          <div class="form-group">
+            <label>🏷️ MARQUE * (ex: Haier)</label>
+            <input type="text" id="vendeur-marque" placeholder="Ex: Haier, Samsung, LG..." oninput="updateVendeurPreview()" style="border-color:#b89300;font-weight:700;">
+            <div style="font-size:0.68rem;color:#999;margin-top:4px;">Sera affiché en doré: MARQUE: Haier</div>
+          </div>
+          <div class="form-group">
+            <label>🎪 Événement (optionnel)</label>
+            <select id="vendeur-event"><option value="">-- Aucun --</option></select>
+          </div>
+          <div class="form-group">
+            <label>🖼️ Logo de la Marque (affiché dans bande bleue)</label>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div id="vendeur-logo-preview" style="width:64px;height:64px;background:white;border-radius:10px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.4rem;opacity:0.3;">🏷️</span></div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('vendeur-logo-file').click()">📂 Choisir logo marque</button>
+                <button class="btn btn-ghost btn-sm" onclick="clearVendeurLogo()">🗑️ Effacer</button>
+              </div>
+              <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none" onchange="handleVendeurLogoUpload(event)">
+            </div>
+            <div style="font-size:0.68rem;color:#666;background:#f0f6ff;padding:6px 8px;border-radius:6px;margin-top:8px;">💡 Si aucun logo, le texte <strong>LOGO DU MARQUE</strong> sera affiché dans la bande bleue comme sur ton image modèle.</div>
+          </div>
+        </div>
+        <!-- Preview -->
+        <div>
+          <div style="font-size:0.72rem;font-weight:700;color:var(--c-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🖼️ Aperçu live - Modèle exact</div>
+          <div style="display:flex;justify-content:center;padding:16px;background:repeating-conic-gradient(rgba(0,0,0,0.03) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:12px;border:1px dashed #1a56b0;">
+            <div class="badge-vendeur-exact" id="vendeur-badge-preview">
+              <div class="bv-header">LOGO DU MARQUE</div>
+              <div class="bv-body">
+                <div class="bv-name" id="vp-name">Nom et prenom</div>
+                <div class="bv-role-line"><div class="bv-role">Vendeur</div></div>
+                <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">Haier</span></div>
+              </div>
+              <div class="bv-qr" id="vp-qr"></div>
+            </div>
+          </div>
+          <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe082;border-radius:8px;padding:10px;">
+            <div style="font-size:0.75rem;font-weight:700;color:#b89300;">📋 Composition du badge vendeur:</div>
+            <ul style="font-size:0.72rem;color:#666;margin:6px 0 0 16px;line-height:1.5;">
+              <li>Bande bleue #1a56b0 avec logo marque (blanc sur bleu)</li>
+              <li>Nom et prénom en bleu #1a56b0, gras, grand</li>
+              <li>Ligne verticale bleue + texte Vendeur</li>
+              <li>Pastille gris clair avec MARQUE: en doré</li>
+              <li>Bordure noire fine 1.8px comme modèle</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeVendeurModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveVendeur()" style="background:#1a56b0;">💾 Enregistrer Vendeur</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Impression Vendeurs -->
+<div class="modal-overlay" id="vendeur-print-modal">
+  <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;">
+    <div class="modal-handle"></div>
+    <div class="modal-header no-print">
+      <h3>🖨️ Impression Badges Vendeurs</h3>
+      <span class="modal-close" onclick="closeModal('vendeur-print-modal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="no-print">
+        <div class="btn-group print-ctrl" style="margin-bottom:14px;">
+          <button class="btn btn-success btn-sm" onclick="window.print()">🖨️ Imprimer</button>
+          <button class="btn btn-pdf btn-sm" onclick="exportVendeursPDF()">📄 Export PDF</button>
+          <span id="vendeur-print-count" style="font-size:0.78rem;color:var(--c-text-muted);margin-left:auto;"></span>
+        </div>
+      </div>
+      <div id="vendeur-print-content"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="visitor-print-modal">
   <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;border-radius:var(--radius-lg)!important;">
     <div class="modal-handle"></div>
@@ -3769,10 +4036,320 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   };
 
+
   // ====================================================================
-  //  Patch refreshAll pour inclure visiteurs
+  //  MODULE BADGES VENDEURS - NOUVEAU MODELE EXACT IMAGE
   // ====================================================================
-  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); }
+  var selectedVendeurs = new Set();
+  var currentVendeurLogoSrc = '';
+  var vendeurEditId = null;
+
+  window.openVendeurModal = function(id){
+    if(id){ editVendeur(id); return; }
+    vendeurEditId = null;
+    currentVendeurLogoSrc = '';
+    document.getElementById('vendeur-modal-title') && (document.getElementById('vendeur-modal-title').textContent='🏷️ Nouveau Vendeur');
+    ['vendeur-lastname','vendeur-firstname','vendeur-marque','vendeur-event'].forEach(function(i){ var el=document.getElementById(i); if(el) el.value=''; });
+    var lp=document.getElementById('vendeur-logo-preview'); if(lp) lp.innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
+    updateVendeurPreview();
+    document.getElementById('vendeur-modal').classList.add('show');
+  };
+  window.closeVendeurModal = function(){ document.getElementById('vendeur-modal').classList.remove('show'); };
+
+  window.handleVendeurLogoUpload = function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ currentVendeurLogoSrc=c; document.getElementById('vendeur-logo-preview').innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;">'; updateVendeurPreview(); }); };
+    r.readAsDataURL(f);
+  };
+  window.clearVendeurLogo = function(){ currentVendeurLogoSrc=''; document.getElementById('vendeur-logo-preview').innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>'; updateVendeurPreview(); };
+
+  function updateVendeurPreview(){
+    var ln = (document.getElementById('vendeur-lastname')||{}).value||'';
+    var fn = (document.getElementById('vendeur-firstname')||{}).value||'';
+    var marque = (document.getElementById('vendeur-marque')||{}).value||'Haier';
+    var fullName = (fn+' '+ln).trim() || 'Nom et prenom';
+    var headerLogo = currentVendeurLogoSrc;
+    var pv = document.getElementById('vendeur-badge-preview');
+    if(!pv) return;
+    // header
+    var headerEl = pv.querySelector('.bv-header');
+    if(headerEl){
+      if(headerLogo){
+        headerEl.innerHTML = '<img src="'+headerLogo+'">';
+      } else {
+        headerEl.textContent = 'LOGO DU MARQUE';
+      }
+    }
+    // name
+    var nameEl = pv.querySelector('#vp-name');
+    if(nameEl) nameEl.textContent = fullName;
+    // marque
+    var marqueEl = pv.querySelector('#vp-marque-name');
+    if(marqueEl) marqueEl.textContent = marque || 'Haier';
+    // QR
+    var qrDiv = pv.querySelector('#vp-qr');
+    if(qrDiv){
+      qrDiv.innerHTML='';
+      var qrText = 'NOM:'+fullName+'|VENDEUR|MARQUE:'+marque;
+      setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:42,height:42,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },30);
+    }
+  }
+  window.updateVendeurPreview = updateVendeurPreview;
+
+  function buildVendeurBadgeHTML(v, withQR){
+    var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
+    var marque = v.brandName||v.marque||'Haier';
+    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'">' : 'LOGO DU MARQUE';
+    var qrId = withQR ? ' id="vqr-'+v.id+'"' : '';
+    var qrBox = withQR ? '<div class="bv-qr"'+qrId+'></div>' : '<div class="bv-qr" style="display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#999;">QR</div>';
+    return '<div class="badge-vendeur-exact">'
+      +'<div class="bv-header">'+logoHtml+'</div>'
+      +'<div class="bv-body">'
+        +'<div class="bv-name">'+escapeHTML(fullName)+'</div>'
+        +'<div class="bv-role-line"><div class="bv-role">Vendeur</div></div>'
+        +'<div class="bv-marque-box"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
+      +'</div>'
+      + qrBox
+    +'</div>';
+  }
+
+  window.saveVendeur = function(){
+    var ln = document.getElementById('vendeur-lastname').value.trim();
+    var fn = document.getElementById('vendeur-firstname').value.trim();
+    var marque = document.getElementById('vendeur-marque').value.trim();
+    var eventId = parseInt(document.getElementById('vendeur-event').value)||null;
+    if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
+    if(!marque){ showToast('Marque requise','error'); return; }
+    var badge = {
+      id: vendeurEditId||Date.now(),
+      name: (fn+' '+ln).trim(),
+      firstname: fn,
+      lastname: ln,
+      brandName: marque,
+      marque: marque,
+      brandLogo: currentVendeurLogoSrc,
+      logo: currentVendeurLogoSrc,
+      role: 'Vendeur',
+      org: marque,
+      model: 'vendeur-exact',
+      format: 'vendeur-exact',
+      eventId: eventId,
+      createdAt: new Date().toISOString(),
+      photo: '',
+      badgeId: 'VEND-'+Date.now()
+    };
+    var tx=db.transaction(['badges'],'readwrite');
+    tx.objectStore('badges').put(badge).onsuccess=function(){
+      showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
+      closeVendeurModal();
+      refreshAll(); loadVendeurs();
+    };
+  };
+
+  function loadVendeurs(){
+    if(!db || !db.objectStoreNames.contains('badges')) return;
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').getAll().onsuccess=function(e){
+      var all=e.target.result.filter(function(b){ return b.model==='vendeur-exact' || b.model==='brand-vendor' || b.role==='Vendeur' || (b.brandName && b.model!=='with-photo'); });
+      // filtre recherche
+      var search=(document.getElementById('search-vendeurs')||{}).value||''; search=search.toLowerCase();
+      if(search) all=all.filter(function(b){ return (b.name||'').toLowerCase().includes(search) || (b.brandName||'').toLowerCase().includes(search) || (b.marque||'').toLowerCase().includes(search); });
+      var marqueFilter=(document.getElementById('filter-vendeur-marque')||{}).value||'';
+      if(marqueFilter) all=all.filter(function(b){ return (b.brandName||b.marque||'')===marqueFilter; });
+
+      document.getElementById('vendeurs-total').textContent=all.length;
+      document.getElementById('vendeurs-count').textContent=all.length;
+      document.getElementById('vstat-vendeurs').textContent=all.length;
+      var marques=[...new Set(all.map(function(b){return b.brandName||b.marque;}).filter(Boolean))];
+      document.getElementById('vstat-marques').textContent=marques.length;
+      document.getElementById('vstat-vendeurs-print').textContent=all.length;
+
+      // remplir filtre marques
+      var sel=document.getElementById('filter-vendeur-marque');
+      if(sel){
+        var cur=sel.value;
+        sel.innerHTML='<option value="">Toutes les marques</option>'+marques.map(function(m){return '<option value="'+escapeHTML(m)+'">'+escapeHTML(m)+'</option>';}).join('');
+        sel.value=cur;
+      }
+
+      var grid=document.getElementById('vendeurs-grid');
+      var empty=document.getElementById('vendeurs-empty');
+      if(!all.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+      empty.style.display='none';
+      grid.innerHTML=all.map(function(v){
+        var fullName=escapeHTML(v.name|| (v.firstname+' '+v.lastname));
+        var marque=escapeHTML(v.brandName||v.marque||'—');
+        var logo=v.brandLogo||v.logo||'';
+        var thumb=logo ? '<img src="'+logo+'" style="width:52px;height:52px;object-fit:contain;background:white;border-radius:8px;padding:4px;border:1px solid #eee;">' : '<div style="width:52px;height:52px;background:#1a56b0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">'+marque.charAt(0)+'</div>';
+        return '<div class="card" style="margin:0;border:1px solid '+(selectedVendeurs.has(v.id)?'#1a56b0':'var(--c-border)')+';background:var(--c-surface);'+(selectedVendeurs.has(v.id)?'box-shadow:0 0 0 2px rgba(26,86,176,0.2);':'')+'">'
+          +'<div style="padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--c-border);">'
+            +'<input type="checkbox" '+(selectedVendeurs.has(v.id)?'checked':'')+' onchange="toggleVendeurSelect('+v.id+')">'
+            +thumb
+            +'<div style="flex:1;min-width:0;"><div style="font-weight:800;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+fullName+'</div><div style="font-size:0.78rem;color:var(--c-text-muted);"><span style="border-left:2px solid #3b9eff;padding-left:6px;">Vendeur</span> · <strong style="color:#b89300;">'+marque+'</strong></div></div>'
+            +'<div style="display:flex;gap:6px;">'
+              +'<button class="btn btn-info btn-sm btn-icon" onclick="editVendeur('+v.id+')">✏️</button>'
+              +'<button class="btn btn-ghost btn-sm btn-icon" onclick="downloadVendeurBadge('+v.id+')">⬇️</button>'
+              +'<button class="btn btn-danger btn-sm btn-icon" onclick="deleteVendeur('+v.id+')">🗑️</button>'
+            +'</div>'
+          +'</div>'
+          +'<div style="padding:12px;display:flex;justify-content:center;background:repeating-conic-gradient(rgba(0,0,0,0.02) 0% 25%,transparent 0% 50%) 0 0/20px 20px;">'+buildVendeurBadgeHTML(v,false)+'</div>'
+        +'</div>';
+      }).join('');
+    };
+  }
+  window.loadVendeurs = loadVendeurs;
+
+  window.toggleVendeurSelect=function(id){ if(selectedVendeurs.has(id)) selectedVendeurs.delete(id); else selectedVendeurs.add(id); loadVendeurs(); };
+  window.selectAllVendeurs=function(){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').getAll().onsuccess=function(e){
+      e.target.result.filter(function(b){return b.model==='vendeur-exact'||b.model==='brand-vendor';}).forEach(function(b){selectedVendeurs.add(b.id);});
+      loadVendeurs();
+    };
+  };
+  window.deleteVendeur=async function(id){
+    var ok=await showConfirm({title:'Supprimer ce vendeur ?',message:'Le badge vendeur sera supprimé définitivement.',okText:'Supprimer',type:'danger',icon:'🏷️'});
+    if(!ok) return;
+    db.transaction(['badges'],'readwrite').objectStore('badges').delete(id).onsuccess=function(){ loadVendeurs(); refreshAll(); showToast('Vendeur supprimé'); };
+  };
+  window.deleteSelectedVendeurs=async function(){
+    if(!selectedVendeurs.size) return;
+    var ok=await showConfirm({title:'Supprimer '+selectedVendeurs.size+' vendeurs ?',message:'Action irréversible.',okText:'Supprimer',type:'danger',icon:'🏷️'});
+    if(!ok) return;
+    var tx=db.transaction(['badges'],'readwrite');
+    selectedVendeurs.forEach(function(id){ tx.objectStore('badges').delete(id); });
+    tx.oncomplete=function(){ selectedVendeurs.clear(); loadVendeurs(); refreshAll(); showToast('Supprimés'); };
+  };
+
+  window.editVendeur=function(id){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').get(id).onsuccess=function(e){
+      var v=e.target.result; if(!v) return;
+      vendeurEditId=id;
+      currentVendeurLogoSrc=v.brandLogo||v.logo||'';
+      document.getElementById('vendeur-lastname').value=v.lastname||'';
+      document.getElementById('vendeur-firstname').value=v.firstname||'';
+      document.getElementById('vendeur-marque').value=v.brandName||v.marque||'';
+      if(v.eventId) document.getElementById('vendeur-event').value=v.eventId;
+      var lp=document.getElementById('vendeur-logo-preview');
+      if(lp) lp.innerHTML=currentVendeurLogoSrc ? '<img src="'+currentVendeurLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">' : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
+      document.getElementById('vendeur-modal-title').textContent='✏️ Modifier Vendeur';
+      document.getElementById('vendeur-modal').classList.add('show');
+      updateVendeurPreview();
+    };
+  };
+
+  window.downloadVendeurBadge=function(id){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').get(id).onsuccess=function(e){
+      var v=e.target.result; if(!v) return;
+      var tmp=document.createElement('div');
+      tmp.style.position='fixed'; tmp.style.left='-9999px'; tmp.innerHTML=buildVendeurBadgeHTML(v,false);
+      document.body.appendChild(tmp);
+      html2canvas(tmp.firstChild,{scale:3,backgroundColor:'#ffffff'}).then(function(c){
+        var a=document.createElement('a'); a.download='badge-vendeur-'+(v.name||'vendeur').replace(/\s+/g,'-')+'.png'; a.href=c.toDataURL(); a.click();
+        document.body.removeChild(tmp);
+      });
+    };
+  };
+
+  window.printSelectedVendeurs=function(){
+    if(!selectedVendeurs.size){ showToast('Sélectionnez des vendeurs','info'); return; }
+    var tx=db.transaction(['badges'],'readonly');
+    var promises=Array.from(selectedVendeurs).map(function(id){ return new Promise(function(res){ tx.objectStore('badges').get(id).onsuccess=function(e){ res(e.target.result); }; }); });
+    Promise.all(promises).then(function(vendeurs){
+      vendeurs=vendeurs.filter(Boolean);
+      document.getElementById('vendeur-print-modal').classList.add('show');
+      document.getElementById('vendeur-print-count').textContent=vendeurs.length+' vendeur(s)';
+      generateVendeurPrintContent(vendeurs,'vendeur-print-content');
+    });
+  };
+  window.printAllVendeursA4=function(){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').getAll().onsuccess=function(e){
+      var all=e.target.result.filter(function(b){return b.model==='vendeur-exact'||b.model==='brand-vendor';});
+      if(!all.length){ showToast('Aucun vendeur','error'); return; }
+      document.getElementById('vendeur-print-modal').classList.add('show');
+      document.getElementById('vendeur-print-count').textContent=all.length+' vendeur(s)';
+      generateVendeurPrintContent(all,'vendeur-print-content');
+    };
+  };
+  function generateVendeurPrintContent(vendeurs, containerId){
+    var perPage=8;
+    var pages=Math.ceil(vendeurs.length/perPage);
+    var html='';
+    for(var p=0;p<pages;p++){
+      html+='<div class="a4-page" style="width:210mm;min-height:297mm;padding:12mm 10mm;background:white;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);gap:8mm;box-sizing:border-box;page-break-after:always;">';
+      for(var i=0;i<perPage;i++){
+        var idx=p*perPage+i; if(idx>=vendeurs.length) break;
+        var v=vendeurs[idx];
+        html+='<div style="display:flex;justify-content:center;align-items:center;">'+buildVendeurBadgeHTML(v,true)+'</div>';
+      }
+      html+='</div>';
+    }
+    document.getElementById(containerId).innerHTML=html;
+    // QR generation
+    setTimeout(function(){
+      vendeurs.forEach(function(v){
+        var div=document.getElementById('vqr-'+v.id); if(!div) return;
+        var txt='NOM:'+(v.name||'')+'|VENDEUR|MARQUE:'+(v.brandName||v.marque||'');
+        try{ new QRCode(div,{text:txt,width:40,height:40,correctLevel:QRCode.CorrectLevel.M}); setTimeout(function(){ var c=div.querySelector('canvas'); if(c){ var du=c.toDataURL('image/png'); div.innerHTML=''; var img=document.createElement('img'); img.src=du; img.style.cssText='width:100%;height:100%;display:block;'; div.appendChild(img);} },300); }catch(e){}
+      });
+    },200);
+  }
+  window.exportVendeursExcel=function(){
+    var tx=db.transaction(['badges'],'readonly');
+    tx.objectStore('badges').getAll().onsuccess=function(e){
+      var all=e.target.result.filter(function(b){return b.model==='vendeur-exact'||b.model==='brand-vendor';});
+      var ws_data=[['Nom','Prénom','Marque','EventId','Logo?']];
+      all.forEach(function(b){ ws_data.push([b.lastname||'',b.firstname||'',b.brandName||b.marque||'',b.eventId||'',b.brandLogo?'oui':'non']); });
+      var ws=XLSX.utils.aoa_to_sheet(ws_data);
+      var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Vendeurs');
+      XLSX.writeFile(wb,'vendeurs-'+new Date().toISOString().split('T')[0]+'.xlsx');
+    };
+  };
+
+
+  window.exportVendeursPDF = function(){
+    var jsPDF = window.jspdf.jsPDF;
+    showToast('Génération PDF vendeurs… ⏳','info');
+    setTimeout(function(){
+      var pdf = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+      var pages = document.querySelectorAll('#vendeur-print-content .a4-page');
+      if(!pages.length){ showToast('Rien à exporter','error'); return; }
+      function addPage(i){
+        if(i>=pages.length){ pdf.save('badges-vendeurs.pdf'); showToast('PDF vendeurs exporté ✅'); return; }
+        html2canvas(pages[i],{scale:3,backgroundColor:'#fff',useCORS:true}).then(function(c){
+          if(i>0) pdf.addPage();
+          pdf.addImage(c.toDataURL('image/jpeg',0.97),'JPEG',0,0,210,297);
+          addPage(i+1);
+        });
+      }
+      addPage(0);
+    },600);
+  };
+
+  // Patch refreshAll
+  var _origRefreshAll = refreshAll;
+  refreshAll = function(){ _origRefreshAll(); try{ loadVendeurs(); }catch(e){} };
+
+  // Charger events dans select vendeur
+  var _origPopulate = populateEventSelectors;
+  populateEventSelectors = function(events){
+    _origPopulate(events);
+    var sel=document.getElementById('vendeur-event'); if(!sel) return;
+    var val=sel.value;
+    sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
+    events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
+    if(val) sel.value=val;
+  };
+
+
+  // ====================================================================
+  //  Patch refreshAll pour inclure visiteurs (original)
+  // ====================================================================
+  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); try{ loadVendeurs(); }catch(e){} }
 
 })();
 </script>
