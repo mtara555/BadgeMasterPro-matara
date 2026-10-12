@@ -2085,7 +2085,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               </div>
               <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none" onchange="handleVendeurLogoUpload(event)">
             </div>
-            <div style="font-size:0.68rem;color:#666;background:#f0f6ff;padding:6px 8px;border-radius:6px;margin-top:8px;">💡 Si aucun logo, le texte <strong>LOGO DU MARQUE</strong> sera affiché dans la bande bleue comme sur ton image modèle.</div>
+
           </div>
         </div>
         <!-- Preview -->
@@ -2102,16 +2102,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               <div class="bv-qr" id="vp-qr"></div>
             </div>
           </div>
-          <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe082;border-radius:8px;padding:10px;">
-            <div style="font-size:0.75rem;font-weight:700;color:#b89300;">📋 Composition du badge vendeur:</div>
-            <ul style="font-size:0.72rem;color:#666;margin:6px 0 0 16px;line-height:1.5;">
-              <li>Bande bleue #1a56b0 avec logo marque (blanc sur bleu)</li>
-              <li>Nom et prénom en bleu #1a56b0, gras, grand</li>
-              <li>Ligne verticale bleue + texte Vendeur</li>
-              <li>Pastille gris clair avec MARQUE: en doré</li>
-              <li>Bordure noire fine 1.8px comme modèle</li>
-            </ul>
-          </div>
+
         </div>
       </div>
     </div>
@@ -4182,30 +4173,28 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   };
   window.clearVendeurLogo = function(){ currentVendeurLogoSrc=''; document.getElementById('vendeur-logo-preview').innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>'; updateVendeurPreview(); };
 
-  function updateVendeurPreview(){
+    function updateVendeurPreview(){
     var ln = (document.getElementById('vendeur-lastname')||{}).value||'';
     var fn = (document.getElementById('vendeur-firstname')||{}).value||'';
-    var marque = (document.getElementById('vendeur-marque')||{}).value||'Haier';
+    var marque = (document.getElementById('vendeur-marque')||{}).value||'TCL';
     var fullName = (fn+' '+ln).trim() || 'Nom et prenom';
     var headerLogo = currentVendeurLogoSrc;
     var pv = document.getElementById('vendeur-badge-preview');
     if(!pv) return;
-    // header
     var headerEl = pv.querySelector('.bv-header');
     if(headerEl){
       if(headerLogo){
-        headerEl.innerHTML = '<img src="'+headerLogo+'">';
+        headerEl.innerHTML = '<img src="'+headerLogo+'" alt="Logo" style="background:transparent;max-height:50px;max-width:90%;object-fit:contain;display:block;margin:0 auto;">';
+        headerEl.classList.add('has-logo');
       } else {
         headerEl.textContent = 'LOGO DU MARQUE';
+        headerEl.classList.remove('has-logo');
       }
     }
-    // name
     var nameEl = pv.querySelector('#vp-name');
     if(nameEl) nameEl.textContent = fullName;
-    // marque
     var marqueEl = pv.querySelector('#vp-marque-name');
-    if(marqueEl) marqueEl.textContent = marque || 'Haier';
-    // QR toggle
+    if(marqueEl) marqueEl.textContent = marque || 'TCL';
     var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
     var qrDiv = pv.querySelector('#vp-qr');
     if(qrDiv){
@@ -4219,78 +4208,107 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         qrDiv.innerHTML='';
       }
     }
-    // logo white filter
     var forceWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
     var logoImg = pv.querySelector('.bv-header img');
     if(logoImg){
       if(forceWhite){
         logoImg.style.filter = 'brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.3))';
+        logoImg.style.background = 'transparent';
       } else {
         logoImg.style.filter = 'none';
+        logoImg.style.background = 'transparent';
       }
     }
+    if(typeof applyVendeurSizes === 'function'){ try{ applyVendeurSizes(); }catch(e){} }
+    if(typeof applyVendeurFonts === 'function'){ try{ applyVendeurFonts(); }catch(e){} }
   }
   window.updateVendeurPreview = updateVendeurPreview;
 
-  function buildVendeurBadgeHTML(v, withQR){
+    function buildVendeurBadgeHTML(v, withQR){
     var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
-    var marque = v.brandName||v.marque||'Haier';
-    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'">' : 'LOGO DU MARQUE';
-    var qrId = withQR ? ' id="vqr-'+v.id+'"' : '';
-    var qrBox = withQR ? '<div class="bv-qr"'+qrId+'></div>' : '<div class="bv-qr" style="display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#999;">QR</div>';
+    var marque = v.brandName||v.marque||'TCL';
+    var logoFilter = v.logoWhite ? 'filter:brightness(0) invert(1);' : 'filter:none;';
+    var logoH = (v.sizes&&v.sizes.logo)||50;
+    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:'+logoH+'px;max-width:90%;object-fit:contain;background:transparent;padding:0;display:block;margin:0 auto;'+logoFilter+'">' : 'LOGO DU MARQUE';
+    var headerClass = (v.brandLogo||v.logo) ? 'bv-header has-logo' : 'bv-header';
+    var headerH = (v.sizes&&v.sizes.header)||62;
+    var nameSize = (v.sizes&&v.sizes.name)||24;
+    var roleSize = (v.sizes&&v.sizes.role)||14;
+    var marqueSize = (v.sizes&&v.sizes.marque)||13;
+    var fName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', 'Plus Jakarta Sans', sans-serif";
+    var fRole = v.fontRole || "Arial, sans-serif";
+    var fMarque = v.fontMarque || "'Plus Jakarta Sans', sans-serif";
+    var showQR = v.showQR !== false;
+    var qrId = (withQR && showQR) ? ' id="vqr-'+v.id+'"' : '';
+    var qrBox = showQR ? (withQR ? '<div class="bv-qr"'+qrId+'></div>' : '') : '';
     return '<div class="badge-vendeur-exact">'
-      +'<div class="bv-header">'+logoHtml+'</div>'
+      +'<div class="'+headerClass+'" style="height:'+headerH+'px;font-family:'+fName+';background:#1a56b0;display:flex;align-items:center;justify-content:center;">'+logoHtml+'</div>'
       +'<div class="bv-body">'
-        +'<div class="bv-name">'+escapeHTML(fullName)+'</div>'
-        +'<div class="bv-role-line"><div class="bv-role">Vendeur</div></div>'
-        +'<div class="bv-marque-box"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
+        +'<div class="bv-name" style="font-size:'+nameSize+'px;font-family:'+fName+';">'+escapeHTML(fullName)+'</div>'
+        +'<div class="bv-role-line"><div class="bv-role" style="font-size:'+roleSize+'px;font-family:'+fRole+';">Vendeur</div></div>'
+        +'<div class="bv-marque-box" style="font-size:'+marqueSize+'px;font-family:'+fMarque+';"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
       +'</div>'
       + qrBox
     +'</div>';
   }
 
-  window.saveVendeur = function(){
-    var ln = document.getElementById('vendeur-lastname').value.trim();
-    var fn = document.getElementById('vendeur-firstname').value.trim();
-    var marque = document.getElementById('vendeur-marque').value.trim();
-    var eventId = parseInt(document.getElementById('vendeur-event').value)||null;
-    if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
-    if(!marque){ showToast('Marque requise','error'); return; }
-    var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', sans-serif";
-    var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
-    var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'Plus Jakarta Sans', sans-serif";
-    var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
-    var logoWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-    var badge = {
-      id: vendeurEditId||Date.now(),
-      name: (fn+' '+ln).trim(),
-      firstname: fn,
-      lastname: ln,
-      brandName: marque,
-      marque: marque,
-      brandLogo: currentVendeurLogoSrc,
-      logo: currentVendeurLogoSrc,
-      role: 'Vendeur',
-      org: marque,
-      model: 'vendeur-exact',
-      format: 'vendeur-exact',
-      eventId: eventId,
-      createdAt: new Date().toISOString(),
-      photo: '',
-      badgeId: 'VEND-'+Date.now(),
-      fontName: fontName,
-      fontRole: fontRole,
-      fontMarque: fontMarque,
-      showQR: showQR,
-      logoWhite: logoWhite,
-      sizes: vendeurSizes
-    };
-    var tx=db.transaction(['badges'],'readwrite');
-    tx.objectStore('badges').put(badge).onsuccess=function(){
-      showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
-      closeVendeurModal();
-      refreshAll(); loadVendeurs();
-    };
+    window.saveVendeur = function(){
+    try{
+      var lnEl = document.getElementById('vendeur-lastname');
+      var fnEl = document.getElementById('vendeur-firstname');
+      var marqueEl = document.getElementById('vendeur-marque');
+      var eventEl = document.getElementById('vendeur-event');
+      var ln = lnEl ? lnEl.value.trim() : '';
+      var fn = fnEl ? fnEl.value.trim() : '';
+      var marque = marqueEl ? marqueEl.value.trim() : '';
+      var eventRaw = eventEl ? eventEl.value : '';
+      var eventId = parseInt(eventRaw);
+      if(isNaN(eventId)) eventId = null;
+      if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
+      if(!marque){ showToast('Marque requise','error'); return; }
+      if(!db){ showToast('Base de données non prête, recharge la page','error'); return; }
+      var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', sans-serif";
+      var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
+      var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'Plus Jakarta Sans', sans-serif";
+      var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
+      var logoWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
+      var badge = {
+        id: vendeurEditId||Date.now(),
+        name: (fn+' '+ln).trim(),
+        firstname: fn,
+        lastname: ln,
+        brandName: marque,
+        marque: marque,
+        brandLogo: currentVendeurLogoSrc||'',
+        logo: currentVendeurLogoSrc||'',
+        role: 'Vendeur',
+        org: marque,
+        model: 'vendeur-exact',
+        format: 'vendeur-exact',
+        eventId: eventId,
+        createdAt: new Date().toISOString(),
+        photo: '',
+        badgeId: 'VEND-'+Date.now(),
+        fontName: fontName,
+        fontRole: fontRole,
+        fontMarque: fontMarque,
+        showQR: showQR,
+        logoWhite: logoWhite,
+        sizes: typeof vendeurSizes !== 'undefined' ? Object.assign({}, vendeurSizes) : {name:24, role:14, marque:13, header:62, logo:50}
+      };
+      var tx=db.transaction(['badges'],'readwrite');
+      tx.oncomplete = function(){
+        showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
+        closeVendeurModal();
+        if(typeof refreshAll === 'function') refreshAll();
+        if(typeof loadVendeurs === 'function') loadVendeurs();
+      };
+      tx.onerror = function(e){ console.error(e); showToast('Erreur sauvegarde: '+e.target.error,'error'); };
+      tx.objectStore('badges').put(badge);
+    }catch(err){
+      console.error('saveVendeur error', err);
+      showToast('Erreur: '+err.message,'error');
+    }
   };
 
   function loadVendeurs(){
@@ -4327,7 +4345,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         var fullName=escapeHTML(v.name|| (v.firstname+' '+v.lastname));
         var marque=escapeHTML(v.brandName||v.marque||'—');
         var logo=v.brandLogo||v.logo||'';
-        var thumb=logo ? '<img src="'+logo+'" style="width:52px;height:52px;object-fit:contain;background:white;border-radius:8px;padding:4px;border:1px solid #eee;">' : '<div style="width:52px;height:52px;background:#1a56b0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">'+marque.charAt(0)+'</div>';
+        var thumb=logo ? '<img src="'+logo+'" style="width:52px;height:52px;object-fit:contain;background:transparent;border-radius:0;padding:0;border:none;">' : '<div style="width:52px;height:52px;background:#1a56b0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">'+marque.charAt(0)+'</div>';
         return '<div class="card" style="margin:0;border:1px solid '+(selectedVendeurs.has(v.id)?'#1a56b0':'var(--c-border)')+';background:var(--c-surface);'+(selectedVendeurs.has(v.id)?'box-shadow:0 0 0 2px rgba(26,86,176,0.2);':'')+'">'
           +'<div style="padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--c-border);">'
             +'<input type="checkbox" '+(selectedVendeurs.has(v.id)?'checked':'')+' onchange="toggleVendeurSelect('+v.id+')">'
