@@ -2534,12 +2534,24 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     // Sync bottom nav
     document.querySelectorAll('.bottom-nav-item').forEach(function(item){
       item.classList.remove('active');
+      // auto active bottom nav by matching onclick
+      if(item.getAttribute('onclick') && item.getAttribute('onclick').includes("'"+pageId+"'")){
+        item.classList.add('active');
+      }
     });
-    if(pageId==='dashboard'){ updateStats(); loadEvents(); updateVisitorStats && updateVisitorStats(); }
+    // Highlight corresponding sidebar item even when called from bottom nav
+    if(!navItem){
+      document.querySelectorAll('.nav-item').forEach(function(ni){
+        var oc = ni.getAttribute('onclick')||'';
+        if(oc.includes("'"+pageId+"'") || oc.includes('"'+pageId+'"')) ni.classList.add('active');
+      });
+    }
+    if(pageId==='dashboard'){ updateStats(); loadEvents(); updateVisitorStats && updateVisitorStats(); loadVendeurs && loadVendeurs(); }
     if(pageId==='events') loadEvents();
     if(pageId==='all-badges') loadAllBadges();
     if(pageId==='import-excel') loadImportsHistory();
     if(pageId==='visitors'){ loadAllVisitors && loadAllVisitors(); updateVisitorStats && updateVisitorStats(); }
+    if(pageId==='vendeurs'){ loadVendeurs && loadVendeurs(); }
     if(pageId==='journal'){ loadJournal && loadJournal(); }
     if(pageId==='settings'){ loadSettings(); updateDbInfo(); }
     if(pageId==='create-badge'){
@@ -4592,6 +4604,9 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var marques=[...new Set(all.map(function(b){return b.brandName||b.marque;}).filter(Boolean))];
       document.getElementById('vstat-marques').textContent=marques.length;
       document.getElementById('vstat-vendeurs-print').textContent=all.length;
+      // bottom nav badges
+      var bnV=document.getElementById('bn-vendeurs-count'); if(bnV){ bnV.textContent=all.length; bnV.style.display=all.length? 'block':'none'; }
+      var bnB=document.getElementById('bn-badges-count'); if(bnB){ /* total badges handled elsewhere */ }
       var _sc=document.getElementById('vendeurs-selected-count'); if(_sc) _sc.textContent=selectedVendeurs.size+' sélectionné(s)';
       var _vb=document.getElementById('vendeurs-view-btn'); if(_vb) _vb.textContent=vendeursListView?'▦ Grille':'☰ Liste';
 
@@ -4844,28 +4859,36 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     },600);
   };
 
-  // Patch refreshAll
-  var _origRefreshAll = refreshAll;
-  refreshAll = function(){ _origRefreshAll(); try{ loadVendeurs(); }catch(e){} };
+  
+  // === PATCH UNIFIE : refreshAll centralise tout ===
+  // On garde populateEventSelectors patch mais on refait refreshAll proprement
+  (function(){
+    // patch populateEventSelectors pour alimenter le select vendeur
+    if(typeof populateEventSelectors === 'function'){
+      var _origPopulate = populateEventSelectors;
+      populateEventSelectors = function(events){
+        try{ _origPopulate(events); }catch(e){}
+        var sel=document.getElementById('vendeur-event'); if(!sel) return;
+        var val=sel.value;
+        sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
+        events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
+        if(val) sel.value=val;
+      };
+    }
+  })();
 
-  // Charger events dans select vendeur
-  var _origPopulate = populateEventSelectors;
-  populateEventSelectors = function(events){
-    _origPopulate(events);
-    var sel=document.getElementById('vendeur-event'); if(!sel) return;
-    var val=sel.value;
-    sel.innerHTML='<option value="">-- Événement (optionnel) --</option>';
-    events.forEach(function(ev){ sel.innerHTML+='<option value="'+ev.id+'">'+escapeHTML(ev.name)+'</option>'; });
-    if(val) sel.value=val;
-  };
+  // refreshAll final - UNIQUE et complet (évite écrasement)
+  function refreshAll(){
+    try{ loadEvents(); }catch(e){ console.warn('loadEvents',e); }
+    try{ loadAllBadges(); }catch(e){ console.warn('loadAllBadges',e); }
+    try{ updateStats(); }catch(e){ console.warn('updateStats',e); }
+    try{ loadAllVisitors && loadAllVisitors(); }catch(e){ console.warn('loadAllVisitors',e); }
+    try{ updateVisitorStats && updateVisitorStats(); }catch(e){ console.warn('updateVisitorStats',e); }
+    try{ loadVendeurs && loadVendeurs(); }catch(e){ console.warn('loadVendeurs',e); }
+  }
+  window.refreshAll = refreshAll;
 
-
-  // ====================================================================
-  //  Patch refreshAll pour inclure visiteurs (original)
-  // ====================================================================
-  function refreshAll(){ loadEvents(); loadAllBadges(); updateStats(); try{ loadVendeurs(); }catch(e){} }
-
-})();
+})(); 
 </script>
 </body>
 </html>
