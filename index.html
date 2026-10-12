@@ -368,8 +368,8 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
   overflow: hidden;
 }
 .badge-vendeur-exact .bv-header img {
-  background: transparent !important;
-  background-color: transparent !important;
+  filter: none !important;
+  -webkit-filter: none !important;
 
   max-height: 46px !important;
   max-width: 88% !important;
@@ -1996,85 +1996,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             <label>🎪 Événement (optionnel)</label>
             <select id="vendeur-event"><option value="">-- Aucun --</option></select>
           </div>
-          
-          <!-- QR toggle + Font selector -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div class="form-group" style="background:var(--c-surface2);border-radius:8px;padding:10px;border:1.5px solid var(--c-border);">
-              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;font-size:0.82rem;font-weight:700;">
-                <input type="checkbox" id="vendeur-show-qr" checked onchange="updateVendeurPreview()" style="width:18px;height:18px;accent-color:#1a56b0;">
-                📱 Afficher QR Code
-              </label>
-              <div style="font-size:0.65rem;color:var(--c-text-muted);margin-top:4px;">QR en bas à droite du badge</div>
-            </div>
-            <div class="form-group" style="background:var(--c-surface2);border-radius:8px;padding:10px;border:1.5px solid var(--c-border);">
-              <label style="font-size:0.72rem;font-weight:700;margin-bottom:4px;">🎨 Logo blanc sur bleu ?</label>
-              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;">
-                <input type="checkbox" id="vendeur-logo-white" onchange="updateVendeurPreview()" style="accent-color:#1a56b0;">
-                Forcer logo blanc
-              </label>
-              <div style="font-size:0.62rem;color:var(--c-text-muted);">Utile si logo sombre</div>
-            </div>
-          </div>
-
-          <div class="form-group" style="background:linear-gradient(135deg,rgba(26,86,176,0.08),rgba(79,116,255,0.08));border:1.5px solid rgba(26,86,176,0.2);border-radius:12px;padding:12px;">
-            <label style="color:#1a56b0;font-weight:800;">🔤 Polices de caractères (PC)</label>
-            <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;">
-              <div>
-                <label style="font-size:0.7rem;">Nom et prénom</label>
-                <select id="vendeur-font-name" onchange="applyVendeurFonts()" style="font-family:'BFMarjane-Black_V1', sans-serif;" style="width:100%;padding:8px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;color:var(--c-text);font-size:0.82rem;">
-                  <option value="'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif" selected>BFMarjane-Black_V1 (Défaut - Ton PC)</option>
-                  <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta</option>
-                  <option value="Arial, Helvetica, sans-serif">Arial</option>
-                  <option value="'Arial Black', Gadget, sans-serif">Arial Black</option>
-                  <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI (Windows)</option>
-                  <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
-                  <option value="Verdana, Geneva, sans-serif">Verdana</option>
-                  <option value="'Trebuchet MS', Helvetica, sans-serif">Trebuchet MS</option>
-                  <option value="'Times New Roman', Times, serif">Times New Roman</option>
-                  <option value="Georgia, serif">Georgia</option>
-                  <option value="Garamond, serif">Garamond</option>
-                  <option value="'Courier New', Courier, monospace">Courier New</option>
-                  <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
-                  <option value="Impact, Charcoal, sans-serif">Impact</option>
-                  <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
-                  <option value="'Lucida Console', Monaco, monospace">Lucida Console</option>
-                  <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino</option>
-                  <option value="Cairo, sans-serif">Cairo (Arabe)</option>
-                  <option value="Tajawal, sans-serif">Tajawal (Arabe)</option>
-                </select>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <div>
-                  <label style="font-size:0.7rem;">Vendeur</label>
-                  <select id="vendeur-font-role" onchange="applyVendeurFonts()" style="width:100%;padding:8px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;color:var(--c-text);font-size:0.82rem;">
-                    <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta</option>
-                    <option value="Arial, sans-serif" selected>Arial</option>
-                    <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                    <option value="Verdana, sans-serif">Verdana</option>
-                    <option value="'Times New Roman', serif">Times</option>
-                    <option value="Georgia, serif">Georgia</option>
-                    <option value="Cairo, sans-serif">Cairo</option>
-                  </select>
-                </div>
-                <div>
-                  <label style="font-size:0.7rem;">MARQUE</label>
-                  <select id="vendeur-font-marque" onchange="applyVendeurFonts()" style="width:100%;padding:8px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;color:var(--c-text);font-size:0.82rem;">
-                    <option value="'Plus Jakarta Sans', sans-serif" selected>Plus Jakarta</option>
-                    <option value="Arial Black, sans-serif">Arial Black</option>
-                    <option value="Arial, sans-serif">Arial</option>
-                    <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                    <option value="Impact, sans-serif">Impact</option>
-                    <option value="'Courier New', monospace">Courier</option>
-                  </select>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;margin-top:6px;">
-                <button class="btn btn-ghost btn-sm" onclick="detectPCFonts()" style="font-size:0.7rem;">🔍 Détecter polices PC</button>
-                <button class="btn btn-ghost btn-sm" onclick="resetVendeurFonts()" style="font-size:0.7rem;">↺ Défaut</button>
-              </div>
-              <div id="pc-fonts-list" style="font-size:0.65rem;color:var(--c-text-muted);margin-top:6px;max-height:80px;overflow-y:auto;display:none;"></div>
-            </div>
-          </div>
           <div class="form-group">
             <label>🖼️ Logo de la Marque (affiché dans bande bleue)</label>
             <div style="display:flex;gap:10px;align-items:center;">
@@ -2085,7 +2006,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               </div>
               <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none" onchange="handleVendeurLogoUpload(event)">
             </div>
-
+            <div style="font-size:0.68rem;color:#666;background:#f0f6ff;padding:6px 8px;border-radius:6px;margin-top:8px;">💡 Si aucun logo, le texte <strong>LOGO DU MARQUE</strong> sera affiché dans la bande bleue comme sur ton image modèle.</div>
           </div>
         </div>
         <!-- Preview -->
@@ -2102,7 +2023,16 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
               <div class="bv-qr" id="vp-qr"></div>
             </div>
           </div>
-
+          <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe082;border-radius:8px;padding:10px;">
+            <div style="font-size:0.75rem;font-weight:700;color:#b89300;">📋 Composition du badge vendeur:</div>
+            <ul style="font-size:0.72rem;color:#666;margin:6px 0 0 16px;line-height:1.5;">
+              <li>Bande bleue #1a56b0 avec logo marque (blanc sur bleu)</li>
+              <li>Nom et prénom en bleu #1a56b0, gras, grand</li>
+              <li>Ligne verticale bleue + texte Vendeur</li>
+              <li>Pastille gris clair avec MARQUE: en doré</li>
+              <li>Bordure noire fine 1.8px comme modèle</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -2241,43 +2171,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         var w=img.width, h=img.height, ratio=Math.min(maxW/w,maxH/h,1);
         var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
         var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
-        var ctx=canvas.getContext('2d');
-        // preserve transparency - clear instead of white
-        ctx.clearRect(0,0,cw,ch);
-        ctx.drawImage(img,0,0,cw,ch);
-        // Si original est PNG transparent, on garde PNG, sinon JPEG
-        var isPng = dataUrl.indexOf('data:image/png')===0 || dataUrl.toLowerCase().indexOf('.png')>-1;
-        if(isPng){
-          resolve(canvas.toDataURL('image/png'));
-        } else {
-          resolve(canvas.toDataURL('image/jpeg',quality));
-        }
+        canvas.getContext('2d').drawImage(img,0,0,cw,ch);
+        resolve(canvas.toDataURL('image/jpeg',quality));
       };
       img.onerror=function(){ resolve(dataUrl); };
       img.src=dataUrl;
     });
   }
-  function compressLogo(dataUrl){ return compressImage(dataUrl,300,300,0.9); }
-  // Nouvelle fonction spéciale logos marques - PRESERVE TRANSPARENCE PNG SANS FOND BLANC
-  function compressLogoTransparent(dataUrl){
-    return new Promise(function(resolve){
-      var img = new Image();
-      img.onload = function(){
-        var w=img.width, h=img.height;
-        var maxW=400, maxH=120;
-        var ratio=Math.min(maxW/w,maxH/h,1);
-        var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
-        var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
-        var ctx=canvas.getContext('2d');
-        ctx.clearRect(0,0,cw,ch);
-        ctx.drawImage(img,0,0,cw,ch);
-        // TOUJOURS PNG pour garder transparence
-        resolve(canvas.toDataURL('image/png'));
-      };
-      img.onerror=function(){ resolve(dataUrl); };
-      img.src=dataUrl;
-    });
-  }
+  function compressLogo(dataUrl){ return compressImage(dataUrl,150,150,0.8); }
 
   // ---- DB ----
   function initDB(){
@@ -4161,154 +4062,92 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.handleVendeurLogoUpload = function(e){
     var f=e.target.files[0]; if(!f) return;
     var r=new FileReader();
-    r.onload=function(ev){ 
-      // UTILISE compressLogoTransparent pour garder fond transparent - PAS DE FOND BLANC
-      compressLogoTransparent(ev.target.result).then(function(c){ 
-        currentVendeurLogoSrc=c; 
-        document.getElementById('vendeur-logo-preview').innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;background:transparent;">'; 
-        updateVendeurPreview(); 
-      }); 
-    };
+    r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ currentVendeurLogoSrc=c; document.getElementById('vendeur-logo-preview').innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;">'; updateVendeurPreview(); }); };
     r.readAsDataURL(f);
   };
   window.clearVendeurLogo = function(){ currentVendeurLogoSrc=''; document.getElementById('vendeur-logo-preview').innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>'; updateVendeurPreview(); };
 
-    function updateVendeurPreview(){
+  function updateVendeurPreview(){
     var ln = (document.getElementById('vendeur-lastname')||{}).value||'';
     var fn = (document.getElementById('vendeur-firstname')||{}).value||'';
-    var marque = (document.getElementById('vendeur-marque')||{}).value||'TCL';
+    var marque = (document.getElementById('vendeur-marque')||{}).value||'Haier';
     var fullName = (fn+' '+ln).trim() || 'Nom et prenom';
     var headerLogo = currentVendeurLogoSrc;
     var pv = document.getElementById('vendeur-badge-preview');
     if(!pv) return;
+    // header
     var headerEl = pv.querySelector('.bv-header');
     if(headerEl){
       if(headerLogo){
-        headerEl.innerHTML = '<img src="'+headerLogo+'" alt="Logo" style="background:transparent;max-height:50px;max-width:90%;object-fit:contain;display:block;margin:0 auto;">';
-        headerEl.classList.add('has-logo');
+        headerEl.innerHTML = '<img src="'+headerLogo+'">';
       } else {
         headerEl.textContent = 'LOGO DU MARQUE';
-        headerEl.classList.remove('has-logo');
       }
     }
+    // name
     var nameEl = pv.querySelector('#vp-name');
     if(nameEl) nameEl.textContent = fullName;
+    // marque
     var marqueEl = pv.querySelector('#vp-marque-name');
-    if(marqueEl) marqueEl.textContent = marque || 'TCL';
-    var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
+    if(marqueEl) marqueEl.textContent = marque || 'Haier';
+    // QR
     var qrDiv = pv.querySelector('#vp-qr');
     if(qrDiv){
-      if(showQR){
-        qrDiv.style.display='block';
-        qrDiv.innerHTML='';
-        var qrText = 'NOM:'+fullName+'|VENDEUR|MARQUE:'+marque;
-        setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:42,height:42,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },30);
-      } else {
-        qrDiv.style.display='none';
-        qrDiv.innerHTML='';
-      }
+      qrDiv.innerHTML='';
+      var qrText = 'NOM:'+fullName+'|VENDEUR|MARQUE:'+marque;
+      setTimeout(function(){ try{ new QRCode(qrDiv,{text:qrText,width:42,height:42,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} },30);
     }
-    var forceWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-    var logoImg = pv.querySelector('.bv-header img');
-    if(logoImg){
-      if(forceWhite){
-        logoImg.style.filter = 'brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.3))';
-        logoImg.style.background = 'transparent';
-      } else {
-        logoImg.style.filter = 'none';
-        logoImg.style.background = 'transparent';
-      }
-    }
-    if(typeof applyVendeurSizes === 'function'){ try{ applyVendeurSizes(); }catch(e){} }
-    if(typeof applyVendeurFonts === 'function'){ try{ applyVendeurFonts(); }catch(e){} }
   }
   window.updateVendeurPreview = updateVendeurPreview;
 
-    function buildVendeurBadgeHTML(v, withQR){
+  function buildVendeurBadgeHTML(v, withQR){
     var fullName = ((v.firstname||'')+' '+(v.lastname||'')).trim() || 'Nom et prenom';
-    var marque = v.brandName||v.marque||'TCL';
-    var logoFilter = v.logoWhite ? 'filter:brightness(0) invert(1);' : 'filter:none;';
-    var logoH = (v.sizes&&v.sizes.logo)||50;
-    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'" alt="Logo" style="max-height:'+logoH+'px;max-width:90%;object-fit:contain;background:transparent;padding:0;display:block;margin:0 auto;'+logoFilter+'">' : 'LOGO DU MARQUE';
-    var headerClass = (v.brandLogo||v.logo) ? 'bv-header has-logo' : 'bv-header';
-    var headerH = (v.sizes&&v.sizes.header)||62;
-    var nameSize = (v.sizes&&v.sizes.name)||24;
-    var roleSize = (v.sizes&&v.sizes.role)||14;
-    var marqueSize = (v.sizes&&v.sizes.marque)||13;
-    var fName = v.fontName || "'BFMarjane-Black_V1', 'BFMarjane Black', 'Plus Jakarta Sans', sans-serif";
-    var fRole = v.fontRole || "Arial, sans-serif";
-    var fMarque = v.fontMarque || "'Plus Jakarta Sans', sans-serif";
-    var showQR = v.showQR !== false;
-    var qrId = (withQR && showQR) ? ' id="vqr-'+v.id+'"' : '';
-    var qrBox = showQR ? (withQR ? '<div class="bv-qr"'+qrId+'></div>' : '') : '';
+    var marque = v.brandName||v.marque||'Haier';
+    var logoHtml = v.brandLogo||v.logo ? '<img src="'+(v.brandLogo||v.logo)+'">' : 'LOGO DU MARQUE';
+    var qrId = withQR ? ' id="vqr-'+v.id+'"' : '';
+    var qrBox = withQR ? '<div class="bv-qr"'+qrId+'></div>' : '<div class="bv-qr" style="display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#999;">QR</div>';
     return '<div class="badge-vendeur-exact">'
-      +'<div class="'+headerClass+'" style="height:'+headerH+'px;font-family:'+fName+';background:#1a56b0;display:flex;align-items:center;justify-content:center;">'+logoHtml+'</div>'
+      +'<div class="bv-header">'+logoHtml+'</div>'
       +'<div class="bv-body">'
-        +'<div class="bv-name" style="font-size:'+nameSize+'px;font-family:'+fName+';">'+escapeHTML(fullName)+'</div>'
-        +'<div class="bv-role-line"><div class="bv-role" style="font-size:'+roleSize+'px;font-family:'+fRole+';">Vendeur</div></div>'
-        +'<div class="bv-marque-box" style="font-size:'+marqueSize+'px;font-family:'+fMarque+';"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
+        +'<div class="bv-name">'+escapeHTML(fullName)+'</div>'
+        +'<div class="bv-role-line"><div class="bv-role">Vendeur</div></div>'
+        +'<div class="bv-marque-box"><strong>MARQUE:</strong> <span>'+escapeHTML(marque)+'</span></div>'
       +'</div>'
       + qrBox
     +'</div>';
   }
 
-    window.saveVendeur = function(){
-    try{
-      var lnEl = document.getElementById('vendeur-lastname');
-      var fnEl = document.getElementById('vendeur-firstname');
-      var marqueEl = document.getElementById('vendeur-marque');
-      var eventEl = document.getElementById('vendeur-event');
-      var ln = lnEl ? lnEl.value.trim() : '';
-      var fn = fnEl ? fnEl.value.trim() : '';
-      var marque = marqueEl ? marqueEl.value.trim() : '';
-      var eventRaw = eventEl ? eventEl.value : '';
-      var eventId = parseInt(eventRaw);
-      if(isNaN(eventId)) eventId = null;
-      if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
-      if(!marque){ showToast('Marque requise','error'); return; }
-      if(!db){ showToast('Base de données non prête, recharge la page','error'); return; }
-      var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', sans-serif";
-      var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
-      var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'Plus Jakarta Sans', sans-serif";
-      var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
-      var logoWhite = document.getElementById('vendeur-logo-white') ? document.getElementById('vendeur-logo-white').checked : false;
-      var badge = {
-        id: vendeurEditId||Date.now(),
-        name: (fn+' '+ln).trim(),
-        firstname: fn,
-        lastname: ln,
-        brandName: marque,
-        marque: marque,
-        brandLogo: currentVendeurLogoSrc||'',
-        logo: currentVendeurLogoSrc||'',
-        role: 'Vendeur',
-        org: marque,
-        model: 'vendeur-exact',
-        format: 'vendeur-exact',
-        eventId: eventId,
-        createdAt: new Date().toISOString(),
-        photo: '',
-        badgeId: 'VEND-'+Date.now(),
-        fontName: fontName,
-        fontRole: fontRole,
-        fontMarque: fontMarque,
-        showQR: showQR,
-        logoWhite: logoWhite,
-        sizes: typeof vendeurSizes !== 'undefined' ? Object.assign({}, vendeurSizes) : {name:24, role:14, marque:13, header:62, logo:50}
-      };
-      var tx=db.transaction(['badges'],'readwrite');
-      tx.oncomplete = function(){
-        showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
-        closeVendeurModal();
-        if(typeof refreshAll === 'function') refreshAll();
-        if(typeof loadVendeurs === 'function') loadVendeurs();
-      };
-      tx.onerror = function(e){ console.error(e); showToast('Erreur sauvegarde: '+e.target.error,'error'); };
-      tx.objectStore('badges').put(badge);
-    }catch(err){
-      console.error('saveVendeur error', err);
-      showToast('Erreur: '+err.message,'error');
-    }
+  window.saveVendeur = function(){
+    var ln = document.getElementById('vendeur-lastname').value.trim();
+    var fn = document.getElementById('vendeur-firstname').value.trim();
+    var marque = document.getElementById('vendeur-marque').value.trim();
+    var eventId = parseInt(document.getElementById('vendeur-event').value)||null;
+    if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
+    if(!marque){ showToast('Marque requise','error'); return; }
+    var badge = {
+      id: vendeurEditId||Date.now(),
+      name: (fn+' '+ln).trim(),
+      firstname: fn,
+      lastname: ln,
+      brandName: marque,
+      marque: marque,
+      brandLogo: currentVendeurLogoSrc,
+      logo: currentVendeurLogoSrc,
+      role: 'Vendeur',
+      org: marque,
+      model: 'vendeur-exact',
+      format: 'vendeur-exact',
+      eventId: eventId,
+      createdAt: new Date().toISOString(),
+      photo: '',
+      badgeId: 'VEND-'+Date.now()
+    };
+    var tx=db.transaction(['badges'],'readwrite');
+    tx.objectStore('badges').put(badge).onsuccess=function(){
+      showToast(vendeurEditId?'Vendeur modifié ✅':'Vendeur créé ✅');
+      closeVendeurModal();
+      refreshAll(); loadVendeurs();
+    };
   };
 
   function loadVendeurs(){
@@ -4345,7 +4184,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         var fullName=escapeHTML(v.name|| (v.firstname+' '+v.lastname));
         var marque=escapeHTML(v.brandName||v.marque||'—');
         var logo=v.brandLogo||v.logo||'';
-        var thumb=logo ? '<img src="'+logo+'" style="width:52px;height:52px;object-fit:contain;background:transparent;border-radius:0;padding:0;border:none;">' : '<div style="width:52px;height:52px;background:#1a56b0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">'+marque.charAt(0)+'</div>';
+        var thumb=logo ? '<img src="'+logo+'" style="width:52px;height:52px;object-fit:contain;background:white;border-radius:8px;padding:4px;border:1px solid #eee;">' : '<div style="width:52px;height:52px;background:#1a56b0;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">'+marque.charAt(0)+'</div>';
         return '<div class="card" style="margin:0;border:1px solid '+(selectedVendeurs.has(v.id)?'#1a56b0':'var(--c-border)')+';background:var(--c-surface);'+(selectedVendeurs.has(v.id)?'box-shadow:0 0 0 2px rgba(26,86,176,0.2);':'')+'">'
           +'<div style="padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--c-border);">'
             +'<input type="checkbox" '+(selectedVendeurs.has(v.id)?'checked':'')+' onchange="toggleVendeurSelect('+v.id+')">'
@@ -4399,21 +4238,8 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var lp=document.getElementById('vendeur-logo-preview');
       if(lp) lp.innerHTML=currentVendeurLogoSrc ? '<img src="'+currentVendeurLogoSrc+'" style="width:100%;height:100%;object-fit:contain;">' : '<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>';
       document.getElementById('vendeur-modal-title').textContent='✏️ Modifier Vendeur';
-      if(v.fontName) document.getElementById('vendeur-font-name').value=v.fontName;
-      if(v.fontRole) document.getElementById('vendeur-font-role').value=v.fontRole;
-      if(v.fontMarque) document.getElementById('vendeur-font-marque').value=v.fontMarque;
-      if(document.getElementById('vendeur-show-qr')) document.getElementById('vendeur-show-qr').checked = v.showQR !== false;
-      if(document.getElementById('vendeur-logo-white')) document.getElementById('vendeur-logo-white').checked = !!v.logoWhite;
-      if(v.sizes){ Object.assign(vendeurSizes, v.sizes);
-        document.getElementById('vsl-name').value=vendeurSizes.name;
-        document.getElementById('vsl-role').value=vendeurSizes.role;
-        document.getElementById('vsl-marque').value=vendeurSizes.marque;
-        document.getElementById('vsl-header').value=vendeurSizes.header;
-        document.getElementById('vsl-logo').value=vendeurSizes.logo;
-      }
       document.getElementById('vendeur-modal').classList.add('show');
       updateVendeurPreview();
-      setTimeout(function(){ applyVendeurSizes(); applyVendeurFonts(); }, 80);
     };
   };
 
@@ -4487,59 +4313,6 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
   };
 
-
-
-  // POLICES PC
-  window.applyVendeurFonts = function(){
-    var fontName = document.getElementById('vendeur-font-name').value;
-    var fontRole = document.getElementById('vendeur-font-role').value;
-    var fontMarque = document.getElementById('vendeur-font-marque').value;
-    var pv = document.getElementById('vendeur-badge-preview');
-    if(!pv) return;
-    var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.style.fontFamily = fontName;
-    var roleEl = pv.querySelector('.bv-role'); if(roleEl) roleEl.style.fontFamily = fontRole;
-    var roleEl2 = pv.querySelector('#vp-role'); if(roleEl2) roleEl2.style.fontFamily = fontRole;
-    var marqueEl = pv.querySelector('.bv-marque-box'); if(marqueEl) marqueEl.style.fontFamily = fontMarque;
-    var headerEl = pv.querySelector('.bv-header'); if(headerEl) headerEl.style.fontFamily = fontName;
-    try{ localStorage.setItem('vendeurFonts', JSON.stringify({name:fontName, role:fontRole, marque:fontMarque})); }catch(e){}
-  };
-  window.resetVendeurFonts = function(){
-    document.getElementById('vendeur-font-name').value = "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
-    document.getElementById('vendeur-font-role').value = "Arial, sans-serif";
-    document.getElementById('vendeur-font-marque').value = "'Plus Jakarta Sans', sans-serif";
-    applyVendeurFonts();
-  };
-  window.detectPCFonts = async function(){
-    var listDiv = document.getElementById('pc-fonts-list');
-    listDiv.style.display='block';
-    listDiv.innerHTML='⏳ Détection des polices...';
-    var detected = [];
-    // Méthode 1: Local Font Access API (Chrome)
-    try{
-      if('queryLocalFonts' in window){
-        var fonts = await window.queryLocalFonts();
-        var families = [...new Set(fonts.map(f=>f.family))].sort();
-        detected = families.slice(0,100);
-        listDiv.innerHTML = '<strong>Polices détectées sur ce PC ('+families.length+'):</strong><br>' + families.slice(0,50).join(', ') + (families.length>50 ? '... (+'+(families.length-50)+' autres)':'');
-
-        // Ajouter au select
-        var sel = document.getElementById('vendeur-font-name');
-        families.forEach(function(fam){
-          if(![...sel.options].some(o=>o.value.includes(fam))){
-            var opt = document.createElement('option');
-            opt.value = "'"+fam+"', sans-serif";
-            opt.textContent = fam + ' (PC)';
-            sel.appendChild(opt);
-          }
-        });
-        showToast('Polices PC détectées: '+families.length+' trouvées ✅');
-        return;
-      }
-    }catch(e){ console.log('Local Fonts API error', e); }
-    // Méthode 2: fallback liste commune
-    var commonFonts = ['Arial','Arial Black','Verdana','Tahoma','Trebuchet MS','Times New Roman','Georgia','Garamond','Courier New','Brush Script MT','Comic Sans MS','Impact','Lucida Console','Palatino','Segoe UI','Calibri','Cambria','Candara','Consolas','Constantia','Corbel','Segoe Print','Segoe Script'];
-    listDiv.innerHTML = '<strong>API Local Fonts non supportée.</strong><br>Liste des polices standards Windows/Mac:<br>' + commonFonts.join(', ') + '<br><br><em>Pour détecter automatiquement, utilise Chrome/Edge et autorise l\'accès aux polices locales.</em>';
-  };
 
   window.exportVendeursPDF = function(){
     var jsPDF = window.jspdf.jsPDF;
