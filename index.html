@@ -368,6 +368,9 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
   overflow: hidden;
 }
 .badge-vendeur-exact .bv-header img {
+  background: transparent !important;
+  background-color: transparent !important;
+
   max-height: 46px !important;
   max-width: 88% !important;
   object-fit: contain !important;
@@ -2018,8 +2021,9 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
             <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;">
               <div>
                 <label style="font-size:0.7rem;">Nom et prénom</label>
-                <select id="vendeur-font-name" onchange="applyVendeurFonts()" style="width:100%;padding:8px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;color:var(--c-text);font-size:0.82rem;">
-                  <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta (Défaut)</option>
+                <select id="vendeur-font-name" onchange="applyVendeurFonts()" style="font-family:'BFMarjane-Black_V1', sans-serif;" style="width:100%;padding:8px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;color:var(--c-text);font-size:0.82rem;">
+                  <option value="'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif" selected>BFMarjane-Black_V1 (Défaut - Ton PC)</option>
+                  <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta</option>
                   <option value="Arial, Helvetica, sans-serif">Arial</option>
                   <option value="'Arial Black', Gadget, sans-serif">Arial Black</option>
                   <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI (Windows)</option>
@@ -2246,14 +2250,43 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
         var w=img.width, h=img.height, ratio=Math.min(maxW/w,maxH/h,1);
         var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
         var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
-        canvas.getContext('2d').drawImage(img,0,0,cw,ch);
-        resolve(canvas.toDataURL('image/jpeg',quality));
+        var ctx=canvas.getContext('2d');
+        // preserve transparency - clear instead of white
+        ctx.clearRect(0,0,cw,ch);
+        ctx.drawImage(img,0,0,cw,ch);
+        // Si original est PNG transparent, on garde PNG, sinon JPEG
+        var isPng = dataUrl.indexOf('data:image/png')===0 || dataUrl.toLowerCase().indexOf('.png')>-1;
+        if(isPng){
+          resolve(canvas.toDataURL('image/png'));
+        } else {
+          resolve(canvas.toDataURL('image/jpeg',quality));
+        }
       };
       img.onerror=function(){ resolve(dataUrl); };
       img.src=dataUrl;
     });
   }
-  function compressLogo(dataUrl){ return compressImage(dataUrl,150,150,0.8); }
+  function compressLogo(dataUrl){ return compressImage(dataUrl,300,300,0.9); }
+  // Nouvelle fonction spéciale logos marques - PRESERVE TRANSPARENCE PNG SANS FOND BLANC
+  function compressLogoTransparent(dataUrl){
+    return new Promise(function(resolve){
+      var img = new Image();
+      img.onload = function(){
+        var w=img.width, h=img.height;
+        var maxW=400, maxH=120;
+        var ratio=Math.min(maxW/w,maxH/h,1);
+        var cw=Math.round(w*ratio), ch=Math.round(h*ratio);
+        var canvas=document.createElement('canvas'); canvas.width=cw; canvas.height=ch;
+        var ctx=canvas.getContext('2d');
+        ctx.clearRect(0,0,cw,ch);
+        ctx.drawImage(img,0,0,cw,ch);
+        // TOUJOURS PNG pour garder transparence
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror=function(){ resolve(dataUrl); };
+      img.src=dataUrl;
+    });
+  }
 
   // ---- DB ----
   function initDB(){
@@ -4137,7 +4170,14 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
   window.handleVendeurLogoUpload = function(e){
     var f=e.target.files[0]; if(!f) return;
     var r=new FileReader();
-    r.onload=function(ev){ compressLogo(ev.target.result).then(function(c){ currentVendeurLogoSrc=c; document.getElementById('vendeur-logo-preview').innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;">'; updateVendeurPreview(); }); };
+    r.onload=function(ev){ 
+      // UTILISE compressLogoTransparent pour garder fond transparent - PAS DE FOND BLANC
+      compressLogoTransparent(ev.target.result).then(function(c){ 
+        currentVendeurLogoSrc=c; 
+        document.getElementById('vendeur-logo-preview').innerHTML='<img src="'+c+'" style="width:100%;height:100%;object-fit:contain;background:transparent;">'; 
+        updateVendeurPreview(); 
+      }); 
+    };
     r.readAsDataURL(f);
   };
   window.clearVendeurLogo = function(){ currentVendeurLogoSrc=''; document.getElementById('vendeur-logo-preview').innerHTML='<span style="font-size:1.4rem;opacity:0.3;">🏷️</span>'; updateVendeurPreview(); };
@@ -4216,7 +4256,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     var eventId = parseInt(document.getElementById('vendeur-event').value)||null;
     if(!ln && !fn){ showToast('Nom et prénom requis','error'); return; }
     if(!marque){ showToast('Marque requise','error'); return; }
-    var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'Plus Jakarta Sans', sans-serif";
+    var fontName = document.getElementById('vendeur-font-name') ? document.getElementById('vendeur-font-name').value : "'BFMarjane-Black_V1', sans-serif";
     var fontRole = document.getElementById('vendeur-font-role') ? document.getElementById('vendeur-font-role').value : "Arial, sans-serif";
     var fontMarque = document.getElementById('vendeur-font-marque') ? document.getElementById('vendeur-font-marque').value : "'Plus Jakarta Sans', sans-serif";
     var showQR = document.getElementById('vendeur-show-qr') ? document.getElementById('vendeur-show-qr').checked : true;
@@ -4446,7 +4486,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     try{ localStorage.setItem('vendeurFonts', JSON.stringify({name:fontName, role:fontRole, marque:fontMarque})); }catch(e){}
   };
   window.resetVendeurFonts = function(){
-    document.getElementById('vendeur-font-name').value = "'Plus Jakarta Sans', sans-serif";
+    document.getElementById('vendeur-font-name').value = "'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif";
     document.getElementById('vendeur-font-role').value = "Arial, sans-serif";
     document.getElementById('vendeur-font-marque').value = "'Plus Jakarta Sans', sans-serif";
     applyVendeurFonts();
