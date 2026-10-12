@@ -341,7 +341,38 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
 .badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
   /* ===== NOUVEAU MODELE VENDEUR EXACT - SUIVANT IMAGE FOURNIE ===== */
-.badge-vendeur-exact .bv-header img{filter:none!important;-webkit-filter:none!important;background:transparent!important;}
+
+/* BFMarjane-Black_V1 - Police installée sur PC de l'utilisateur */
+@font-face {
+  font-family: 'BFMarjane-Black_V1';
+  src: local('BFMarjane-Black_V1'), local('BFMarjane Black'), local('BF Marjane Black'), local('BFMarjane-Black');
+  font-weight: 900;
+  font-display: swap;
+}
+.badge-vendeur-exact .bv-name {
+  font-family: 'BFMarjane-Black_V1', 'BFMarjane Black', 'Plus Jakarta Sans', Arial, sans-serif;
+}
+
+
+
+.badge-vendeur-exact .bv-header img {
+  max-height: 50px !important;
+  max-width: 90% !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+}
+.badge-vendeur-exact .bv-header img.force-white {
+  filter: brightness(0) invert(1) !important;
+  -webkit-filter: brightness(0) invert(1) !important;
+}
+
 .badge-vendeur-exact {
   width: 354px !important; height: 228px !important;
   background: #ffffff !important;
@@ -372,7 +403,9 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
   max-height: 46px !important;
   max-width: 88% !important;
   object-fit: contain !important;
-  filter: brightness(0) invert(1) !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  background: transparent !important;
 }
 .badge-vendeur-exact .bv-body {
   padding: 14px 18px 10px 18px !important;
@@ -2236,6 +2269,7 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
     };
     req.onsuccess = function(e){
       db = e.target.result;
+      window.db = db; // FIX EDIT - rendre db global
       loadSettings();
       db.onerror = function(ev){ console.error('DB error:', ev.target.error); };
       refreshAll();
@@ -4618,10 +4652,10 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
       var fontMarque = document.getElementById('vendeur-font-marque').value;
       var pv = document.getElementById('vendeur-badge-preview');
       if(!pv) return;
-      var nameEl = pv.querySelector('#vp-name'); if(nameEl) nameEl.style.fontFamily = fontName;
-      var roleEl = pv.querySelector('.bv-role'); if(roleEl) roleEl.style.fontFamily = fontRole;
-      var roleEl2 = pv.querySelector('#vp-role'); if(roleEl2) roleEl2.style.fontFamily = fontRole;
-      var marqueEl = pv.querySelector('.bv-marque-box'); if(marqueEl) marqueEl.style.fontFamily = fontMarque;
+      var nameEl = pv.querySelector('#vp-name'); if(nameEl) { nameEl.style.setProperty('font-family', fontName, 'important'); }
+      var roleEl = pv.querySelector('.bv-role'); if(roleEl) { roleEl.style.setProperty('font-family', fontRole, 'important'); }
+      var roleEl2 = pv.querySelector('#vp-role'); if(roleEl2) { roleEl2.style.setProperty('font-family', fontRole, 'important'); }
+      var marqueEl = pv.querySelector('.bv-marque-box'); if(marqueEl) { marqueEl.style.setProperty('font-family', fontMarque, 'important'); }
     }catch(e){ console.error(e); }
   };
   window.resetVendeurFonts = function(){
