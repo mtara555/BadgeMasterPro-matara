@@ -341,6 +341,31 @@ body { font-family: var(--font); background: var(--c-bg); color: var(--c-text); 
 .badge-body-with-photo { display: flex; padding: 20px 20px 20px; height: calc(100% - 87px); gap: 15px; }
 .badge-body-no-photo { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px 20px 30px; height: calc(100% - 87px); text-align: center; }
   /* ===== NOUVEAU MODELE VENDEUR EXACT - SUIVANT IMAGE FOURNIE ===== */
+
+.badge-vendeur-exact .bv-header img {
+  max-height: 50px !important;
+  max-width: 90% !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  background: transparent !important;
+}
+.badge-vendeur-exact .bv-header .white-square {
+  background: #ffffff !important;
+  padding: 8px 18px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+}
+.badge-vendeur-exact .bv-header .white-square img {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
 .badge-vendeur-exact {
   width: 354px !important; height: 228px !important;
   background: #ffffff !important;
@@ -1965,82 +1990,128 @@ input[type=range] { width: 100%; accent-color: var(--c-primary); cursor: pointer
 
 <!-- Modal Impression Visiteurs -->
 
-<!-- Modal Nouveau Vendeur - MODELE EXACT -->
+<!-- Modal Nouveau Vendeur - MODELE EXACT - V12 DEFINITIF CARRE BLANC -->
 <div class="modal-overlay" id="vendeur-modal">
-  <div class="modal-box" style="max-width:760px;">
+  <div class="modal-box" style="max-width:920px;">
     <div class="modal-handle"></div>
     <div class="modal-header" style="background:linear-gradient(135deg,#1a56b0,#3b82f6);color:white;">
-      <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur - Modèle Marque</h3>
+      <h3 id="vendeur-modal-title" style="color:white;">🏷️ Nouveau Vendeur - V12</h3>
       <span class="modal-close" onclick="closeVendeurModal()" style="color:white;">×</span>
     </div>
     <div class="modal-body">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-        <!-- Form -->
         <div>
-          <div style="background:rgba(26,86,176,0.06);border:1.5px dashed rgba(26,86,176,0.25);border-radius:10px;padding:10px;margin-bottom:14px;">
-            <div style="font-size:0.75rem;font-weight:700;color:#1a56b0;margin-bottom:4px;">📐 MODÈLE EXACT DE L'IMAGE</div>
-            <div style="font-size:0.7rem;color:#666;">Bande bleue LOGO DU MARQUE + Nom et prenom bleu + Vendeur + MARQUE doré</div>
-          </div>
           <div class="form-grid">
-            <div class="form-group"><label>Prénom *</label><input type="text" id="vendeur-firstname" placeholder="Ex: Ahmed" oninput="updateVendeurPreview()"></div>
-            <div class="form-group"><label>Nom *</label><input type="text" id="vendeur-lastname" placeholder="Ex: Benali" oninput="updateVendeurPreview()"></div>
+            <div class="form-group"><label>PRÉNOM *</label><input type="text" id="vendeur-firstname" placeholder="Mohamed Said" oninput="updateVendeurPreview()"></div>
+            <div class="form-group"><label>NOM *</label><input type="text" id="vendeur-lastname" placeholder="BOUSSOUF" oninput="updateVendeurPreview()"></div>
           </div>
           <div class="form-group">
-            <label>🏷️ MARQUE * (ex: Haier)</label>
-            <input type="text" id="vendeur-marque" placeholder="Ex: Haier, Samsung, LG..." oninput="updateVendeurPreview()" style="border-color:#b89300;font-weight:700;">
-            <div style="font-size:0.68rem;color:#999;margin-top:4px;">Sera affiché en doré: MARQUE: Haier</div>
+            <label>🏷️ MARQUE *</label>
+            <input type="text" id="vendeur-marque" placeholder="TCL / Haier / Beko" oninput="updateVendeurPreview()" style="border-color:#b89300;font-weight:700;">
           </div>
           <div class="form-group">
-            <label>🎪 Événement (optionnel)</label>
-            <select id="vendeur-event"><option value="">-- Aucun --</option></select>
+            <label>🎪 ÉVÉNEMENT</label>
+            <select id="vendeur-event"><option value="">-- Événement (optionnel) --</option></select>
           </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;">
+            <div style="background:#eef4ff;border:2px solid #1a56b0;border-radius:12px;padding:14px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;color:#1a56b0;margin:0;font-size:0.9rem;">
+                <input type="checkbox" id="vendeur-show-qr" checked onchange="updateVendeurPreview()" style="width:22px;height:22px;accent-color:#1a56b0;">
+                📱 QR Code
+              </label>
+              <div style="font-size:0.7rem;color:#555;margin-top:6px;">Cocher = afficher QR sur badge</div>
+            </div>
+            <div style="background:#fff8e1;border:2px solid #ff9800;border-radius:12px;padding:14px;">
+              <label style="font-weight:800;color:#e65100;font-size:0.85rem;display:block;margin-bottom:8px;">🎨 Arrière-plan Logo</label>
+              <select id="vendeur-logo-bg" onchange="updateVendeurPreview()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #ff9800;font-size:0.85rem;font-weight:600;background:white;">
+                <option value="transparent">Transparent - couleur d'origine</option>
+                <option value="white" selected>Blanc - carré blanc ✅</option>
+                <option value="blue">Bleu - direct sur bande bleue</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:0.8rem;cursor:pointer;font-weight:600;">
+                <input type="checkbox" id="vendeur-logo-white" onchange="updateVendeurPreview()" style="width:18px;height:18px;accent-color:#1a56b0;">
+                Forcer logo en blanc
+              </label>
+              <div style="font-size:0.65rem;color:#666;margin-top:6px;">Si fond blanc, logo garde sa couleur (bleu Haier, bleu Beko etc)</div>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>🖼️ Logo de la Marque (affiché dans bande bleue)</label>
-            <div style="display:flex;gap:10px;align-items:center;">
-              <div id="vendeur-logo-preview" style="width:64px;height:64px;background:white;border-radius:10px;border:1.5px solid #ddd;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.4rem;opacity:0.3;">🏷️</span></div>
-              <div style="display:flex;flex-direction:column;gap:6px;">
-                <button class="btn btn-primary btn-sm" onclick="document.getElementById('vendeur-logo-file').click()">📂 Choisir logo marque</button>
+            <label>🖼️ LOGO - COULEUR D'ORIGINE (ROUGE TCL / BLEU HAIER)</label>
+            <div style="display:flex;gap:12px;align-items:center;">
+              <div id="vendeur-logo-preview" style="width:74px;height:74px;background:repeating-conic-gradient(#ddd 0% 25%, white 0% 50%) 0 0/12px 12px;border-radius:12px;border:2px solid #1a56b0;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><span style="font-size:1.6rem;opacity:0.3;">🏷️</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('vendeur-logo-file').click()" style="background:#1a56b0;font-weight:700;">📂 Choisir logo</button>
                 <button class="btn btn-ghost btn-sm" onclick="clearVendeurLogo()">🗑️ Effacer</button>
               </div>
               <input type="file" id="vendeur-logo-file" accept="image/*" style="display:none" onchange="handleVendeurLogoUpload(event)">
             </div>
-            <div style="font-size:0.68rem;color:#666;background:#f0f6ff;padding:6px 8px;border-radius:6px;margin-top:8px;">💡 Si aucun logo, le texte <strong>LOGO DU MARQUE</strong> sera affiché dans la bande bleue comme sur ton image modèle.</div>
+          </div>
+
+          <div style="background:linear-gradient(135deg,rgba(26,86,176,0.08),rgba(79,116,255,0.08));border:2px solid #1a56b0;border-radius:14px;padding:14px;margin-top:14px;">
+            <label style="color:#1a56b0;font-weight:800;font-size:0.9rem;">🔤 Police - BFMarjane-Black_V1 par défaut</label>
+            <select id="vendeur-font-name" onchange="applyVendeurFonts()" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:2px solid #1a56b0;font-weight:700;font-size:0.9rem;">
+              <option value="'BFMarjane-Black_V1', 'BFMarjane Black', sans-serif" selected>BFMarjane-Black_V1 - Défaut PC ✅</option>
+              <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="'Arial Black', sans-serif">Arial Black</option>
+              <option value="'Segoe UI', sans-serif">Segoe UI</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+              <option value="Impact, sans-serif">Impact</option>
+            </select>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <select id="vendeur-font-role" onchange="applyVendeurFonts()" style="padding:8px;border-radius:8px;border:1px solid #ccc;">
+                <option value="'BFMarjane-Black_V1', sans-serif">BFMarjane - Rôle</option>
+                <option value="Arial, sans-serif" selected>Arial - Rôle</option>
+              </select>
+              <select id="vendeur-font-marque" onchange="applyVendeurFonts()" style="padding:8px;border-radius:8px;border:1px solid #ccc;">
+                <option value="'BFMarjane-Black_V1', sans-serif" selected>BFMarjane - Marque</option>
+                <option value="Arial Black, sans-serif">Arial Black</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#f8f9fa;border:1.5px solid #dee2e6;border-radius:12px;padding:14px;margin-top:14px;">
+            <label style="font-weight:800;color:#1a56b0;font-size:0.9rem;">📐 Tailles</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;">
+              <div><label style="font-size:0.75rem;">Nom <span id="vsl-lbl-name">24px</span></label><input type="range" id="vsl-name" min="12" max="36" value="24" oninput="applyVendeurSizes()" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Rôle <span id="vsl-lbl-role">14px</span></label><input type="range" id="vsl-role" min="8" max="20" value="14" oninput="applyVendeurSizes()" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Marque <span id="vsl-lbl-marque">13px</span></label><input type="range" id="vsl-marque" min="8" max="20" value="13" oninput="applyVendeurSizes()" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Header <span id="vsl-lbl-header">62px</span></label><input type="range" id="vsl-header" min="40" max="90" value="62" oninput="applyVendeurSizes()" style="width:100%;"></div>
+              <div><label style="font-size:0.75rem;">Logo <span id="vsl-lbl-logo">50px</span></label><input type="range" id="vsl-logo" min="24" max="80" value="50" oninput="applyVendeurSizes()" style="width:100%;"></div>
+              <div><button class="btn btn-ghost btn-sm" onclick="resetVendeurSizes()" style="margin-top:16px;">↺ Reset</button></div>
+            </div>
           </div>
         </div>
-        <!-- Preview -->
         <div>
-          <div style="font-size:0.72rem;font-weight:700;color:var(--c-text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">🖼️ Aperçu live - Modèle exact</div>
-          <div style="display:flex;justify-content:center;padding:16px;background:repeating-conic-gradient(rgba(0,0,0,0.03) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:12px;border:1px dashed #1a56b0;">
+          <div style="font-size:0.8rem;font-weight:800;color:#1a56b0;margin-bottom:12px;">🖼️ Aperçu - Carré blanc visible</div>
+          <div style="display:flex;justify-content:center;padding:18px;background:repeating-conic-gradient(rgba(0,0,0,0.04) 0% 25%,transparent 0% 50%) 0 0/20px 20px;border-radius:14px;border:2px dashed #1a56b0;">
             <div class="badge-vendeur-exact" id="vendeur-badge-preview">
-              <div class="bv-header">LOGO DU MARQUE</div>
+              <div class="bv-header" style="font-family:'BFMarjane-Black_V1', sans-serif;">LOGO DU MARQUE</div>
               <div class="bv-body">
-                <div class="bv-name" id="vp-name">Nom et prenom</div>
-                <div class="bv-role-line"><div class="bv-role">Vendeur</div></div>
-                <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">Haier</span></div>
+                <div class="bv-name" id="vp-name" style="font-family:'BFMarjane-Black_V1', sans-serif;">Nom et prenom</div>
+                <div class="bv-role-line"><div class="bv-role" id="vp-role">Vendeur</div></div>
+                <div class="bv-marque-box"><strong>MARQUE:</strong> <span id="vp-marque-name">TCL</span></div>
               </div>
               <div class="bv-qr" id="vp-qr"></div>
             </div>
           </div>
-          <div style="margin-top:12px;background:#fffbe6;border:1px solid #ffe082;border-radius:8px;padding:10px;">
-            <div style="font-size:0.75rem;font-weight:700;color:#b89300;">📋 Composition du badge vendeur:</div>
-            <ul style="font-size:0.72rem;color:#666;margin:6px 0 0 16px;line-height:1.5;">
-              <li>Bande bleue #1a56b0 avec logo marque (blanc sur bleu)</li>
-              <li>Nom et prénom en bleu #1a56b0, gras, grand</li>
-              <li>Ligne verticale bleue + texte Vendeur</li>
-              <li>Pastille gris clair avec MARQUE: en doré</li>
-              <li>Bordure noire fine 1.8px comme modèle</li>
-            </ul>
+          <div style="margin-top:12px;background:#e8f5e9;border:1.5px solid #4caf50;border-radius:10px;padding:10px;">
+            <div style="font-size:0.78rem;font-weight:700;color:#2e7d32;">✅ Mode Blanc carré blanc :</div>
+            <div style="font-size:0.7rem;color:#555;margin-top:4px;">Un carré blanc avec le logo en couleur (Haier bleu, Beko bleu) sur bande bleue. Bien visible !</div>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeVendeurModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="saveVendeur()" style="background:#1a56b0;">💾 Enregistrer Vendeur</button>
+      <button class="btn btn-primary" onclick="saveVendeur()" style="background:#1a56b0;font-weight:800;padding:12px 28px;font-size:1rem;">💾 Enregistrer Vendeur</button>
     </div>
   </div>
 </div>
 
+<!-- Modal Impression Vendeurs -->
 <!-- Modal Impression Vendeurs -->
 <div class="modal-overlay" id="vendeur-print-modal">
   <div class="modal-box print-modal-box" style="max-width:min(95vw,980px)!important;">
